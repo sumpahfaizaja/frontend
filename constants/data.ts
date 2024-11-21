@@ -434,19 +434,19 @@ export const navItems: Record<
     label: 'Overview',
     items: [
       {
-        title: 'Dashboard',
+        title: 'Dashboard Mahasiswa',
         href: '/dashboard',
         icon: 'dashboard',
         label: 'Dashboard'
       },
       {
-        title: 'Program',
+        title: 'Program Mahasiswa',
         href: '/dashboard/program',
         icon: 'briefcase',
         label: 'program'
       },
       {
-        title: 'Kegiatan',
+        title: 'Kegiatan Mahasiswa',
         href: '/dashboard/kegiatan',
         icon: 'profile',
         label: 'kegiatan'

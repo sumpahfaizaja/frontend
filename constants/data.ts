@@ -434,7 +434,7 @@ export const navItems: Record<
     label: 'Overview',
     items: [
       {
-        title: 'Dashboard Mahasiswa',
+        title: 'Dashboard Koordinator',
         href: '/dashboard',
         icon: 'dashboard',
         label: 'Dashboard'

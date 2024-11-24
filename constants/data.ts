@@ -484,7 +484,7 @@ export const navItems: Record<
     items: [
       {
         title: 'Data Mahasiswa',
-        href: '/dashboard/mahasiswa',
+        href: '/dashboard/datamahasiswa',
         icon: 'graduation-cap',
         label: 'mahasiswa'
       }

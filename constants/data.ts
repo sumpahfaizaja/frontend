@@ -440,24 +440,6 @@ export const navItems: Record<
         label: 'Dashboard'
       },
       {
-        title: 'Dashboard Koordinator',
-        href: '/dashboardkoordinator',
-        icon: 'dashboard',
-        label: 'Dashboard Koordinator'
-      },
-      {
-        title: 'Dashboard Dosen Pembimbing',
-        href: '/dashboarddosbing',
-        icon: 'dashboard',
-        label: 'Dashboard Dosen Pembimbing'
-      },
-      {
-        title: 'Dashboard Admin',
-        href: '/dashboardadmin',
-        icon: 'dashboard',
-        label: 'Dashboard Admin'
-      },
-      {
         title: 'Program Mahasiswa',
         href: '/dashboard/program',
         icon: 'briefcase',
@@ -497,14 +479,84 @@ export const navItems: Record<
       }
     ]
   },
-  user: {
+  koordinator: {
+    label: 'Koordinator',
+    items: [
+      {
+        title: 'Dashboard Koordinator',
+        href: '/dashboardkoordinator',
+        icon: 'dashboard',
+        label: 'Dashboard Koordinator'
+      },
+      {
+        title: 'Data Mahasiswa',
+        href: '/dashboardkoordinator/mahasiswa',
+        icon: 'graduation-cap',
+        label: 'Mahasiswa'
+      },
+      {
+        title: 'Manajemen Program',
+        href: '/dashboardkoordinator/manajemen',
+        icon: 'graduation-cap',
+        label: 'Manajemen Program'
+      },
+      {
+        title: 'Verifikasi Program',
+        href: '/dashboardkoordinator/verifikasi',
+        icon: 'graduation-cap',
+        label: 'verifikasi'
+      }
+    ]
+  },
+  dosen: {
     label: 'Dosen',
     items: [
       {
+        title: 'Dashboard',
+        href: '/dashboarddosbing',
+        icon: 'dashboard',
+        label: 'Dashboard Koordinator'
+      },
+      {
         title: 'Data Mahasiswa',
-        href: '/dashboard/datamahasiswa',
+        href: '/dashboarddosbing/mahasiswa',
         icon: 'graduation-cap',
-        label: 'mahasiswa'
+        label: 'Mahasiswa'
+      },
+      {
+        title: 'Program Saya',
+        href: '/dashboarddosbing/program',
+        icon: 'graduation-cap',
+        label: 'Program Saya'
+      },
+      {
+        title: 'Logbook',
+        href: '/dashboarddosbing/logbook',
+        icon: 'graduation-cap',
+        label: 'Logbook'
+      },
+      {
+        title: 'Penilaian',
+        href: '/dashboarddosbing/nilai',
+        icon: 'graduation-cap',
+        label: 'Penilaian'
+      }
+    ]
+  },
+  admin: {
+    label: 'Admin',
+    items: [
+      {
+        title: 'Dashboard Admin',
+        href: '/dashboardadmin',
+        icon: 'dashboard',
+        label: 'Dashboard Admin'
+      },
+      {
+        title: 'Nilai & Konversi',
+        href: '/dashboardadmin/nilaikonversi',
+        icon: 'graduation-cap',
+        label: 'Nilai & Konversi'
       }
     ]
   },

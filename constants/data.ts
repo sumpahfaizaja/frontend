@@ -434,10 +434,28 @@ export const navItems: Record<
     label: 'Overview',
     items: [
       {
-        title: 'Dashboard Koordinator',
+        title: 'Dashboard',
         href: '/dashboard',
         icon: 'dashboard',
         label: 'Dashboard'
+      },
+      {
+        title: 'Dashboard Koordinator',
+        href: '/dashboardkoordinator',
+        icon: 'dashboard',
+        label: 'Dashboard Koordinator'
+      },
+      {
+        title: 'Dashboard Dosen Pembimbing',
+        href: '/dashboarddosbing',
+        icon: 'dashboard',
+        label: 'Dashboard Dosen Pembimbing'
+      },
+      {
+        title: 'Dashboard Admin',
+        href: '/dashboardadmin',
+        icon: 'dashboard',
+        label: 'Dashboard Admin'
       },
       {
         title: 'Program Mahasiswa',

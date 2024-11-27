@@ -75,23 +75,31 @@ export default function AdminGradesPage() {
   };
 
   const handleCancelKonversi = async (id) => {
-    try {
-      // Update status konversi di UI menjadi belum selesai
-      setStudentGrades((prevState) =>
-        prevState.map((grade) =>
-          grade.id === id ? { ...grade, konversi_selesai: false } : grade
-        )
-      );
+    const confirmCancel = window.confirm(
+      'Apakah Anda yakin ingin membatalkan konversi nilai?'
+    );
 
-      // Kirim update ke API untuk membatalkan konversi
-      await axios.put(`${API_BASE_URL}/konversi-nilai/${id}`, {
-        konversi_selesai: false
-      });
+    if (confirmCancel) {
+      try {
+        // Update status konversi di UI menjadi belum selesai
+        setStudentGrades((prevState) =>
+          prevState.map((grade) =>
+            grade.id === id ? { ...grade, konversi_selesai: false } : grade
+          )
+        );
 
-      alert('Konversi dibatalkan!');
-    } catch (error) {
-      console.error('Error membatalkan konversi:', error);
-      alert('Terjadi kesalahan saat membatalkan konversi.');
+        // Kirim update ke API untuk membatalkan konversi
+        await axios.put(`${API_BASE_URL}/konversi-nilai/${id}`, {
+          konversi_selesai: false
+        });
+
+        alert('Konversi dibatalkan!');
+      } catch (error) {
+        console.error('Error membatalkan konversi:', error);
+        alert('Terjadi kesalahan saat membatalkan konversi.');
+      }
+    } else {
+      alert('Konversi tidak dibatalkan.');
     }
   };
 

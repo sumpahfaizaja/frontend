@@ -484,25 +484,25 @@ export const navItems: Record<
     items: [
       {
         title: 'Dashboard Koordinator',
-        href: '/dashboardkoordinator',
+        href: '/dashboard-koordinator',
         icon: 'dashboard',
         label: 'Dashboard Koordinator'
       },
       {
         title: 'Data Mahasiswa',
-        href: '/dashboardkoordinator/mahasiswa',
+        href: '/dashboard-koordinator/mahasiswa',
         icon: 'graduation-cap',
         label: 'Mahasiswa'
       },
       {
         title: 'Manajemen Program',
-        href: '/dashboardkoordinator/manajemen',
+        href: '/dashboard-koordinator/manajemen',
         icon: 'graduation-cap',
         label: 'Manajemen Program'
       },
       {
         title: 'Verifikasi Program',
-        href: '/dashboardkoordinator/verifikasi',
+        href: '/dashboard-koordinator/verifikasi',
         icon: 'graduation-cap',
         label: 'verifikasi'
       }
@@ -513,31 +513,31 @@ export const navItems: Record<
     items: [
       {
         title: 'Dashboard',
-        href: '/dashboarddosbing',
+        href: '/dashboard-dosbing',
         icon: 'dashboard',
         label: 'Dashboard Koordinator'
       },
       {
         title: 'Data Mahasiswa',
-        href: '/dashboarddosbing/mahasiswa',
+        href: '/dashboard-dosbing/mahasiswa',
         icon: 'graduation-cap',
         label: 'Mahasiswa'
       },
       {
         title: 'Program Saya',
-        href: '/dashboarddosbing/program',
+        href: '/dashboard-dosbing/program',
         icon: 'graduation-cap',
         label: 'Program Saya'
       },
       {
         title: 'Logbook',
-        href: '/dashboarddosbing/logbook',
+        href: '/dashboard-dosbing/logbook',
         icon: 'graduation-cap',
         label: 'Logbook'
       },
       {
         title: 'Penilaian',
-        href: '/dashboarddosbing/nilai',
+        href: '/dashboard-dosbing/nilai',
         icon: 'graduation-cap',
         label: 'Penilaian'
       }
@@ -548,13 +548,13 @@ export const navItems: Record<
     items: [
       {
         title: 'Dashboard Admin',
-        href: '/dashboardadmin',
+        href: '/dashboard-admin',
         icon: 'dashboard',
         label: 'Dashboard Admin'
       },
       {
         title: 'Nilai & Konversi',
-        href: '/dashboardadmin/nilaikonversi',
+        href: '/dashboard-admin/nilaikonversi',
         icon: 'graduation-cap',
         label: 'Nilai & Konversi'
       }

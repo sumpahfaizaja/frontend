@@ -554,7 +554,7 @@ export const navItems: Record<
       },
       {
         title: 'Nilai & Konversi',
-        href: '/dashboard-admin/nilaikonversi',
+        href: '/dashboard-admin/nilai-konversi',
         icon: 'graduation-cap',
         label: 'Nilai & Konversi'
       }

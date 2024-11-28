@@ -28,7 +28,6 @@ type UserFormValue = z.infer<typeof formSchema>;
 
 export default function SignInForm() {
   const [loading, setLoading] = useState(false);
-  const [callbackUrl, setCallbackUrl] = useState('/dashboard');
   const [error, setError] = useState('');
 
   const form = useForm<UserFormValue>({
@@ -58,8 +57,8 @@ export default function SignInForm() {
         throw new Error(result.message || 'Login failed');
       }
 
-      localStorage.setItem('token', result.token);
-      router.push(callbackUrl);
+      document.cookie = `token=${result.token}; path=/; SameSite=Strict`;
+      router.push('/dashboard');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);

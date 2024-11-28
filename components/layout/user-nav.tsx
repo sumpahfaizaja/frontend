@@ -28,7 +28,8 @@ export function UserNav() {
   const router = useRouter();
 
   const handleSignOut = () => {
-    router.push('/login');
+    document.cookie = 'token=; path=/; Max-Age=-1';
+    router.push('/');
   };
 
   return (

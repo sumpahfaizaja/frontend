@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 import axios from 'axios';
 
 // URL API
@@ -14,20 +16,34 @@ interface Mahasiswa {
 export default function DashboardPage() {
   const [student, setStudent] = useState<Mahasiswa | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchStudentData();
+    const token = Cookies.get('token'); // Ambil token dari cookies
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<{ NIM: string }>(token); // Decode token
+        const nim = decodedToken.NIM; // Ambil NIM dari token
+        fetchStudentData(nim); // Ambil data mahasiswa berdasarkan NIM
+      } catch (err) {
+        setError('Token tidak valid');
+        setLoading(false);
+      }
+    } else {
+      setError('Token tidak ditemukan');
+      setLoading(false);
+    }
   }, []);
 
-  // Fungsi untuk mem-fetch data mahasiswa
-  const fetchStudentData = async () => {
+  // Fungsi untuk mengambil data mahasiswa berdasarkan NIM
+  const fetchStudentData = async (nim: string) => {
     try {
-      const response = await axios.get<Mahasiswa[]>(API_BASE_URL); // Ambil semua data mahasiswa
-      if (response.data.length > 0) {
-        setStudent(response.data[0]); // Ambil mahasiswa pertama sebagai contoh
-      }
+      const response = await axios.get<Mahasiswa>(`${API_BASE_URL}/${nim}`);
+      setStudent(response.data); // Set data mahasiswa
     } catch (error) {
-      console.error('Error fetching student data:', error);
+      console.error('Error saat mengambil data mahasiswa:', error);
+      setError('Gagal mengambil data mahasiswa');
     } finally {
       setLoading(false);
     }
@@ -38,9 +54,11 @@ export default function DashboardPage() {
       <h1 className="mb-6 text-2xl font-bold">Dashboard MBKM</h1>
       {loading ? (
         <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
       ) : student ? (
         <div className="rounded-lg border border-gray-300 p-4 shadow-md">
-          <h2 className="mb-4 text-xl font-semibold">Selamat Datang</h2>
+          <h2 className="mb-4 text-xl font-semibold">Halo, Mahasiswa</h2>
           <p className="text-lg">
             <strong>{student.nama_mahasiswa.toUpperCase()}</strong>
           </p>
@@ -49,22 +67,21 @@ export default function DashboardPage() {
             Selamat datang di portal Merdeka Belajar Kampus Merdeka (MBKM).
           </p>
           <p>
-            Kampus Merdeka adalah bagian dari kebijakan Merdeka Belajar oleh
+            Kampus Merdeka adalah bagian dari inisiatif Merdeka Belajar oleh
             Kemendikbud Ristek untuk mempersiapkan mahasiswa menghadapi karier
-            di masa depan.
+            masa depan.
           </p>
-          {/* Tombol dengan link ke mbkm.undip.ac.id */}
           <a
             href="https://mbkm.undip.ac.id/"
             target="_blank"
             rel="noopener noreferrer"
             className="mt-4 inline-block rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
           >
-            Lihat Website MBKM UNDIP
+            Kunjungi Website MBKM UNDIP
           </a>
         </div>
       ) : (
-        <p>Tidak ada data mahasiswa tersedia.</p>
+        <p>Data mahasiswa tidak tersedia.</p>
       )}
     </div>
   );

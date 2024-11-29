@@ -8,6 +8,7 @@ import PageContainer from '@/components/layout/page-container';
 import { ChevronLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -17,9 +18,19 @@ interface StudentDetails {
   semester: number;
   id_program_mbkm: string;
   NIP_dosbing: string;
-  email?: string;
   jurusan?: string;
   prodi?: string;
+}
+
+interface Program {
+  id: string;
+  company: string;
+  role: string;
+}
+
+interface Dosen {
+  NIP: string;
+  nama_dosbing: string;
 }
 
 const EditMahasiswaPage = () => {
@@ -33,11 +44,11 @@ const EditMahasiswaPage = () => {
     semester: 1,
     id_program_mbkm: '',
     NIP_dosbing: '',
-    email: '',
     jurusan: '',
     prodi: ''
   });
-
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [dosens, setDosens] = useState<Dosen[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,6 +60,10 @@ const EditMahasiswaPage = () => {
       link: `/dashboard-koordinator/mahasiswa/${NIM}/edit`
     }
   ];
+
+  const getAuthToken = () => {
+    return Cookies.get('token');
+  };
 
   // Fetch student details
   useEffect(() => {
@@ -64,8 +79,28 @@ const EditMahasiswaPage = () => {
       }
     };
 
+    const fetchPrograms = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/program-mbkm`);
+        setPrograms(response.data);
+      } catch (err) {
+        console.error('Error fetching programs:', err);
+      }
+    };
+
+    const fetchDosens = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/dosbing`);
+        setDosens(response.data);
+      } catch (err) {
+        console.error('Error fetching dosens:', err);
+      }
+    };
+
     if (NIM) {
       fetchStudentDetails();
+      fetchPrograms();
+      fetchDosens();
     }
   }, [NIM]);
 
@@ -85,7 +120,12 @@ const EditMahasiswaPage = () => {
     e.preventDefault();
 
     try {
-      await axios.put(`${API_BASE_URL}/mahasiswa/${NIM}`, student);
+      const token = getAuthToken();
+      await axios.put(`${API_BASE_URL}/mahasiswa/${NIM}`, student, {
+        headers: {
+          Authorization: `Bearer ${token}` // Add token to the request headers
+        }
+      });
       router.push('/dashboard-koordinator/mahasiswa');
     } catch (err) {
       console.error('Error updating student:', err);
@@ -98,7 +138,7 @@ const EditMahasiswaPage = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          className="h-8 w-8 m-6 md:m-12 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -157,7 +197,6 @@ const EditMahasiswaPage = () => {
                 name="NIM"
                 value={student.NIM}
                 disabled
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm"
               />
             </div>
 
@@ -174,27 +213,7 @@ const EditMahasiswaPage = () => {
                 id="nama_mahasiswa"
                 name="nama_mahasiswa"
                 value={student.nama_mahasiswa}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email
-              </label>
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={student.email || ''}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                disabled
               />
             </div>
 
@@ -206,19 +225,13 @@ const EditMahasiswaPage = () => {
               >
                 Semester
               </label>
-              <select
+              <Input
+                type="number"
                 id="semester"
                 name="semester"
                 value={student.semester}
                 onChange={handleInputChange}
-                className="mt-1 block h-9 w-full rounded-md border border-gray-300 px-2 shadow-sm"
-              >
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
-                  <option key={sem} value={sem}>
-                    {sem}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {/* Program MBKM */}
@@ -229,14 +242,20 @@ const EditMahasiswaPage = () => {
               >
                 Program MBKM
               </label>
-              <Input
-                type="text"
+              <select
                 id="id_program_mbkm"
                 name="id_program_mbkm"
                 value={student.id_program_mbkm}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
+                className="h-9 w-full rounded-md border border-gray-300"
+              >
+                <option value="">Pilih Program</option>
+                {programs.map((program) => (
+                  <option key={program.id} value={program.id}>
+                    {program.company} - {program.role}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Dosen Pembimbing */}
@@ -245,33 +264,31 @@ const EditMahasiswaPage = () => {
                 htmlFor="NIP_dosbing"
                 className="block text-sm font-medium text-gray-700"
               >
-                NIP Dosen Pembimbing
+                Dosen Pembimbing
               </label>
-              <Input
-                type="text"
+              <select
                 id="NIP_dosbing"
                 name="NIP_dosbing"
                 value={student.NIP_dosbing}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
+                className="h-9 w-full rounded-md border border-gray-300"
+              >
+                <option value="">Pilih Dosen Pembimbing</option>
+                {dosens.map((dosen) => (
+                  <option key={dosen.NIP} value={dosen.NIP}>
+                    {dosen.nama_dosbing}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex justify-end space-x-4">
-            <Link
-              href="/dashboard-koordinator/mahasiswa"
-              className="rounded-md border px-4 py-2 hover:bg-gray-100"
-            >
-              Batal
-            </Link>
+          <div className="flex justify-end gap-x-4">
             <button
               type="submit"
-              className="flex items-center gap-x-2 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+              className="inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 focus:outline-none"
             >
-              <Save size={16} />
-              Simpan Perubahan
+              <Save size={16} /> Simpan
             </button>
           </div>
         </form>

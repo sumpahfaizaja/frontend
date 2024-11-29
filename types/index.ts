@@ -2,7 +2,7 @@ import { Icons } from '@/components/icons';
 
 export interface NavItem {
   title: string;
-  href?: string;
+  href: string;
   disabled?: boolean;
   external?: boolean;
   icon?: keyof typeof Icons;
@@ -10,11 +10,14 @@ export interface NavItem {
   description?: string;
 }
 
-export interface NavItemWithChildren extends NavItem {
-  items: NavItem[];
-}
+export type NavItemWithChildren = NavItem & {
+  items: NavItemOrSeparator[];
+};
 
-export type NavItemOrSeparator = NavItem | NavItemWithChildren | { separator: true };
+export type NavItemOrSeparator =
+  | NavItem
+  | NavItemWithChildren
+  | { separator: true };
 
 export interface FooterItem {
   title: string;

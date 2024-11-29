@@ -1,245 +1,267 @@
-'use client';
+'use client'; // Ensure this component is client-side
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation in App Router
+import axios from 'axios';
+import PageContainer from '@/components/layout/page-container';
+import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
 
-// Data Dummy
-const logbookData = [
-  {
-    id: 1,
-    tanggal_upload: '2024-11-25',
-    tanggal_laporan: '2024-11-24',
-    catatan: 'Laporan harian kegiatan magang di perusahaan ABC.',
-    jenis_laporan: 'Laporan Harian',
-    status: 'Belum Diverifikasi',
-    keterangan: 'Menunggu konfirmasi',
-    file_url: 'https://example.com/laporan1.pdf',
-    diverifikasi: false,
-    NIM: '12345678'
-  },
-  {
-    id: 2,
-    tanggal_upload: '2024-11-26',
-    tanggal_laporan: '2024-11-25',
-    catatan: 'Laporan mingguan kegiatan studi independen.',
-    jenis_laporan: 'Laporan Mingguan',
-    status: 'Sudah Diverifikasi',
-    keterangan: 'Laporan valid',
-    file_url: 'https://example.com/laporan2.pdf',
-    diverifikasi: true,
-    NIM: '87654321'
-  }
-];
+// API base URL
+const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-const mahasiswaData = [
-  {
-    NIM: '12345678',
-    nama_mahasiswa: 'John Doe',
-    semester: 5,
-    id_program_mbkm: 1,
-    NIP_dosbing: '987654321'
-  },
-  {
-    NIM: '87654321',
-    nama_mahasiswa: 'Jane Smith',
-    semester: 7,
-    id_program_mbkm: 2,
-    NIP_dosbing: '123456789'
-  }
-];
+interface Report {
+  id: number;
+  tanggal_laporan: string;
+  jenis_laporan: string;
+  status: string;
+  file?: string;
+  keterangan_prodi: string;
+}
 
-const programMBKMData = [
-  {
-    id: 1,
-    nama_program: 'Magang di Perusahaan ABC',
-    deskripsi: 'Program magang selama 6 bulan di perusahaan ABC.'
-  },
-  {
-    id: 2,
-    nama_program: 'Studi Independen Data Science',
-    deskripsi: 'Program studi independen selama 6 bulan tentang Data Science.'
-  }
-];
+interface NewReport {
+  nama_laporan: string;
+  jenis_laporan: string;
+  tanggal_laporan: string;
+  log_aktivitas: string;
+  file: File | null;
+}
 
-const dosbingData = [
-  {
-    NIP_dosbing: '987654321',
-    nama_dosbing: 'Dr. Alice Johnson'
-  },
-  {
-    NIP_dosbing: '123456789',
-    nama_dosbing: 'Prof. Bob Anderson'
-  }
-];
-
-// Komponen Utama
-export default function App() {
-  const [logbooks, setLogbooks] = useState([]);
-  const [mahasiswa, setMahasiswa] = useState([]);
-  const [programMBKM, setProgramMBKM] = useState([]);
-  const [dosbing, setDosbing] = useState([]);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    // Simulasi pengambilan data (dari data dummy langsung)
-    setLogbooks(logbookData);
-    setMahasiswa(mahasiswaData);
-    setProgramMBKM(programMBKMData);
-    setDosbing(dosbingData);
-  }, []);
-
-  // Filter logbooks based on search query matching mahasiswa name
-  const filteredLogbooks = logbooks.filter((logbook) => {
-    const mahasiswaInfo = mahasiswa.find((mhs) => mhs.NIM === logbook.NIM);
-    return mahasiswaInfo?.nama_mahasiswa
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+export default function LogbookPage() {
+  const [programDetails, setProgramDetails] = useState<any>(null);
+  const [reports, setReports] = useState<Report[]>([]); // Store reports with specific type
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [newReport, setNewReport] = useState<NewReport>({
+    nama_laporan: '',
+    jenis_laporan: '',
+    tanggal_laporan: '',
+    log_aktivitas: '',
+    file: null
   });
 
+  const router = useRouter();
+  const programId = new URLSearchParams(window.location.search).get(
+    'id_program_mbkm'
+  ); // Get the ID from the query params
+
+  useEffect(() => {
+    if (programId) {
+      fetchProgramDetails();
+      fetchReports();
+    }
+  }, [programId]);
+
+  // Fetch program details
+  const fetchProgramDetails = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/program-mbkm/${programId}`
+      );
+      setProgramDetails(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching program details:', error);
+      setLoading(false);
+    }
+  };
+
+  // Fetch reports from backend
+  const fetchReports = async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/logbook?programId=${programId}`
+      );
+      setReports(response.data); // Set the reports data
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
+  };
+
+  // Handle modal input change
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setNewReport((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle file input change
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    setNewReport((prev) => ({
+      ...prev,
+      file: file
+    }));
+  };
+
+  // Handle form submission to add new report
+  const handleSubmitReport = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('nama_laporan', newReport.nama_laporan);
+      formData.append('jenis_laporan', newReport.jenis_laporan);
+      formData.append('tanggal_laporan', newReport.tanggal_laporan);
+      formData.append('log_aktivitas', newReport.log_aktivitas);
+      if (newReport.file) {
+        formData.append('file', newReport.file);
+      }
+
+      await axios.post(`${API_BASE_URL}/logbook`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      setShowModal(false); // Close modal after adding report
+      fetchReports(); // Refresh the report list after adding a new one
+    } catch (error) {
+      console.error('Error submitting report:', error);
+    }
+  };
+
+  // Toggle modal visibility
+  const toggleModal = () => {
+    setShowModal((prev) => !prev);
+  };
+
+  // If loading, show a loading message
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold">Dashboard</h1>
-
-      {/* Search Input */}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Cari Nama Mahasiswa..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full max-w-sm rounded border p-2"
+    <PageContainer>
+      <div className="flex flex-col gap-y-4">
+        <Heading
+          title={`Logbook`}
+          description="Daftar logbook yang telah dikirim oleh tiap-tiap mahasiswa."
         />
-      </div>
 
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Logbook</h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr>
-              <th className="border border-gray-300 px-4 py-2">
-                Nama Mahasiswa
-              </th>
-              <th className="border border-gray-300 px-4 py-2">
-                Tanggal Upload
-              </th>
-              <th className="border border-gray-300 px-4 py-2">
-                Tanggal Laporan
-              </th>
-              <th className="border border-gray-300 px-4 py-2">Catatan</th>
-              <th className="border border-gray-300 px-4 py-2">
-                Jenis Laporan
-              </th>
-              <th className="border border-gray-300 px-4 py-2">Status</th>
-              <th className="border border-gray-300 px-4 py-2">Keterangan</th>
-              <th className="border border-gray-300 px-4 py-2">File Laporan</th>
-              <th className="border border-gray-300 px-4 py-2">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLogbooks.map((logbook) => {
-              const mahasiswaInfo = mahasiswa.find(
-                (mhs) => mhs.NIM === logbook.NIM
-              );
-              return (
-                <tr key={logbook.id}>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      onClick={() => setSelectedMahasiswa(mahasiswaInfo)}
-                      className="text-blue-500 underline"
-                    >
-                      {mahasiswaInfo?.nama_mahasiswa || 'Tidak Ditemukan'}
-                    </button>
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.tanggal_upload}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.tanggal_laporan}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.catatan}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.jenis_laporan}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.status}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {logbook.keterangan}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <a
-                      href={logbook.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 underline"
-                    >
-                      Lihat File
-                    </a>
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    <button
-                      className={`px-4 py-2 ${
-                        logbook.diverifikasi ? 'bg-green-500' : 'bg-gray-500'
-                      } rounded text-white`}
-                      onClick={() => handleVerifikasi(logbook.id)}
-                    >
-                      {logbook.diverifikasi ? 'Terverifikasi' : 'Verifikasi'}
-                    </button>
+        {/* Table for reports */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Tanggal Laporan, Upload</th>
+                <th>Jenis Laporan</th>
+                <th>Status</th>
+                <th>File</th>
+                <th>Keterangan Prodi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {/* If no reports, show no rows and only the message */}
+              {reports.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-4 text-center">
+                    <i>No reports available. Please add a report.</i>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </section>
-
-      {/* Modal untuk Informasi Mahasiswa */}
-      {selectedMahasiswa && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="rounded bg-white p-6 shadow-md">
-            <h3 className="mb-4 text-xl font-semibold">Informasi Mahasiswa</h3>
-            <p>
-              <strong>NIM:</strong> {selectedMahasiswa.NIM}
-            </p>
-            <p>
-              <strong>Nama:</strong> {selectedMahasiswa.nama_mahasiswa}
-            </p>
-            <p>
-              <strong>Semester:</strong> {selectedMahasiswa.semester}
-            </p>
-            <p>
-              <strong>Program MBKM:</strong>{' '}
-              {programMBKM.find(
-                (program) => program.id === selectedMahasiswa.id_program_mbkm
-              )?.nama_program || 'Tidak Ditemukan'}
-            </p>
-            <p>
-              <strong>Dosen Pembimbing:</strong>{' '}
-              {dosbing.find(
-                (dosen) => dosen.NIP_dosbing === selectedMahasiswa.NIP_dosbing
-              )?.nama_dosbing || 'Tidak Ditemukan'}
-            </p>
-            <button
-              onClick={() => setSelectedMahasiswa(null)}
-              className="mt-4 rounded bg-blue-500 px-4 py-2 text-white"
-            >
-              Tutup
-            </button>
-          </div>
+              ) : (
+                reports.map((report, index) => (
+                  <tr key={report.id}>
+                    <td>{index + 1}</td>
+                    <td>{report.tanggal_laporan}</td>
+                    <td>{report.jenis_laporan}</td>
+                    <td>{report.status}</td>
+                    <td>{report.file ? 'File Uploaded' : 'No File'}</td>
+                    <td>{report.keterangan_prodi}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
-  );
 
-  function handleVerifikasi(id) {
-    setLogbooks((prevLogbooks) =>
-      prevLogbooks.map((logbook) =>
-        logbook.id === id
-          ? { ...logbook, diverifikasi: !logbook.diverifikasi }
-          : logbook
-      )
-    );
-  }
+        {/* Add report button */}
+        <Button onClick={toggleModal}>Tambah Laporan</Button>
+
+        {/* Modal for adding new report */}
+        {showModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full max-w-lg rounded-lg bg-white p-6">
+              <h3 className="mb-4 text-xl">Set Nama Laporan</h3>
+              <div>
+                <label htmlFor="nama_laporan">Nama Laporan</label>
+                <input
+                  id="nama_laporan"
+                  name="nama_laporan"
+                  type="text"
+                  className="mt-2 w-full"
+                  value={newReport.nama_laporan}
+                  onChange={handleInputChange}
+                  placeholder="Masukkan Nama Laporan"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="jenis_laporan">Jenis Laporan</label>
+                <select
+                  id="jenis_laporan"
+                  name="jenis_laporan"
+                  className="mt-2 w-full"
+                  value={newReport.jenis_laporan}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Pilih Jenis Laporan</option>
+                  <option value="laporan_harian">Laporan Harian</option>
+                  <option value="laporan_mingguan">Laporan Mingguan</option>
+                  <option value="laporan_bulanan">Laporan Bulanan</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="tanggal_laporan">Tanggal Laporan</label>
+                <input
+                  id="tanggal_laporan"
+                  name="tanggal_laporan"
+                  type="date"
+                  className="mt-2 w-full"
+                  value={newReport.tanggal_laporan}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="log_aktivitas">Log Kegiatan</label>
+                <textarea
+                  id="log_aktivitas"
+                  name="log_aktivitas"
+                  className="mt-2 w-full"
+                  value={newReport.log_aktivitas}
+                  onChange={handleInputChange}
+                  placeholder="Masukkan Deskripsi Kegiatan"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="file">Berkas (Opsional)</label>
+                <input
+                  id="file"
+                  name="file"
+                  type="file"
+                  className="mt-2 w-full"
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              <div className="mt-4">
+                <Button onClick={handleSubmitReport}>Simpan</Button>
+                <Button onClick={toggleModal} className="ml-2">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </PageContainer>
+  );
 }

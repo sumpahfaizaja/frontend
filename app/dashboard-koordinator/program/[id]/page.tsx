@@ -10,85 +10,53 @@ import Link from 'next/link';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-interface StudentDetails {
-  NIM: string;
-  nama_mahasiswa: string;
-  semester: number;
+interface ProgramMBKMDetails {
   id_program_mbkm: string;
-  NIP_dosbing: string;
-  jurusan?: string;
-  prodi?: string;
-}
-
-interface ProgramDetails {
-  id_program_mbkm: number;
   company: string;
-  deskripsi: string | null;
+  deskripsi: string;
   role: string;
   status: string;
   date: string;
   category_id: string;
 }
 
-interface DosbingDetails {
-  NIP_dosbing: string;
-  nama_dosbing: string;
-}
-
-const DetailMahasiswaPage = () => {
+const DetailProgramMBKMPage = () => {
   const params = useParams<{ id: string }>();
-  const NIM = params.id as string;
+  const idProgramMBKM = params.id as string;
 
-  const [student, setStudent] = useState<StudentDetails>({
-    NIM: '',
-    nama_mahasiswa: '',
-    semester: 1,
-    id_program_mbkm: '',
-    NIP_dosbing: ''
-  });
-
-  const [program, setProgram] = useState<ProgramDetails | null>(null);
-  const [dosbing, setDosbing] = useState<DosbingDetails | null>(null);
+  const [program, setProgram] = useState<ProgramMBKMDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const breadcrumbItems = [
     { title: 'Dashboard', link: '/dashboard-koordinator' },
-    { title: 'Data Mahasiswa', link: '/dashboard-koordinator/mahasiswa' },
+    { title: 'Data Program MBKM', link: '/dashboard-koordinator/program-mbkm' },
     {
-      title: 'Detail Mahasiswa',
-      link: `/dashboard-koordinator/mahasiswa/${NIM}`
+      title: 'Detail Program MBKM',
+      link: `/dashboard-koordinator/program-mbkm/${idProgramMBKM}`
     }
   ];
 
-  // Fetch student details
+  // Fetch program details
   useEffect(() => {
-    const fetchStudentDetails = async () => {
+    const fetchProgramDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`);
-        setStudent(response.data);
-        // Fetch program and dosbing details after student details
-        const programResponse = await axios.get(
-          `${API_BASE_URL}/program-mbkm/${response.data.id_program_mbkm}`
+        const response = await axios.get(
+          `${API_BASE_URL}/program-mbkm/${idProgramMBKM}`
         );
-        const dosbingResponse = await axios.get(
-          `${API_BASE_URL}/dosbing/${response.data.NIP_dosbing}`
-        );
-
-        setProgram(programResponse.data);
-        setDosbing(dosbingResponse.data);
+        setProgram(response.data);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching student details:', err);
-        setError('Gagal memuat data mahasiswa');
+        console.error('Error fetching program details:', err);
+        setError('Gagal memuat data program');
         setLoading(false);
       }
     };
 
-    if (NIM) {
-      fetchStudentDetails();
+    if (idProgramMBKM) {
+      fetchProgramDetails();
     }
-  }, [NIM]);
+  }, [idProgramMBKM]);
 
   if (loading) {
     return (
@@ -128,52 +96,51 @@ const DetailMahasiswaPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
             <Link
-              href="/dashboard-koordinator/mahasiswa"
+              href="/dashboard-koordinator/program-mbkm"
               className="rounded-full p-2 hover:bg-gray-100"
             >
               <ChevronLeft size={24} />
             </Link>
-            <h1 className="text-2xl font-bold">Detail Mahasiswa</h1>
+            <h1 className="text-2xl font-bold">Detail Program MBKM</h1>
           </div>
         </div>
 
-        {/* Student Details */}
+        {/* Program Details */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* NIM */}
+          {/* Program Name (Company) */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">NIM</p>
-            <p className="font-semibold">{student.NIM}</p>
+            <p className="text-sm text-gray-500">Perusahaan</p>
+            <p className="font-semibold">{program?.company || '-'}</p>
           </div>
 
-          {/* Nama Mahasiswa */}
+          {/* Deskripsi */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Nama Mahasiswa</p>
-            <p className="font-semibold">{student.nama_mahasiswa}</p>
+            <p className="text-sm text-gray-500">Deskripsi</p>
+            <p className="font-semibold">{program?.deskripsi || '-'}</p>
           </div>
 
-          {/* Semester */}
+          {/* Role */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Semester</p>
-            <p className="font-semibold">{student.semester}</p>
+            <p className="text-sm text-gray-500">Role</p>
+            <p className="font-semibold">{program?.role || '-'}</p>
           </div>
 
-          {/* Program MBKM */}
+          {/* Status */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Program MBKM</p>
-            <p className="font-semibold">
-              {program ? program.company : 'Loading...'}
-            </p>
-            <p className="text-sm text-gray-500">
-              {program ? program.role : ''}
-            </p>
+            <p className="text-sm text-gray-500">Status</p>
+            <p className="font-semibold">{program?.status || '-'}</p>
           </div>
 
-          {/* Dosen Pembimbing */}
+          {/* Date */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Nama Dosen Pembimbing</p>
-            <p className="font-semibold">
-              {dosbing ? dosbing.nama_dosbing : 'Loading...'}
-            </p>
+            <p className="text-sm text-gray-500">Tanggal</p>
+            <p className="font-semibold">{program?.date || '-'}</p>
+          </div>
+
+          {/* Category ID */}
+          <div className="rounded-md bg-gray-50 p-4">
+            <p className="text-sm text-gray-500">Category ID</p>
+            <p className="font-semibold">{program?.category_id || '-'}</p>
           </div>
         </div>
       </div>
@@ -181,4 +148,4 @@ const DetailMahasiswaPage = () => {
   );
 };
 
-export default DetailMahasiswaPage;
+export default DetailProgramMBKMPage;

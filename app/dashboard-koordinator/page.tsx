@@ -125,7 +125,7 @@ export default function DashboardMBKM() {
       <div className="space-y-4">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-4">
           <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-            Selamat datang, Admin MBKM 👋
+            Selamat datang, Koordinator MBKM 👋
           </h2>
           <div className="ml-auto flex items-center gap-x-2">
             {/* <CalendarDateRangePicker /> */}

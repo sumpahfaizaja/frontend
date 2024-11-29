@@ -1,4 +1,3 @@
-// Beri tanda bahwa ini adalah Client Component
 'use client';
 
 import { useState } from 'react';
@@ -16,6 +15,7 @@ import {
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Enter a valid email address' }),
@@ -57,8 +57,26 @@ export default function SignInForm() {
         throw new Error(result.message || 'Login failed');
       }
 
+      // Store the token in a cookie
       document.cookie = `token=${result.token}; path=/; SameSite=Strict`;
-      router.push('/dashboard');
+
+      // Decode the token to get the role
+      const decoded: any = jwtDecode(result.token);
+      const role = decoded.role; // Get the role from the decoded token
+
+      // Redirect user based on their role
+      if (role === 'admin_siap') {
+        router.push('/dashboard-admin');
+      } else if (role === 'mahasiswa') {
+        router.push('/dashboard');
+      } else if (role === 'koor_mbkm') {
+        router.push('/dashboard-koordinator');
+      } else if (role === 'dosbing') {
+        router.push('/dashboard-dosbing');
+      } else {
+        // Fallback if the role is not recognized
+        router.push('/unauthorized');
+      }
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -119,7 +137,6 @@ export default function SignInForm() {
           </Button>
         </form>
       </Form>
-          
     </>
   );
 }

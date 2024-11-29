@@ -84,8 +84,6 @@ export const DocumentForm: React.FC<DocumentFormProps> = ({ initialData }) => {
   const onSubmit = async (data: DocumentFormValues) => {
     try {
       setLoading(true);
-      // Here you would typically send the data to your API
-      // You'll need to handle file uploads, possibly using FormData
       console.log(data);
       router.push('/dashboard/');
       toast({

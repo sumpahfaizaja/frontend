@@ -428,10 +428,11 @@ export const kegiatan: Kegiatan[] = [
 
 export const navItems: Record<
   string,
-  { label: string; items: NavItemOrSeparator[] }
+  { role: string; label: string; items: NavItemOrSeparator[] }
 > = {
-  general: {
+  mahasiswa: {
     label: 'Overview',
+    role: 'mahasiswa',
     items: [
       {
         title: 'Dashboard',
@@ -458,19 +459,13 @@ export const navItems: Record<
         icon: 'file-check',
         label: 'laporan'
       },
-      {
-        title: 'Logbook',
-        href: '/dashboard/logbook',
-        icon: 'book-open-text',
-        label: 'logbook'
-      },
-      {
-        title: 'Kanban',
-        href: '/dashboard/kanban',
-        icon: 'kanban',
-        label: 'kanban'
-      },
       { separator: true },
+      {
+        title: 'Sertifikat',
+        href: '/dashboard/sertifikat',
+        icon: 'book-check',
+        label: 'sertifikat'
+      },
       {
         title: 'Dokumen',
         href: '/dashboard/dokumen',
@@ -479,8 +474,9 @@ export const navItems: Record<
       }
     ]
   },
-  koordinator: {
+  koor_mbkm: {
     label: 'Koordinator',
+    role: 'koor_mbkm',
     items: [
       {
         title: 'Dashboard Koordinator',
@@ -496,20 +492,15 @@ export const navItems: Record<
       },
       {
         title: 'Manajemen Program',
-        href: '/dashboard-koordinator/manajemen',
+        href: '/dashboard-koordinator/program',
         icon: 'graduation-cap',
         label: 'Manajemen Program'
-      },
-      {
-        title: 'Verifikasi Program',
-        href: '/dashboard-koordinator/verifikasi',
-        icon: 'graduation-cap',
-        label: 'verifikasi'
       }
     ]
   },
-  dosen: {
+  dosbing: {
     label: 'Dosen',
+    role: 'dosbing',
     items: [
       {
         title: 'Dashboard',
@@ -545,6 +536,7 @@ export const navItems: Record<
   },
   admin: {
     label: 'Admin',
+    role: 'admin_siap',
     items: [
       {
         title: 'Dashboard Admin',
@@ -560,15 +552,10 @@ export const navItems: Record<
       }
     ]
   },
-  auth: {
+  general: {
     label: 'Akun',
+    role: 'general',
     items: [
-      {
-        title: 'Sertifikat',
-        href: '/dashboard/sertifikat',
-        icon: 'book-check',
-        label: 'sertifikat'
-      },
       {
         title: 'Profil',
         href: '/dashboard/profil',

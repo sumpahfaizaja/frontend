@@ -91,23 +91,28 @@ export function UserNav() {
       }
 
       const response = await axios.get(`${API_BASE_URL}${endpoint}`);
+      console.log('API response for role', role, response.data);
+
       const data = response.data;
 
       let userName = '';
       switch (role) {
         case 'mahasiswa':
-          userName = data.nama_mahasiswa;
+          userName = data.nama_mahasiswa || 'Mahasiswa';
           break;
         case 'dosbing':
-          userName = data.nama_dosbing;
+          userName = data.nama_dosbing || 'Dosen Pembimbing';
           break;
         case 'koor_mbkm':
-          userName = data.nama_koor_mbkm;
+          userName = data.nama_koor_mbkm || 'Koordinator MBKM';
           break;
         case 'admin_siap':
-          userName = data.nama_admin_siap;
+          userName = data.data.nama_admin_siap || 'Admin';
           break;
       }
+
+      console.log(data);
+      console.log(userName);
 
       setSession({
         user: {

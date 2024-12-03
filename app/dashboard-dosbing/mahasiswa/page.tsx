@@ -32,30 +32,25 @@ const StudentsPage = () => {
 
   useEffect(() => {
     const token = Cookies.get('token');
-    console.log('Retrieved token:', token);
 
     if (token) {
       const fetchStudents = async () => {
         try {
           // Decode token
           const decodedToken = jwtDecode<{ NIP_dosbing: string }>(token);
-          console.log('Decoded token:', decodedToken);
 
           const NIP_dosbing = decodedToken.NIP_dosbing;
-          console.log('Fetching students for NIP_dosbing:', NIP_dosbing);
 
           // Fetch data
           const response = await fetch(
             `${API_BASE_URL}/mahasiswa/dosbing/${NIP_dosbing}`
           );
-          console.log('API response status:', response.status);
 
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
 
           const data = await response.json();
-          console.log('Fetched students data:', data);
 
           setStudents(data as Student[]);
           setFilteredStudents(data as Student[]);
@@ -85,13 +80,10 @@ const StudentsPage = () => {
   };
 
   const handleDelete = async (NIM: string) => {
-    console.log('Attempting to delete student with NIM:', NIM);
-
     try {
       const response = await fetch(`${API_BASE_URL}/mahasiswa/${NIM}`, {
         method: 'DELETE'
       });
-      console.log('Delete response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -101,7 +93,6 @@ const StudentsPage = () => {
       setFilteredStudents((prev) =>
         prev.filter((student) => student.NIM !== NIM)
       );
-      console.log('Student successfully deleted:', NIM);
     } catch (err) {
       console.error('Gagal menghapus mahasiswa:', err);
       setError('Gagal menghapus mahasiswa');

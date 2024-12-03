@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // URL API
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
@@ -60,34 +61,89 @@ export default function ProgramMBKMPage() {
         />
       </div>
       <Separator className="mb-4 mt-4" />
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {programs.map((program) => (
-            <Card key={program.id_program_mbkm} className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="text-lg">{program.company}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="line-clamp-3 text-base text-gray-600">
-                  {program.deskripsi ?? 'Deskripsi tidak tersedia'}
-                </p>
-              </CardContent>
-              <div className="flex w-full items-end justify-between gap-x-4 p-4">
-                <p className="line-clamp-1 text-sm text-gray-600">
-                  <strong>Syarat:</strong> {program.syarat}
-                </p>
-                <Link href={`/dashboard/program/${program.id_program_mbkm}`}>
-                  <Button variant="default" className="w-full">
-                    Daftar
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+
+      <Tabs defaultValue="active" className="space-y-4">
+        <TabsList className="mb-2">
+          <TabsTrigger value="active">Program Aktif</TabsTrigger>
+          <TabsTrigger value="status">Program Tidak Aktif</TabsTrigger>
+        </TabsList>
+
+        {/* Tab Kegiatan Aktif */}
+        <TabsContent value="active" className="space-y-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              programs
+                .filter((program) => program.status === 'Active') // Filter kegiatan aktif
+                .map((program) => (
+                  <Card key={program.id_program_mbkm} className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        {program.company}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="line-clamp-3 text-base text-gray-600">
+                        {program.deskripsi ?? 'Deskripsi tidak tersedia'}
+                      </p>
+                    </CardContent>
+                    <div className="flex w-full items-end justify-between gap-x-4 p-4">
+                      <p className="line-clamp-1 text-sm text-gray-600">
+                        <strong>Syarat:</strong> {program.syarat}
+                      </p>
+                      <Link
+                        href={`/dashboard/program/${program.id_program_mbkm}`}
+                      >
+                        <Button variant="default" className="w-full">
+                          Daftar
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card>
+                ))
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Tab Status Pendaftaran */}
+        <TabsContent value="status" className="space-y-4">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              programs
+                .filter((program) => program.status !== 'Active') // Filter kegiatan tidak aktif
+                .map((program) => (
+                  <Card key={program.id_program_mbkm} className="shadow-lg">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        {program.company}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="line-clamp-3 text-base text-gray-600">
+                        {program.deskripsi ?? 'Deskripsi tidak tersedia'}
+                      </p>
+                    </CardContent>
+                    <div className="flex w-full items-end justify-between gap-x-4 p-4">
+                      <p className="line-clamp-1 text-sm text-gray-600">
+                        <strong>Syarat:</strong> {program.syarat}
+                      </p>
+                      <Link
+                        href={`/dashboard/program/${program.id_program_mbkm}`}
+                      >
+                        <Button variant="default" className="w-full">
+                          Lihat Detail
+                        </Button>
+                      </Link>
+                    </div>
+                  </Card>
+                ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
     </PageContainer>
   );
 }

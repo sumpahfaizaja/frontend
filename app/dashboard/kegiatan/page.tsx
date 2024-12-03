@@ -1,131 +1,246 @@
-'use client'; // Ensure this component is client-side
+'use client';
 
 import { useEffect, useState } from 'react';
-import { Breadcrumbs } from '@/components/breadcrumbs';
-import EmptyState from '@/components/empty-state';
+import { jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 import PageContainer from '@/components/layout/page-container';
-import { Button } from '@/components/ui/button';
 import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronsRight } from 'lucide-react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation'; // Import useRouter from next/navigation in App Router
-
-const breadcrumbItems = [
-  { title: 'Dashboard', link: '/dashboard' },
-  { title: 'Kegiatan', link: '/dashboard/kegiatan' }
-];
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-const ProgramModal = ({
-  program,
-  onClose
-}: {
-  program: any;
-  onClose: () => void;
-}) => {
-  if (!program) return null;
+interface PendaftaranMBKM {
+  id_pendaftaran_mbkm: number;
+  NIM: number;
+  NIP_dosen: string;
+  tanggal: string;
+  nama_berkas: string;
+  id_program_mbkm: number;
+  status: 'pending' | 'verif';
+}
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6">
-        <h3 className="mb-4 text-xl font-semibold">
-          {program.deskripsi || 'No description available'}
-        </h3>
-        <p>
-          <strong>Instansi:</strong>{' '}
-          {program.company || 'No instansi information available'}
-        </p>
-        <Button className="mt-4" onClick={onClose}>
-          Close
-        </Button>
-      </div>
-    </div>
-  );
-};
+interface ProgramMBKM {
+  id_program_mbkm: number;
+  company: string;
+  deskripsi: string | null;
+  role: string | null;
+  status: string;
+  date: string;
+  waktu_pelaksanaan: string | null;
+  category: {
+    id: string;
+    name: string;
+  };
+}
 
-export default function Page() {
-  const [programs, setPrograms] = useState<any[]>([]);
+export default function ProgramMBKMPage() {
   const [loading, setLoading] = useState(true);
-  const [selectedProgram, setSelectedProgram] = useState<any>(null);
-  const router = useRouter(); // Correctly use router from next/navigation
+  const [error, setError] = useState<string | null>(null);
+  const [pendingRegistrations, setPendingRegistrations] = useState<
+    PendaftaranMBKM[]
+  >([]);
+  const [verifiedRegistrations, setVerifiedRegistrations] = useState<
+    PendaftaranMBKM[]
+  >([]);
+  const [programDetails, setProgramDetails] = useState<
+    Record<number, ProgramMBKM>
+  >({});
 
   useEffect(() => {
-    fetchPrograms();
-  }, []);
+    const token = Cookies.get('token');
 
-  const fetchPrograms = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/program-mbkm`);
-      setPrograms(response.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching programs:', error);
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<{ NIM: string }>(token);
+        const nim = Number(decodedToken.NIM);
+
+        fetch(`${API_BASE_URL}/pendaftaran-mbkm/nim/${nim}`)
+          .then((response) => response.json())
+          .then(async (data: PendaftaranMBKM[]) => {
+            setPendingRegistrations(
+              data.filter((item) => item.status === 'pending')
+            );
+            setVerifiedRegistrations(
+              data.filter((item) => item.status === 'verif')
+            );
+
+            // Fetch program details for each registration
+            const programPromises = data.map((item) =>
+              fetch(`${API_BASE_URL}/program-mbkm/${item.id_program_mbkm}`)
+                .then((res) => res.json())
+                .catch((err) => {
+                  console.error(
+                    `Gagal mengambil detail program untuk ID: ${item.id_program_mbkm}`,
+                    err
+                  );
+                  return null;
+                })
+            );
+
+            const programs = await Promise.all(programPromises);
+            const programMap = programs.reduce(
+              (acc, program) => {
+                if (program) acc[program.id_program_mbkm] = program;
+                return acc;
+              },
+              {} as Record<number, ProgramMBKM>
+            );
+
+            setProgramDetails(programMap);
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.error(err);
+            setError('Gagal mengambil data');
+            setLoading(false);
+          });
+      } catch (err) {
+        console.error(err);
+        setError('Token tidak valid');
+        setLoading(false);
+      }
+    } else {
+      setError('Token tidak ditemukan');
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleCardClick = (programId: number) => {
-    router.push(`/dashboard/logbook?id_program_mbkm=${programId}`);
-  };
+  const renderProgramDetails = (id: number) => {
+    const program = programDetails[id];
+    if (!program) return <p>Detail program tidak tersedia</p>;
 
-  const handleCloseModal = () => {
-    setSelectedProgram(null);
+    return (
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="font-medium text-gray-600">Jenis Program:</span>
+          <span className="font-semibold">
+            {program.category?.name || 'Tidak ada keterangan'}
+          </span>
+        </div>
+        <div className="flex justify-between">
+          <span className="font-medium text-gray-600">
+            Tanggal Pelaksanaan:
+          </span>
+          <span className="font-semibold">
+            {program.waktu_pelaksanaan
+              ? new Date(program.waktu_pelaksanaan).toLocaleDateString(
+                  'id-ID',
+                  {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  }
+                )
+              : 'Tidak ada keterangan'}
+          </span>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <PageContainer scrollable={true}>
-      <div className="flex h-full flex-col gap-y-2">
-        <Breadcrumbs items={breadcrumbItems} />
-        <div className="mb-2 flex flex-col items-start justify-between gap-y-4 lg:flex-row">
-          <Heading
-            title={`Kegiatan`}
-            description="Kegiatan yang sedang berlangsung dan status pendaftaran program. Cek kembali informasi kegiatan yang sedang berlangsung dengan dosen/pihak yang bersangkutan."
-          />
-          <Button className="text-xs md:text-sm">Sejarah Kegiatan</Button>
-        </div>
-        <Tabs defaultValue="active" className="space-y-4">
-          <TabsList className="mb-2">
-            <TabsTrigger value="active">Kegiatan Aktif</TabsTrigger>
-            <TabsTrigger value="status">Status Pendaftaran</TabsTrigger>
+    <PageContainer>
+      <Heading
+        title="Program MBKM"
+        description="Daftar program MBKM berdasarkan status pendaftaran"
+      />
+      <Separator className="my-4" />
+      {loading ? (
+        <p>Memuat...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <Tabs defaultValue="pending" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="pending">Pending</TabsTrigger>
+            <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
           </TabsList>
-          <TabsContent value="active" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {loading ? (
-                <div>Loading...</div>
-              ) : (
-                programs.map((program) => (
-                  <div
-                    key={program.id_program_mbkm}
-                    className="flex w-full cursor-pointer flex-col rounded-lg border bg-card p-4 text-card-foreground shadow-sm hover:border-primary/40"
-                    onClick={() => handleCardClick(program.id_program_mbkm)}
+          <TabsContent value="pending">
+            {pendingRegistrations.length > 0 ? (
+              pendingRegistrations.map((item) => {
+                const program = programDetails[item.id_program_mbkm];
+                return (
+                  <Card
+                    key={item.id_pendaftaran_mbkm}
+                    className="mb-4 shadow-md"
                   >
-                    <h3 className="mb-4 line-clamp-2 text-ellipsis text-lg font-semibold">
-                      {program.deskripsi || 'No description available'}
-                    </h3>
-                    <div className="mt-auto flex items-center justify-between gap-x-3">
-                      <p className="text-xs text-muted-foreground">
-                        {program.company || 'No instansi available'}
-                      </p>
-                      <ChevronsRight size={16} />
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+                    <CardHeader>
+                      <CardTitle>
+                        {program?.company || 'Program tidak ditemukan'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="font-medium text-gray-600">
+                            Tanggal Pendaftaran:
+                          </span>
+                          <span className="font-semibold">
+                            {new Date(item.tanggal).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              }
+                            )}
+                          </span>
+                        </div>
+                        {renderProgramDetails(item.id_program_mbkm)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            ) : (
+              <p>Tidak ada program yang pending</p>
+            )}
           </TabsContent>
-          <TabsContent value="status" className="space-y-4">
-            <EmptyState
-              title="Tidak ada kegiatan"
-              description="Tidak ada kegiatan yang sedang berlangsung. Coba cek kembali pada tab Kegiatan Aktif atau Status Pendaftaran"
-            />
+
+          <TabsContent value="verified">
+            {verifiedRegistrations.length > 0 ? (
+              verifiedRegistrations.map((item) => {
+                const program = programDetails[item.id_program_mbkm];
+                return (
+                  <Card
+                    key={item.id_pendaftaran_mbkm}
+                    className="mb-4 shadow-md"
+                  >
+                    <CardHeader>
+                      <CardTitle>
+                        {program?.company || 'Program tidak ditemukan'}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="font-medium text-gray-600">
+                            Tanggal Pendaftaran:
+                          </span>
+                          <span className="font-semibold">
+                            {new Date(item.tanggal).toLocaleDateString(
+                              'id-ID',
+                              {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                              }
+                            )}
+                          </span>
+                        </div>
+                        {renderProgramDetails(item.id_program_mbkm)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
+            ) : (
+              <p>Tidak ada program yang terverifikasi</p>
+            )}
           </TabsContent>
         </Tabs>
-      </div>
-
-      {selectedProgram && (
-        <ProgramModal program={selectedProgram} onClose={handleCloseModal} />
       )}
     </PageContainer>
   );

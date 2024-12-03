@@ -155,68 +155,71 @@ export default function DashboardMBKM() {
           ))}
         </div>
 
-        {/* Aktivitas Terbaru */}
-        <div className="grid grid-cols-1 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Aktivitas Terbaru</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <p>Loading...</p>
-              ) : pengumuman && pengumuman.length > 0 ? (
-                <ul className="space-y-2">
-                  {pengumuman.map((activity, index) => (
-                    <li key={index}>
-                      <div className="flex w-full items-center justify-between">
-                        <p>{activity.judul}</p>
+        {/* Second Card */}
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {/* Aktivitas Terbaru */}
+          <div className="grid grid-cols-1 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Aktivitas Terbaru</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <p>Loading...</p>
+                ) : pengumuman && pengumuman.length > 0 ? (
+                  <ul className="space-y-2">
+                    {pengumuman.map((activity, index) => (
+                      <li key={index}>
+                        <div className="flex w-full items-center justify-between">
+                          <p>{activity.judul}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Intl.DateTimeFormat('id-ID', {
+                              dateStyle: 'long'
+                            }).format(new Date(activity.tanggal))}
+                          </p>
+                        </div>
                         <p className="text-sm text-muted-foreground">
-                          {new Intl.DateTimeFormat('id-ID', {
-                            dateStyle: 'long'
-                          }).format(new Date(activity.tanggal))}
+                          {activity.isi}
                         </p>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.isi}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>Tidak ada aktivitas terbaru.</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>Tidak ada aktivitas terbaru.</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Daftar Mahasiswa */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Daftar Mahasiswa</CardTitle>
-              <CardDescription>
-                Nama-nama mahasiswa yang terdaftar dalam sistem MBKM.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <p>Loading...</p>
-              ) : students && students.length > 0 ? (
-                <ul className="flex w-full flex-col gap-y-1 rounded-lg border bg-background p-4 text-foreground">
-                  {students.map((student, index) => (
-                    <li key={index} className="flex items-center">
-                      <p className="text-sm">{student.nama_mahasiswa}</p>
-                      <p className="ml-auto text-xs text-muted-foreground">
-                        {student.NIM}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p style={{ color: 'red' }}>{error}</p>
-              )}
-            </CardContent>
-          </Card>
+          {/* Daftar Mahasiswa */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card className="col-span-4">
+              <CardHeader>
+                <CardTitle>Daftar Mahasiswa</CardTitle>
+                <CardDescription>
+                  Nama-nama mahasiswa yang terdaftar dalam sistem MBKM.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <p>Loading...</p>
+                ) : students && students.length > 0 ? (
+                  <ul className="flex w-full flex-col gap-y-1 rounded-lg border bg-background p-4 text-foreground">
+                    {students.map((student, index) => (
+                      <li key={index} className="flex items-center">
+                        <p className="text-sm">{student.nama_mahasiswa}</p>
+                        <p className="ml-auto text-xs text-muted-foreground">
+                          {student.NIM}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p style={{ color: 'red' }}>{error}</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </PageContainer>

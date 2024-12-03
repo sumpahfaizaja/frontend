@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,20 +18,112 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 
+const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
+
+interface DecodedToken {
+  role: string;
+  email: string;
+  NIM?: string;
+  NIP_dosbing?: string;
+  NIP_koor_mbkm?: string;
+  NIP_admin_siap?: string;
+  iat: number;
+  exp: number;
+}
+
 export function UserNav() {
-  const [session] = useState({
+  const [session, setSession] = useState({
     user: {
-      name: 'John Doe',
-      email: 'john@example.com',
-      image: 'https://github.com/msafdev.png'
+      name: '',
+      email: '',
+      image: ''
     }
   });
   const [isOpen, setIsOpen] = useState(false);
-
   const router = useRouter();
 
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (token) {
+      try {
+        const decoded: DecodedToken = jwtDecode(token);
+        console.log(decoded);
+        const userId =
+          decoded.NIM ||
+          decoded.NIP_dosbing ||
+          decoded.NIP_koor_mbkm ||
+          decoded.NIP_admin_siap;
+
+        fetchUserData(userId, decoded.role, decoded.email);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        handleSignOut();
+      }
+    } else {
+      handleSignOut();
+    }
+  }, []);
+
+  const fetchUserData = async (
+    id: string | undefined,
+    role: string,
+    email: string
+  ) => {
+    try {
+      if (!id) throw new Error('No valid ID found in the token');
+
+      let endpoint = '';
+      switch (role) {
+        case 'mahasiswa':
+          endpoint = `/mahasiswa/${id}`;
+          break;
+        case 'dosbing':
+          endpoint = `/dosbing/${id}`;
+          break;
+        case 'koor_mbkm':
+          endpoint = `/koor-mbkm/${id}`;
+          break;
+        case 'admin_siap':
+          endpoint = `/admin-siap/${id}`;
+          break;
+        default:
+          throw new Error('Invalid role');
+      }
+
+      const response = await axios.get(`${API_BASE_URL}${endpoint}`);
+      const data = response.data;
+
+      let userName = '';
+      switch (role) {
+        case 'mahasiswa':
+          userName = data.nama_mahasiswa;
+          break;
+        case 'dosbing':
+          userName = data.nama_dosbing;
+          break;
+        case 'koor_mbkm':
+          userName = data.nama_koor_mbkm;
+          break;
+        case 'admin_siap':
+          userName = data.nama_admin_siap;
+          break;
+      }
+
+      setSession({
+        user: {
+          name: userName,
+          email: email || 'user@example.com',
+          image: ''
+        }
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      handleSignOut();
+    }
+  };
+
   const handleSignOut = () => {
-    document.cookie = 'token=; path=/; Max-Age=-1';
+    Cookies.remove('token');
     router.push('/');
   };
 
@@ -45,7 +140,7 @@ export function UserNav() {
               src={session.user?.image ?? ''}
               alt={session.user?.name ?? ''}
             />
-            <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
+            <AvatarFallback>{session.user?.name?.[0] ?? '?'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -62,26 +157,7 @@ export function UserNav() {
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem>
-              Profile
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Billing
-              <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Settings
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem>New Team</DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>
-            Log out
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>Log out</DropdownMenuItem>
         </DropdownMenuContent>
       )}
     </DropdownMenu>

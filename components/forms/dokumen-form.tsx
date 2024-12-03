@@ -1,220 +1,123 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm, UseFormReturn } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
-import { useToast } from '@/components/ui/use-toast';
-import { Paperclip } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_FILE_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 
-const fileSchema = z.object({
-  file: z
-    .instanceof(File)
-    .refine((file) => file.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
-    .refine(
-      (file) => ACCEPTED_FILE_TYPES.includes(file.type),
-      'Only .pdf, .jpg and .png formats are supported.'
-    )
-});
+const DOCUMENT_TYPES = [
+  { label: 'CV', value: 'CV' },
+  { label: 'KTP', value: 'KTP' },
+  { label: 'Transkrip Nilai', value: 'transkrip' },
+  { label: 'Sertifikat Organisasi', value: 'sertifikat' },
+  { label: 'Dokumen Tambahan', value: 'dokumen_tambahan' },
+];
 
-const optionalFileSchema = fileSchema.optional();
-
-const documentSchema = z.object({
-  cv: optionalFileSchema,
-  transcript: optionalFileSchema,
-  idCard: optionalFileSchema,
-  organizationCertificate: optionalFileSchema,
-  additionalDocument: optionalFileSchema
-});
-
-const formSchema = z.object({
-  documents: documentSchema
-});
-
-type DocumentFormValues = z.infer<typeof formSchema>;
-
-interface DocumentFormProps {
-  initialData?: Partial<DocumentFormValues>;
-}
-
-export const DocumentForm: React.FC<DocumentFormProps> = ({ initialData }) => {
-  const router = useRouter();
-  const { toast } = useToast();
+export default function UploadDocumentPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [documentType, setDocumentType] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const title = 'Dokumen Pendaftaran';
-  const description =
-    'Silahkan lengkapi formulir berikut untuk melengkapi pendaftaran Anda. Pilih file-file yang diperlukan dari komputer Anda.';
-  const toastMessage = initialData
-    ? 'Application updated.'
-    : 'Application submitted.';
-  const action = 'Simpan Dokumen';
-
-  const defaultValues: Partial<DocumentFormValues> = {
-    documents: {
-      cv: undefined,
-      transcript: undefined,
-      idCard: undefined,
-      organizationCertificate: undefined,
-      additionalDocument: undefined
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
     }
   };
 
-  const form = useForm<DocumentFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues
-  });
-
-  const onSubmit = async (data: DocumentFormValues) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+  
+    if (!file || !documentType) {
+      setMessage('Pilih jenis dokumen dan file terlebih dahulu!');
+      return;
+    }
+  
+    console.log('Jenis Berkas:', documentType); // Debug log
+    console.log('File:', file); // Debug log
+    
+    const token = Cookies.get('token');
+    if (!token) {
+      setMessage('Token tidak ditemukan, silakan login ulang.');
+      return;
+    }
+  
+    setLoading(true);
+  
+    // Mendekode token JWT untuk mengambil NIM
+    const decodedToken = jwtDecode<{ NIM: string }>(token);
+    const nim = decodedToken.NIM;
+  
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('jenis_berkas', documentType);
+    formData.append('NIM', nim); // Menambahkan NIM ke dalam FormData
+  
     try {
-      setLoading(true);
-      console.log(data);
-      router.push('/dashboard/');
-      toast({
-        title: 'Success',
-        description: toastMessage
+      const response = await fetch(API_UPLOAD_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
       });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        setMessage('Upload berhasil!');
+      } else {
+        setMessage(data.message || 'Upload gagal');
+      }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Uh oh! Something went wrong.',
-        description: 'There was a problem with your request.'
-      });
+      console.error('Error during file upload:', error);
+      setMessage('Terjadi kesalahan saat upload file.');
     } finally {
       setLoading(false);
     }
   };
-
-  interface FileInputProps {
-    name: keyof DocumentFormValues['documents'];
-    label: string;
-    required?: boolean;
-    description: string;
-    form: UseFormReturn<DocumentFormValues>;
-  }
-
-  const FileInput: React.FC<FileInputProps> = ({
-    name,
-    label,
-    required = false,
-    description,
-    form
-  }) => (
-    <FormField
-      control={form.control}
-      name={`documents.${name}`}
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel className="flex flex-col">
-            <h3 className="mb-1 text-base text-foreground md:text-lg">
-              {label}
-              <span className="text-red-500">{required ? ' *' : ''}</span>
-            </h3>
-            <p className="mb-2 text-xs text-muted-foreground md:text-sm">
-              {description}
-            </p>
-          </FormLabel>
-          <FormControl>
-            <div className="flex cursor-pointer flex-col items-center gap-y-2 rounded-lg border bg-accent p-4 text-foreground md:gap-y-4 md:py-8">
-              <Input
-                type="file"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    field.onChange({ file });
-                  }
-                }}
-                className="hidden cursor-pointer"
-                id={name}
-              />
-              <label htmlFor={name} className="cursor-pointer">
-                <Paperclip size={32} />
-              </label>
-              <span className="text-center text-sm text-accent-foreground">
-                {field.value?.file?.name || 'Belum ada file yang dipilih'}
-              </span>
-            </div>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  );
+  
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <Heading title={title} description={description} />
-      </div>
-      <Separator className="mb-4 mt-4" />
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="grid grid-cols-1 gap-5"
-        >
-          <FileInput
-            name="cv"
-            label="Curriculum Vitae"
-            description="Unggah CV kamu dalam format PDF dengan ukuran maksimal 2 MB"
-            form={form}
-          />
-          <FileInput
-            name="transcript"
-            label="Transkrip Nilai"
-            description="Unggah Transkrip Nilai kamu dalam format PDF dengan ukuran maksimal 2 MB"
-            form={form}
-          />
-          <FileInput
-            name="idCard"
-            label="KTP"
-            description="Unggah foto KTP kamu dalam format PDF dengan ukuran maksimal 2MB"
-            form={form}
-          />
-          <FileInput
-            name="organizationCertificate"
-            label="Sertifikat Pengalaman Organisasi"
-            description="Kamu bisa tambahkan sertifikat dengan maksimal ukuran 5 MB"
-            form={form}
-          />
-          <FileInput
-            name="additionalDocument"
-            label="Dokumen Tambahan"
-            description="Unggah file dalam format PDF dengan ukuran maksimal 2 MB "
-            form={form}
-          />
-          <div className="mt-2 flex w-full items-center justify-end gap-x-4">
-            <Button
-              disabled={loading}
-              variant="secondary"
-              size={'lg'}
-              onClick={() => router.push('/dashboard/')}
-            >
-              Batal
-            </Button>
-            <Button disabled={loading} type="submit" size={'lg'}>
-              {action}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </>
-  );
-};
+    <PageContainer>
+      <Heading
+        title="Upload Dokumen"
+        description="Unggah dokumen yang diperlukan untuk MBKM"
+      />
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Form Upload Dokumen</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Select onValueChange={setDocumentType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pilih jenis dokumen" />
+              </SelectTrigger>
+              <SelectContent>
+                {DOCUMENT_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-export default DocumentForm;
+            <Input type="file" onChange={handleFileChange} />
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Mengunggah...' : 'Unggah'}
+            </Button>
+          </form>
+          {message && <p className="mt-2 text-sm text-red-500">{message}</p>}
+        </CardContent>
+      </Card>
+    </PageContainer>
+  );
+}

@@ -18,8 +18,6 @@ interface StudentDetails {
   semester: number;
   id_program_mbkm: string;
   NIP_dosbing: string;
-  jurusan?: string;
-  prodi?: string;
 }
 
 interface Program {
@@ -44,8 +42,6 @@ const EditMahasiswaPage = () => {
     semester: 1,
     id_program_mbkm: '',
     NIP_dosbing: '',
-    jurusan: '',
-    prodi: ''
   });
   const [programs, setPrograms] = useState<Program[]>([]);
   const [dosens, setDosens] = useState<Dosen[]>([]);
@@ -70,7 +66,16 @@ const EditMahasiswaPage = () => {
     const fetchStudentDetails = async () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`);
-        setStudent(response.data);
+        const studentData = response.data;
+  
+        // Menangani nilai NaN dan mengatur default jika null atau NaN
+        setStudent({
+          NIM: studentData.NIM,
+          nama_mahasiswa: studentData.nama_mahasiswa,
+          semester: studentData.semester,
+          id_program_mbkm: isNaN(studentData.id_program_mbkm) ? '' : studentData.id_program_mbkm,
+          NIP_dosbing: isNaN(studentData.NIP_dosbing) ? '' : studentData.NIP_dosbing,
+        });
         setLoading(false);
       } catch (err) {
         console.error('Error fetching student details:', err);
@@ -105,33 +110,67 @@ const EditMahasiswaPage = () => {
   }, [NIM]);
 
   // Handle Input changes
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setStudent((prev) => ({
-      ...prev,
-      [name]: value
+// Handle Input changes
+const handleInputChange = (e) => {
+  const { name, value } = e.target;
+
+  // Jika field yang diubah adalah id_program_mbkm atau NIP_dosbing, lakukan konversi
+  if (name === 'id_program_mbkm') {
+    setStudent((prevState) => ({
+      ...prevState,
+      [name]: value ? value : '', // Pastikan default value kosong jika tidak dipilih
     }));
-  };
+  } else if (name === 'NIP_dosbing') {
+    setStudent((prevState) => ({
+      ...prevState,
+      [name]: value ? value : '', // Pastikan default value kosong jika tidak dipilih
+    }));
+  } else {
+    setStudent((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  }
+};
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+ // Handle form submission
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      const token = getAuthToken();
-      await axios.put(`${API_BASE_URL}/mahasiswa/${NIM}`, student, {
-        headers: {
-          Authorization: `Bearer ${token}` // Add token to the request headers
-        }
-      });
-      router.push('/dashboard-koordinator/mahasiswa');
-    } catch (err) {
-      console.error('Error updating student:', err);
-      setError('Gagal memperbarui data mahasiswa');
-    }
+  // Log the values before sending them
+  console.log('Before sending data:', {
+    id_program_mbkm: student.id_program_mbkm,
+    NIP_dosbing: student.NIP_dosbing,
+  });
+
+  // Ensure id_program_mbkm is a valid integer, and NIP_dosbing is a valid BigInt or number
+  const updatedStudent = {
+    ...student,
+    id_program_mbkm: student.id_program_mbkm && !isNaN(Number(student.id_program_mbkm)) ? Number(student.id_program_mbkm) : null,
+    NIP_dosbing: student.NIP_dosbing && !isNaN(Number(student.NIP_dosbing)) ? BigInt(student.NIP_dosbing) : null,
   };
+
+  // Log the updated data
+  console.log('Updated student data:', updatedStudent);
+
+  try {
+    const token = getAuthToken();
+    const response = await axios.put(`${API_BASE_URL}/mahasiswa/${student.NIM}`, updatedStudent, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log('Response from backend:', response);
+    router.push('/dashboard-koordinator/mahasiswa');
+  } catch (err) {
+    console.error('Error updating student:', err);
+    const errorMessage = err.response ? err.response.data.message : err.message;
+    setError(`Gagal memperbarui data mahasiswa: ${errorMessage}`);
+  }
+};
+
 
   if (loading) {
     return (
@@ -245,7 +284,7 @@ const EditMahasiswaPage = () => {
               <select
                 id="id_program_mbkm"
                 name="id_program_mbkm"
-                value={student.id_program_mbkm}
+                value={student.id_program_mbkm || ''}
                 onChange={handleInputChange}
                 className="h-9 w-full rounded-md border border-gray-300"
               >
@@ -256,6 +295,10 @@ const EditMahasiswaPage = () => {
                   </option>
                 ))}
               </select>
+              {/* Menampilkan pesan kesalahan jika nilai id_program_mbkm kosong */}
+              {student.id_program_mbkm === '' && (
+                <span className="text-red-500 text-sm">Program MBKM harus dipilih</span>
+              )}
             </div>
 
             {/* Dosen Pembimbing */}
@@ -269,7 +312,7 @@ const EditMahasiswaPage = () => {
               <select
                 id="NIP_dosbing"
                 name="NIP_dosbing"
-                value={student.NIP_dosbing}
+                value={student.NIP_dosbing || ''}
                 onChange={handleInputChange}
                 className="h-9 w-full rounded-md border border-gray-300"
               >

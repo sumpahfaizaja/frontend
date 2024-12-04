@@ -63,6 +63,7 @@
   * {
     @apply border-border no-scrollbar;
   }
+
   body {
     @apply box-border bg-background text-foreground;
   }
@@ -70,11 +71,14 @@
 
 @layer utilities {
   .min-h-screen {
-    min-height: 100vh; /* Fallback */
+    min-height: 100vh;
+    /* Fallback */
     min-height: 100svh;
   }
+
   .h-screen {
-    height: 100vh; /* Fallback */
+    height: 100vh;
+    /* Fallback */
     height: 100svh;
   }
 
@@ -85,7 +89,26 @@
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  /* Scroll pada halaman */
+  .page-container {
+    min-height: 100vh;
+    /* Membuat halaman setinggi layar */
+    overflow-y: auto;
+    /* Membuat halaman bisa discroll vertikal */
+  }
+
+  /* Scroll pada tabel */
+  .scrollable-table-container {
+    max-height: 400px;
+    /* Tentukan maksimal tinggi tabel */
+    overflow-y: auto;
+    /* Membuat tabel bisa discroll secara vertikal */
+    margin-top: 1rem;
   }
 }

@@ -22,7 +22,7 @@ interface Program {
   status: string;
   date: string;
   category_id: string;
-  Category: {
+  categories: {
     id: string;
     name: string;
   };
@@ -51,7 +51,7 @@ const ProgramsPage = () => {
       (program) =>
         program.company.toLowerCase().includes(query) ||
         program.role.toLowerCase().includes(query) ||
-        program.Category.name.toLowerCase().includes(query)
+        program.categories.name.toLowerCase().includes(query)
     );
     setFilteredPrograms(filtered);
   };
@@ -102,7 +102,7 @@ const ProgramsPage = () => {
                     <p className="font-light leading-none text-muted-foreground">
                       {program.role}
                     </p>
-                    <p className="text-sm">{program.Category.name}</p>
+                    <p className="text-sm">{program.category_id}</p>
                     <p className="text-sm text-gray-500">{program.status}</p>
                   </div>
                   <div className="flex space-x-2">

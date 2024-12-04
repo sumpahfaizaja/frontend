@@ -2,8 +2,29 @@
 
 import { useEffect, useState } from 'react';
 
-// Data Dummy
-const programMBKMData = [
+// Define types for the data
+interface ProgramMBKM {
+  id: number;
+  nama_program: string;
+  deskripsi: string;
+  dosen_pembimbing: string;
+}
+
+interface Mahasiswa {
+  NIM: string;
+  nama_mahasiswa: string;
+  semester: number;
+  id_program_mbkm: number;
+  NIP_dosbing: string;
+}
+
+interface Dosen {
+  NIP: string;
+  nama_dosen: string;
+}
+
+// Dummy Data
+const programMBKMData: ProgramMBKM[] = [
   {
     id: 1,
     nama_program: 'Magang di Perusahaan ABC',
@@ -18,7 +39,7 @@ const programMBKMData = [
   }
 ];
 
-const mahasiswaData = [
+const mahasiswaData: Mahasiswa[] = [
   {
     NIM: '12345678',
     nama_mahasiswa: 'John Doe',
@@ -42,7 +63,7 @@ const mahasiswaData = [
   }
 ];
 
-const dosenData = [
+const dosenData: Dosen[] = [
   {
     NIP: '987654321',
     nama_dosen: 'Dr. John Smith'
@@ -53,21 +74,21 @@ const dosenData = [
   }
 ];
 
-// Komponen Utama
+// Main Component
 export default function ProgramDosen() {
-  const [programMBKM, setProgramMBKM] = useState([]);
-  const [mahasiswa, setMahasiswa] = useState([]);
-  const [dosen, setDosen] = useState([]);
-  const [selectedDosen, setSelectedDosen] = useState(null);
+  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
+  const [dosen, setDosen] = useState<Dosen[]>([]);
+  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null);
 
   useEffect(() => {
-    // Simulasi pengambilan data
+    // Simulated data fetching
     setProgramMBKM(programMBKMData);
     setMahasiswa(mahasiswaData);
     setDosen(dosenData);
   }, []);
 
-  const getMahasiswaByProgram = (programId) => {
+  const getMahasiswaByProgram = (programId: number) => {
     return mahasiswa.filter((mhs) => mhs.id_program_mbkm === programId);
   };
 

@@ -6,6 +6,7 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import PageContainer from '@/components/layout/page-container';
 import Link from 'next/link';
 import { Edit, Eye, Trash } from 'lucide-react';
+import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -47,8 +48,33 @@ const StudentsPage = () => {
     setFilteredStudents(filtered);
   };
 
-  const handleDelete = (NIM: string) => {
-    console.log('Delete student with NIM:', NIM);
+  const getAuthToken = () => {
+    return Cookies.get('token'); // Getting the token from the cookies
+  };
+
+  const handleDelete = async (NIM: string) => {
+    try {
+      const token = getAuthToken();
+      const response = await axios.delete(`${API_BASE_URL}/mahasiswa/${NIM}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        // Successfully deleted, filter out the student from the list
+        setStudents((prevStudents) =>
+          prevStudents.filter((student) => student.NIM !== NIM)
+        );
+        setFilteredStudents((prevFilteredStudents) =>
+          prevFilteredStudents.filter((student) => student.NIM !== NIM)
+        );
+        console.log('Student deleted successfully');
+      } else {
+        console.error('Failed to delete student');
+      }
+    } catch (error) {
+      console.error('Error deleting student:', error);
+    }
   };
 
   useEffect(() => {

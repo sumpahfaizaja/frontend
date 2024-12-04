@@ -12,11 +12,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/logbook';
 const API_FETCH_LOGBOOKS = 'https://backend-si-mbkm.vercel.app/api/logbook';
 
+interface Logbook {
+  id: string;
+  nama_file: string;
+  judul: string;
+  subjek: string;
+  uploadDate: string;
+}
+
 export default function LogbookPage() {
   const [file, setFile] = useState<File | null>(null);
   const [judul, setJudul] = useState('');
   const [subjek, setSubjek] = useState('');
-  const [logbooks, setLogbooks] = useState([]);
+  const [logbooks, setLogbooks] = useState<Logbook[]>([]);
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -33,11 +41,14 @@ export default function LogbookPage() {
         const decodedToken = jwtDecode<{ NIM: string }>(token);
         const nim = decodedToken.NIM;
 
-        const response = await fetch(`https://backend-si-mbkm.vercel.app/api/logbook/nim/${nim}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `https://backend-si-mbkm.vercel.app/api/logbook/nim/${nim}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
 
         if (!response.ok) {
           throw new Error('Gagal memuat data logbook');
@@ -45,7 +56,7 @@ export default function LogbookPage() {
 
         const data = await response.json();
         setLogbooks(data); // Menyimpan data logbook ke state
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
         setError(err.message || 'Terjadi kesalahan saat memuat logbook');
       }
@@ -89,9 +100,9 @@ export default function LogbookPage() {
       const response = await fetch(API_UPLOAD_URL, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: formData,
+        body: formData
       });
 
       const data = await response.json();
@@ -105,7 +116,7 @@ export default function LogbookPage() {
       } else {
         setMessage(data.message || 'Logbook gagal diunggah.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload error:', err);
       setMessage('Terjadi kesalahan saat unggah logbook.');
     } finally {
@@ -114,7 +125,7 @@ export default function LogbookPage() {
   };
 
   return (
-    <PageContainer className="page-container">
+    <PageContainer scrollable>
       <Heading
         title="Logbook Kegiatan MBKM"
         description="Unggah logbook kegiatan Anda untuk program MBKM"
@@ -166,7 +177,7 @@ export default function LogbookPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {logbooks.map((logbook: any) => {
+                  {logbooks.map((logbook) => {
                     const fileUrl = logbook.nama_file;
 
                     return (
@@ -176,21 +187,22 @@ export default function LogbookPage() {
                             href={fileUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="bg-blue-500 text-white hover:bg-blue-600 py-2 px-4 rounded"
+                            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
                           >
                             Lihat
                           </a>
                         </td>
                         <td className="border px-4 py-2">{logbook.judul}</td>
                         <td className="border px-4 py-2">{logbook.subjek}</td>
-                        <td className="border px-4 py-2">{logbook.uploadDate}</td>
+                        <td className="border px-4 py-2">
+                          {logbook.uploadDate}
+                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
             </div>
-
           )}
         </CardContent>
       </Card>

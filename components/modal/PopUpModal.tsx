@@ -1,4 +1,19 @@
-import React from 'react';
+import React, { ChangeEvent, FormEvent } from 'react';
+
+interface Program {
+  id: string;
+  name: string;
+  description: string;
+  requirements: string;
+}
+
+interface PopupModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  program: Program;
+  onFileUpload: (e: ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (programId: string) => void;
+}
 
 export default function PopupModal({
   isOpen,
@@ -6,7 +21,7 @@ export default function PopupModal({
   program,
   onFileUpload,
   handleSubmit
-}) {
+}: PopupModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -18,11 +33,11 @@ export default function PopupModal({
         >
           ✕
         </button>
-        <h3 className="mb-4 text-xl font-semibold">{program.program.name}</h3>
+        <h3 className="mb-4 text-xl font-semibold">{program.name}</h3>
         <p className="mb-2">Deskripsi: {program.description}</p>
         <p className="mb-4">Syarat: {program.requirements}</p>
         <form
-          onSubmit={(e) => {
+          onSubmit={(e: FormEvent) => {
             e.preventDefault();
             handleSubmit(program.id);
           }}

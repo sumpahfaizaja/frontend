@@ -12,10 +12,18 @@ const breadcrumbItems = [
   { title: 'Data Mahasiswa', link: '/dashboard/mahasiswa' }
 ];
 
+interface Student {
+  NIM: string;
+  nama_mahasiswa: string;
+  semester: string;
+  id_program_mbkm: string;
+  NIP_dosbing: string;
+}
+
 export default function StudentsPage() {
-  const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -24,7 +32,7 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/mahasiswa`);
+      const response = await axios.get<Student[]>(`${API_BASE_URL}/mahasiswa`);
       setStudents(response.data);
       setFilteredStudents(response.data); // Initialize filtered list
     } catch (error) {
@@ -32,16 +40,18 @@ export default function StudentsPage() {
     }
   };
 
-  const fetchStudentDetail = async (NIM) => {
+  const fetchStudentDetail = async (NIM: string) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`);
+      const response = await axios.get<Student>(
+        `${API_BASE_URL}/mahasiswa/${NIM}`
+      );
       setSelectedStudent(response.data);
     } catch (error) {
       console.error('Error fetching student detail:', error);
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
 

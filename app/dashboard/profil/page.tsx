@@ -43,14 +43,17 @@ export default function ProfilePage() {
     // Tambahkan logika untuk menyimpan data ke backend jika diperlukan
   };
 
-  const handleProfilePictureChange = (e) => {
-    const file = e.target.files[0];
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
+        // Make sure to cast the result to a string, since it's read as string | ArrayBuffer
         setProfile((prevProfile) => ({
           ...prevProfile,
-          profilePicture: reader.result // Menyimpan gambar yang diunggah
+          profilePicture: reader.result as string // Cast to string
         }));
       };
       reader.readAsDataURL(file); // Mengubah file menjadi URL untuk ditampilkan
@@ -257,18 +260,18 @@ export default function ProfilePage() {
                 className="w-full rounded-md border border-gray-300 px-3 py-2"
               />
             </div>
-            <div className="flex justify-between">
-              <button
-                onClick={handleCloseModal}
-                className="rounded-md bg-gray-400 px-4 py-2 text-white"
-              >
-                Batal
-              </button>
+            <div className="flex justify-between gap-4">
               <button
                 onClick={handleSavePassword}
-                className="rounded-md bg-blue-500 px-4 py-2 text-white"
+                className="w-full rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
               >
                 Simpan
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="w-full rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+              >
+                Batal
               </button>
             </div>
           </div>

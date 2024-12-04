@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-// Define types for data
+// Define types for the data
 interface ProgramMBKM {
   id: number;
   nama_program: string;
@@ -77,16 +77,16 @@ const dosenData: Dosen[] = [
 // Main Component
 export default function ProgramDosen() {
   // Explicitly typing the state
-  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // The state must be typed as an array of ProgramMBKM
-  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Explicitly typing the state for mahasiswa
-  const [dosen, setDosen] = useState<Dosen[]>([]); // Explicitly typing the state for dosen
-  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // Typing selectedDosen as Dosen or null
+  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // Now the state is typed as ProgramMBKM[]
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Mahasiswa state is typed as Mahasiswa[]
+  const [dosen, setDosen] = useState<Dosen[]>([]); // Dosen state is typed as Dosen[]
+  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // selectedDosen is typed as Dosen or null
 
   useEffect(() => {
     // Simulated data fetching and setting state
-    setProgramMBKM(programMBKMData); // Setting the state with the correct type
-    setMahasiswa(mahasiswaData); // Setting the state with the correct type
-    setDosen(dosenData); // Setting the state with the correct type
+    setProgramMBKM(programMBKMData); // Now TypeScript knows the type of the data being set
+    setMahasiswa(mahasiswaData);
+    setDosen(dosenData);
   }, []);
 
   // Function to get mahasiswa by program ID

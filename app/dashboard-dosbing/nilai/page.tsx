@@ -3,20 +3,26 @@
 import { useEffect, useState } from 'react';
 
 // Data Dummy
-const penilaianData = [
+const penilaianData: {
+  id: number;
+  NIM: string;
+  id_program_mbkm: number;
+  nilai: string;
+  file_nilai_url: string | null;
+}[] = [
   {
     id: 1,
     NIM: '12345678',
     id_program_mbkm: 1,
     nilai: '',
-    file_nilai_url: ''
+    file_nilai_url: null
   },
   {
     id: 2,
     NIM: '87654321',
     id_program_mbkm: 2,
     nilai: '',
-    file_nilai_url: ''
+    file_nilai_url: null
   }
 ];
 
@@ -52,39 +58,43 @@ const programMBKMData = [
 
 // Komponen Utama
 export default function PenilaianProgramMBKM() {
-  const [penilaians, setPenilaians] = useState([]);
-  const [mahasiswa, setMahasiswa] = useState([]);
-  const [programMBKM, setProgramMBKM] = useState([]);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
-  const [selectedPenilaian, setSelectedPenilaian] = useState(null);
-  const [nilai, setNilai] = useState('');
-  const [fileNilai, setFileNilai] = useState(null);
+  const [penilaians, setPenilaians] = useState<typeof penilaianData>([]);
+  const [mahasiswa, setMahasiswa] = useState<typeof mahasiswaData>([]);
+  const [programMBKM, setProgramMBKM] = useState<typeof programMBKMData>([]);
+  const [selectedMahasiswa, setSelectedMahasiswa] = useState<
+    (typeof mahasiswaData)[0] | null
+  >(null);
+  const [selectedPenilaian, setSelectedPenilaian] = useState<
+    (typeof penilaianData)[0] | null
+  >(null);
+  const [nilai, setNilai] = useState<string>('');
+  const [fileNilai, setFileNilai] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
-    // Simulasi pengambilan data (dari data dummy langsung)
     setPenilaians(penilaianData);
     setMahasiswa(mahasiswaData);
     setProgramMBKM(programMBKMData);
   }, []);
 
-  const handleEditPenilaian = (penilaian) => {
+  const handleEditPenilaian = (penilaian: (typeof penilaianData)[0]) => {
     setSelectedPenilaian(penilaian);
     setNilai(penilaian.nilai);
-    setFileNilai(null); // Reset file input
+    setFileNilai(null);
     setIsModalOpen(true);
   };
 
   const handleSavePenilaian = () => {
-    // Simulasi menyimpan penilaian
     setPenilaians((prevState) =>
       prevState.map((penilaian) =>
-        penilaian.id === selectedPenilaian.id
+        penilaian.id === selectedPenilaian?.id
           ? {
               ...penilaian,
               nilai: nilai,
-              file_nilai_url: URL.createObjectURL(fileNilai)
+              file_nilai_url: fileNilai
+                ? URL.createObjectURL(fileNilai)
+                : penilaian.file_nilai_url
             }
           : penilaian
       )
@@ -93,15 +103,16 @@ export default function PenilaianProgramMBKM() {
     alert('Penilaian berhasil disimpan!');
   };
 
-  const handleFileChange = (e) => {
-    setFileNilai(e.target.files[0]);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFileNilai(e.target.files[0]);
+    }
   };
 
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  // Filter mahasiswa berdasarkan nama yang cocok dengan search query
   const filteredMahasiswa = mahasiswa.filter((mhs) =>
     mhs.nama_mahasiswa.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -110,7 +121,6 @@ export default function PenilaianProgramMBKM() {
     <div className="p-6">
       <h1 className="mb-6 text-2xl font-semibold">Penilaian Program MBKM</h1>
 
-      {/* Search Input */}
       <div className="mb-4">
         <input
           type="text"
@@ -143,7 +153,6 @@ export default function PenilaianProgramMBKM() {
                 (program) => program.id === penilaian.id_program_mbkm
               );
               return (
-                // Only display rows if the student's name matches the search query
                 filteredMahasiswa.some((mhs) => mhs.NIM === penilaian.NIM) && (
                   <tr key={penilaian.id}>
                     <td className="border border-gray-300 px-4 py-2">
@@ -151,7 +160,9 @@ export default function PenilaianProgramMBKM() {
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       <button
-                        onClick={() => setSelectedMahasiswa(mahasiswaInfo)}
+                        onClick={() =>
+                          setSelectedMahasiswa(mahasiswaInfo || null)
+                        }
                         className="text-blue-500 underline"
                       >
                         {mahasiswaInfo?.nama_mahasiswa || 'Tidak Ditemukan'}
@@ -193,7 +204,6 @@ export default function PenilaianProgramMBKM() {
         </table>
       </section>
 
-      {/* Modal untuk Input Nilai dan Upload File */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-96 rounded bg-white p-6 shadow-md">
@@ -234,7 +244,6 @@ export default function PenilaianProgramMBKM() {
         </div>
       )}
 
-      {/* Modal untuk Informasi Mahasiswa */}
       {selectedMahasiswa && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="rounded bg-white p-6 shadow-md">
@@ -249,17 +258,17 @@ export default function PenilaianProgramMBKM() {
               <strong>Semester:</strong> {selectedMahasiswa.semester}
             </p>
             <p>
-              <strong>Program MBKM:</strong>{' '}
-              {programMBKM.find(
-                (program) => program.id === selectedMahasiswa.id_program_mbkm
-              )?.nama_program || 'Tidak Ditemukan'}
+              <strong>NIP Dosen Pembimbing:</strong>{' '}
+              {selectedMahasiswa.NIP_dosbing}
             </p>
-            <button
-              onClick={() => setSelectedMahasiswa(null)}
-              className="mt-4 rounded bg-blue-500 px-4 py-2 text-white"
-            >
-              Tutup
-            </button>
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => setSelectedMahasiswa(null)}
+                className="rounded bg-gray-300 px-4 py-2 text-black"
+              >
+                Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}

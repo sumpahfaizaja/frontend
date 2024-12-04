@@ -23,6 +23,7 @@ interface Dosen {
   nama_dosen: string;
 }
 
+// Simulated Data
 const programMBKMData: ProgramMBKM[] = [
   {
     id: 1,
@@ -73,20 +74,22 @@ const dosenData: Dosen[] = [
   }
 ];
 
-// Komponen Utama
+// Main Component
 export default function ProgramDosen() {
-  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // Explicitly type the state
-  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Explicitly type the state
-  const [dosen, setDosen] = useState<Dosen[]>([]); // Explicitly type the state
-  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // Explicitly type the state
+  // Explicitly typing the state
+  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // The state must be typed as an array of ProgramMBKM
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Explicitly typing the state for mahasiswa
+  const [dosen, setDosen] = useState<Dosen[]>([]); // Explicitly typing the state for dosen
+  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // Typing selectedDosen as Dosen or null
 
   useEffect(() => {
-    // Simulasi pengambilan data
-    setProgramMBKM(programMBKMData); // This is now correctly typed
-    setMahasiswa(mahasiswaData); // This is now correctly typed
-    setDosen(dosenData); // This is now correctly typed
+    // Simulated data fetching and setting state
+    setProgramMBKM(programMBKMData); // Setting the state with the correct type
+    setMahasiswa(mahasiswaData); // Setting the state with the correct type
+    setDosen(dosenData); // Setting the state with the correct type
   }, []);
 
+  // Function to get mahasiswa by program ID
   const getMahasiswaByProgram = (programId: number) => {
     return mahasiswa.filter((mhs) => mhs.id_program_mbkm === programId);
   };

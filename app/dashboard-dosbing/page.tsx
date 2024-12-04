@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-// Define types for the data
 interface ProgramMBKM {
   id: number;
   nama_program: string;
@@ -23,7 +22,6 @@ interface Dosen {
   nama_dosen: string;
 }
 
-// Simulated Data
 const programMBKMData: ProgramMBKM[] = [
   {
     id: 1,
@@ -74,22 +72,18 @@ const dosenData: Dosen[] = [
   }
 ];
 
-// Main Component
 export default function ProgramDosen() {
-  // Explicitly type the state with `useState<ProgramMBKM[]>([])`
-  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // Now the state is typed as ProgramMBKM[]
-  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Mahasiswa state is typed as Mahasiswa[]
-  const [dosen, setDosen] = useState<Dosen[]>([]); // Dosen state is typed as Dosen[]
-  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // selectedDosen is typed as Dosen or null
+  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]);
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
+  const [dosen, setDosen] = useState<Dosen[]>([]);
+  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null);
 
   useEffect(() => {
-    // Simulated data fetching and setting state
-    setProgramMBKM(programMBKMData); // Now TypeScript knows the type of the data being set
+    setProgramMBKM(programMBKMData);
     setMahasiswa(mahasiswaData);
     setDosen(dosenData);
   }, []);
 
-  // Function to get mahasiswa by program ID
   const getMahasiswaByProgram = (programId: number) => {
     return mahasiswa.filter((mhs) => mhs.id_program_mbkm === programId);
   };

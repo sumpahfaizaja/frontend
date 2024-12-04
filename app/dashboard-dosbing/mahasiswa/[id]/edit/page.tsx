@@ -69,7 +69,12 @@ const EditMahasiswaPage = () => {
   useEffect(() => {
     const fetchStudentDetails = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`);
+        const token = getAuthToken();
+        const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setStudent(response.data);
         setLoading(false);
       } catch (err) {

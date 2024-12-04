@@ -76,7 +76,7 @@ const dosenData: Dosen[] = [
 
 // Main Component
 export default function ProgramDosen() {
-  // Explicitly typing the state
+  // Explicitly type the state with `useState<ProgramMBKM[]>([])`
   const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // Now the state is typed as ProgramMBKM[]
   const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Mahasiswa state is typed as Mahasiswa[]
   const [dosen, setDosen] = useState<Dosen[]>([]); // Dosen state is typed as Dosen[]

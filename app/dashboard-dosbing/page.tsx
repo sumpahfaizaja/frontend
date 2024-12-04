@@ -75,16 +75,16 @@ const dosenData: Dosen[] = [
 
 // Komponen Utama
 export default function ProgramDosen() {
-  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]);
-  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
-  const [dosen, setDosen] = useState<Dosen[]>([]);
-  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null);
+  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]); // Explicitly type the state
+  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]); // Explicitly type the state
+  const [dosen, setDosen] = useState<Dosen[]>([]); // Explicitly type the state
+  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null); // Explicitly type the state
 
   useEffect(() => {
     // Simulasi pengambilan data
-    setProgramMBKM(programMBKMData);
-    setMahasiswa(mahasiswaData);
-    setDosen(dosenData);
+    setProgramMBKM(programMBKMData); // This is now correctly typed
+    setMahasiswa(mahasiswaData); // This is now correctly typed
+    setDosen(dosenData); // This is now correctly typed
   }, []);
 
   const getMahasiswaByProgram = (programId: number) => {

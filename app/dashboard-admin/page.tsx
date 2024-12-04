@@ -1,17 +1,27 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 
-const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
+interface Student {
+  nim: string;
+  nama_mahasiswa: string;
+  program_mbkm: string;
+  id_program_mbkm: number;
+}
 
-export default function AdminDashboardPage() {
-  const [students, setStudents] = useState([]);
-  const [grades, setGrades] = useState([]);
-  const [loading, setLoading] = useState(true);
+interface Grade {
+  id: number;
+  nim: string;
+  konversi_selesai: boolean;
+  file_url: string | null;
+}
 
-  // Data Dummy Mahasiswa
-  const dummyStudents = [
+const AdminDashboardPage: React.FC = () => {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const dummyStudents: Student[] = [
     {
       nim: '12345678',
       nama_mahasiswa: 'John Doe',
@@ -32,8 +42,7 @@ export default function AdminDashboardPage() {
     }
   ];
 
-  // Data Dummy Konversi Nilai
-  const dummyGrades = [
+  const dummyGrades: Grade[] = [
     {
       id: 1,
       nim: '12345678',
@@ -44,17 +53,14 @@ export default function AdminDashboardPage() {
     { id: 3, nim: '34567890', konversi_selesai: false, file_url: null }
   ];
 
-  // Mengambil data mahasiswa dan konversi nilai
   useEffect(() => {
     setStudents(dummyStudents);
     setGrades(dummyGrades);
     setLoading(false);
   }, []);
 
-  // Menangani konversi nilai
-  const handleKonversi = async (id) => {
+  const handleKonversi = async (id: number): Promise<void> => {
     try {
-      // Update status konversi nilai
       setGrades((prevGrades) =>
         prevGrades.map((grade) =>
           grade.id === id
@@ -66,7 +72,6 @@ export default function AdminDashboardPage() {
             : grade
         )
       );
-
       alert('Program Telah Selesai!');
     } catch (error) {
       console.error('Error konversi nilai:', error);
@@ -74,8 +79,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Fungsi untuk mendownload file
-  const handleDownload = (fileUrl) => {
+  const handleDownload = (fileUrl: string | null): void => {
     if (fileUrl) {
       window.open(fileUrl, '_blank');
     } else {
@@ -94,65 +98,42 @@ export default function AdminDashboardPage() {
           <table className="w-full border-collapse border border-gray-300">
             <thead>
               <tr>
-                <th className="border border-gray-300 px-4 py-2">No</th>
-                <th className="border border-gray-300 px-4 py-2">Nama</th>
-                <th className="border border-gray-300 px-4 py-2">NIM</th>
-                <th className="border border-gray-300 px-4 py-2">Program</th>
-                <th className="border border-gray-300 px-4 py-2">
-                  Status Konversi
-                </th>
-                <th className="border border-gray-300 px-4 py-2">Aksi</th>
-                <th className="border border-gray-300 px-4 py-2">
-                  Download File
-                </th>
+                <th>No</th>
+                <th>Nama</th>
+                <th>NIM</th>
+                <th>Program</th>
+                <th>Status Konversi</th>
+                <th>Aksi</th>
+                <th>Download File</th>
               </tr>
             </thead>
             <tbody>
               {students.map((student, index) => {
-                // Mencari nilai konversi untuk mahasiswa
                 const grade = grades.find((grade) => grade.nim === student.nim);
                 return (
                   <tr key={student.nim}>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      {index + 1}
+                    <td>{index + 1}</td>
+                    <td>{student.nama_mahasiswa}</td>
+                    <td>{student.nim}</td>
+                    <td>{student.program_mbkm}</td>
+                    <td>
+                      {grade?.konversi_selesai
+                        ? '✔ Program Telah Selesai'
+                        : '✘ Belum Konversi'}
                     </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {student.nama_mahasiswa}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {student.nim}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {student.program_mbkm}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      {grade ? (
-                        grade.konversi_selesai ? (
-                          <span className="text-green-500">
-                            ✔ Program Telah Selesai
-                          </span>
-                        ) : (
-                          <span className="text-red-500">✘ Belum Konversi</span>
-                        )
-                      ) : (
-                        <span className="text-red-500">✘ Belum Konversi</span>
-                      )}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
+                    <td>
                       <button
-                        className="rounded bg-green-500 px-4 py-2 text-white hover:bg-green-700"
-                        onClick={() => handleKonversi(grade.id)}
-                        disabled={grade?.konversi_selesai}
+                        onClick={() => handleKonversi(grade!.id)}
+                        disabled={!!grade?.konversi_selesai}
                       >
                         {grade?.konversi_selesai
                           ? 'Program Telah Selesai'
                           : 'Konversi Nilai'}
                       </button>
                     </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
+                    <td>
                       <button
-                        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                        onClick={() => handleDownload(grade?.file_url)}
+                        onClick={() => handleDownload(grade?.file_url ?? null)}
                         disabled={!grade?.file_url}
                       >
                         {grade?.file_url
@@ -169,4 +150,6 @@ export default function AdminDashboardPage() {
       )}
     </div>
   );
-}
+};
+
+export default AdminDashboardPage;

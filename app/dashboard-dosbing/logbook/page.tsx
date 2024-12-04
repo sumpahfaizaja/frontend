@@ -41,9 +41,19 @@ export default function LogbookPage() {
   });
 
   const router = useRouter();
-  const programId = new URLSearchParams(window.location.search).get(
-    'id_program_mbkm'
-  ); // Get the ID from the query params
+  const [programId, setProgramId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Ensure this is running on the client side
+    if (typeof window !== 'undefined') {
+      const id = new URLSearchParams(window.location.search).get(
+        'id_program_mbkm'
+      );
+      if (id) {
+        setProgramId(id);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (programId) {

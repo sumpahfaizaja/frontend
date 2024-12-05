@@ -1,161 +1,187 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import PageContainer from '@/components/layout/page-container';
+import Link from 'next/link';
 
-interface ProgramMBKM {
-  id: number;
-  nama_program: string;
-  deskripsi: string;
-  dosen_pembimbing: string;
-}
-
-interface Mahasiswa {
-  NIM: string;
-  nama_mahasiswa: string;
-  semester: number;
-  id_program_mbkm: number;
-  NIP_dosbing: string;
-}
-
-interface Dosen {
-  NIP: string;
-  nama_dosen: string;
-}
-
-const programMBKMData: ProgramMBKM[] = [
-  {
-    id: 1,
-    nama_program: 'Magang di Perusahaan ABC',
-    deskripsi: 'Program magang selama 6 bulan di perusahaan ABC.',
-    dosen_pembimbing: '987654321'
-  },
-  {
-    id: 2,
-    nama_program: 'Studi Independen Data Science',
-    deskripsi: 'Program studi independen selama 6 bulan tentang Data Science.',
-    dosen_pembimbing: '123456789'
-  }
-];
-
-const mahasiswaData: Mahasiswa[] = [
-  {
-    NIM: '12345678',
-    nama_mahasiswa: 'John Doe',
-    semester: 5,
-    id_program_mbkm: 1,
-    NIP_dosbing: '987654321'
-  },
-  {
-    NIM: '87654321',
-    nama_mahasiswa: 'Jane Smith',
-    semester: 7,
-    id_program_mbkm: 2,
-    NIP_dosbing: '123456789'
-  },
-  {
-    NIM: '11223344',
-    nama_mahasiswa: 'Alice Johnson',
-    semester: 6,
-    id_program_mbkm: 1,
-    NIP_dosbing: '987654321'
-  }
-];
-
-const dosenData: Dosen[] = [
-  {
-    NIP: '987654321',
-    nama_dosen: 'Dr. John Smith'
-  },
-  {
-    NIP: '123456789',
-    nama_dosen: 'Prof. Jane Doe'
-  }
-];
-
-export default function ProgramDosen() {
-  const [programMBKM, setProgramMBKM] = useState<ProgramMBKM[]>([]);
-  const [mahasiswa, setMahasiswa] = useState<Mahasiswa[]>([]);
-  const [dosen, setDosen] = useState<Dosen[]>([]);
-  const [selectedDosen, setSelectedDosen] = useState<Dosen | null>(null);
+export default function DashboardMBKM() {
+  const [stats, setStats] = useState({
+    studentCount: 0,
+    programCount: 0,
+    mentorsCount: 0
+  });
+  const [students, setStudents] = useState<
+    { nama_mahasiswa: string; NIM: number }[]
+  >([]);
+  const [pengumuman, setPengumuman] = useState<
+    {
+      id_pengumuman: number;
+      judul: string;
+      isi: string;
+      tanggal: string;
+      NIP_koor_mbkm: number;
+    }[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setProgramMBKM(programMBKMData);
-    setMahasiswa(mahasiswaData);
-    setDosen(dosenData);
+    const fetchData = async () => {
+      try {
+        const responses = await Promise.allSettled([
+          fetch('https://backend-si-mbkm.vercel.app/api/mahasiswa'),
+          fetch('https://backend-si-mbkm.vercel.app/api/program-mbkm'),
+          fetch('https://backend-si-mbkm.vercel.app/api/pengumuman'),
+          fetch('https://backend-si-mbkm.vercel.app/api/dosbing')
+        ]);
+
+        const [studentsRes, programsRes, activitiesRes, mentorsRes] = responses;
+
+        if (studentsRes.status === 'fulfilled' && studentsRes.value.ok) {
+          const studentsData = await studentsRes.value.json();
+          setStudents(studentsData);
+          setStats((prev) => ({
+            ...prev,
+            studentCount: studentsData.length
+          }));
+        }
+
+        if (programsRes.status === 'fulfilled' && programsRes.value.ok) {
+          const programsData = await programsRes.value.json();
+          setStats((prev) => ({
+            ...prev,
+            programCount: programsData.length
+          }));
+        }
+
+        if (activitiesRes.status === 'fulfilled' && activitiesRes.value.ok) {
+          const activitiesData = await activitiesRes.value.json();
+          setPengumuman(activitiesData);
+        }
+
+        if (mentorsRes.status === 'fulfilled' && mentorsRes.value.ok) {
+          const mentorsData = await mentorsRes.value.json();
+          setStats((prev) => ({
+            ...prev,
+            mentorsCount: mentorsData.length
+          }));
+        }
+      } catch (err) {
+        setError('An unknown error occurred.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const getMahasiswaByProgram = (programId: number) => {
-    return mahasiswa.filter((mhs) => mhs.id_program_mbkm === programId);
-  };
-
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold">
-        Program yang Dipegang oleh Dosen
-      </h1>
+    <PageContainer scrollable>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Dashboard MBKM</h2>
+        </div>
 
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Daftar Dosen Pembimbing</h2>
-        <ul>
-          {dosen.map((dosenItem) => (
-            <li key={dosenItem.NIP} className="mb-2">
-              <button
-                onClick={() => setSelectedDosen(dosenItem)}
-                className="text-blue-500 underline"
-              >
-                {dosenItem.nama_dosen}
-              </button>
-            </li>
+        {/* Statistik Cards */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {[
+            { title: 'Mahasiswa Terdaftar', count: stats.studentCount },
+            { title: 'Program MBKM', count: stats.programCount }
+          ].map((stat, index) => (
+            <Card key={index}>
+              <CardHeader>
+                <CardTitle>{stat.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <Skeleton className="h-6 w-20" />
+                ) : (
+                  <p className="text-2xl font-semibold">{stat.count}</p>
+                )}
+              </CardContent>
+            </Card>
           ))}
-        </ul>
-      </section>
+        </div>
 
-      {selectedDosen && (
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold">{`Program yang Dipegang oleh ${selectedDosen.nama_dosen}`}</h2>
-          <div className="mt-4">
-            {programMBKM
-              .filter(
-                (program) => program.dosen_pembimbing === selectedDosen.NIP
-              )
-              .map((program) => {
-                const mahasiswaInProgram = getMahasiswaByProgram(program.id);
-                return (
-                  <div
-                    key={program.id}
-                    className="mb-6 rounded border p-4 shadow-md"
-                  >
-                    <h3 className="text-lg font-semibold">
-                      {program.nama_program}
-                    </h3>
-                    <p>{program.deskripsi}</p>
-                    <h4 className="mt-4 font-semibold">
-                      Mahasiswa yang Mengikuti Program:
-                    </h4>
-                    <ul>
-                      {mahasiswaInProgram.length > 0 ? (
-                        mahasiswaInProgram.map((mhs) => (
-                          <li key={mhs.NIM} className="mb-2">
-                            <p>
-                              {mhs.nama_mahasiswa} (Semester {mhs.semester})
-                            </p>
-                          </li>
-                        ))
-                      ) : (
-                        <p className="text-gray-500">
-                          Tidak ada mahasiswa yang mengikuti program ini.
-                        </p>
-                      )}
-                    </ul>
-                    <p className="mt-2 text-sm text-gray-500">
-                      Total Mahasiswa: {mahasiswaInProgram.length}
-                    </p>
-                  </div>
-                );
-              })}
-          </div>
-        </section>
-      )}
-    </div>
+        {/* Recent Activities & Students List */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Recent Activities */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Aktivitas Terbaru</CardTitle>
+              <CardDescription>
+                Pengumuman terbaru dari sistem MBKM.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-20 w-full" />
+              ) : pengumuman.length > 0 ? (
+                <ul className="space-y-3">
+                  {pengumuman.map((activity) => (
+                    <li key={activity.id_pengumuman}>
+                      <Badge>{activity.judul}</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.isi}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Intl.DateTimeFormat('id-ID', {
+                          dateStyle: 'medium'
+                        }).format(new Date(activity.tanggal))}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Tidak ada pengumuman terbaru.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Students List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Daftar Mahasiswa</CardTitle>
+              <CardDescription>
+                Nama-nama mahasiswa yang terdaftar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-20 w-full" />
+              ) : students.length > 0 ? (
+                <ul className="divide-y">
+                  {students.map((student) => (
+                    <li
+                      key={student.NIM}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <p>{student.nama_mahasiswa}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {student.NIM}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Tidak ada data mahasiswa.</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </PageContainer>
   );
 }

@@ -141,7 +141,7 @@ export default function ProgramMBKMPage() {
   };
 
   return (
-    <PageContainer>
+    <PageContainer scrollable>
       <Heading
         title="Program MBKM"
         description="Daftar program MBKM berdasarkan status pendaftaran"

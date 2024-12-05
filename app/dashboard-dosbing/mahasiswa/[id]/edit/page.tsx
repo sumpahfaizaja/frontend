@@ -23,13 +23,13 @@ interface StudentDetails {
 }
 
 interface Program {
-  id: string;
+  id_program_mbkm: string;
   company: string;
   role: string;
 }
 
 interface Dosen {
-  NIP: string;
+  NIP_dosbing: string;
   nama_dosbing: string;
 }
 
@@ -51,13 +51,14 @@ const EditMahasiswaPage = () => {
   const [dosens, setDosens] = useState<Dosen[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // Success message state
 
   const breadcrumbItems = [
-    { title: 'Dashboard', link: '/dashboard-koordinator' },
-    { title: 'Data Mahasiswa', link: '/dashboard-koordinator/mahasiswa' },
+    { title: 'Dashboard', link: '/dashboard-dosbing' },
+    { title: 'Data Mahasiswa', link: '/dashboard-dosbing/mahasiswa' },
     {
       title: 'Edit Mahasiswa',
-      link: `/dashboard-koordinator/mahasiswa/${NIM}/edit`
+      link: `/dashboard-dosbing/mahasiswa/${NIM}/edit`
     }
   ];
 
@@ -131,7 +132,9 @@ const EditMahasiswaPage = () => {
           Authorization: `Bearer ${token}` // Add token to the request headers
         }
       });
-      router.push('/dashboard-koordinator/mahasiswa');
+      setSuccessMessage('Data mahasiswa berhasil diperbarui!'); // Set success message
+      setTimeout(() => setSuccessMessage(null), 5000); // Hide the message after 5 seconds
+      router.push('/dashboard-dosbing/mahasiswa');
     } catch (err) {
       console.error('Error updating student:', err);
       setError('Gagal memperbarui data mahasiswa');
@@ -176,7 +179,7 @@ const EditMahasiswaPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
             <Link
-              href="/dashboard-koordinator/mahasiswa"
+              href="/dashboard-dosbing/mahasiswa"
               className="rounded-full p-2 hover:bg-gray-100"
             >
               <ChevronLeft size={24} />
@@ -185,43 +188,25 @@ const EditMahasiswaPage = () => {
           </div>
         </div>
 
+        {/* Success Notification */}
+        {successMessage && (
+          <div className="p-4 rounded-lg bg-green-100 text-green-800 flex items-center gap-x-2">
+            <Save size={20} />
+            {successMessage}
+          </div>
+        )}
+
         {/* Edit Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {/* NIM (Disabled) */}
-            <div>
-              <label
-                htmlFor="NIM"
-                className="block text-sm font-medium text-gray-700"
-              >
-                NIM
-              </label>
-              <Input
-                type="text"
-                id="NIM"
-                name="NIM"
-                value={student.NIM}
-                disabled
-              />
-            </div>
-
-            {/* Nama Mahasiswa */}
-            <div>
-              <label
-                htmlFor="nama_mahasiswa"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Nama Mahasiswa
-              </label>
-              <Input
-                type="text"
-                id="nama_mahasiswa"
-                name="nama_mahasiswa"
-                value={student.nama_mahasiswa}
-                disabled
-              />
-            </div>
-
+          <div>
+            <label className="block text-sm font-semibold">Nama Mahasiswa</label>
+            <Input
+              type="text"
+              name="nama_mahasiswa"
+              value={student.nama_mahasiswa}
+              onChange={handleInputChange}
+            />
+          </div>
             {/* Semester */}
             <div>
               <label
@@ -238,62 +223,44 @@ const EditMahasiswaPage = () => {
                 onChange={handleInputChange}
               />
             </div>
-
-            {/* Program MBKM */}
-            <div>
-              <label
-                htmlFor="id_program_mbkm"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Program MBKM
-              </label>
-              <select
-                id="id_program_mbkm"
-                name="id_program_mbkm"
-                value={student.id_program_mbkm}
-                onChange={handleInputChange}
-                className="h-9 w-full rounded-md border border-gray-300"
-              >
-                <option value="">Pilih Program</option>
-                {programs.map((program) => (
-                  <option key={program.id} value={program.id}>
-                    {program.company} - {program.role}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Dosen Pembimbing */}
-            <div>
-              <label
-                htmlFor="NIP_dosbing"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Dosen Pembimbing
-              </label>
-              <select
-                id="NIP_dosbing"
-                name="NIP_dosbing"
-                value={student.NIP_dosbing}
-                onChange={handleInputChange}
-                className="h-9 w-full rounded-md border border-gray-300"
-              >
-                <option value="">Pilih Dosen Pembimbing</option>
-                {dosens.map((dosen) => (
-                  <option key={dosen.NIP} value={dosen.NIP}>
-                    {dosen.nama_dosbing}
-                  </option>
-                ))}
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-semibold">Program MBKM</label>
+            <select
+              name="id_program_mbkm"
+              value={student.id_program_mbkm}
+              onChange={handleInputChange}
+              className="block w-full py-2 px-3 border rounded-md"
+            >
+              {programs.map((program) => (
+                <option
+                  key={program.id_program_mbkm}
+                  value={program.id_program_mbkm}
+                >
+                  {program.company} - {program.role}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div className="flex justify-end gap-x-4">
-            <button
-              type="submit"
-              className="inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700 focus:outline-none"
+          <div>
+            <label className="block text-sm font-semibold">Dosen Pembimbing</label>
+            <select
+              name="NIP_dosbing"
+              value={student.NIP_dosbing}
+              onChange={handleInputChange}
+              className="block w-full py-2 px-3 border rounded-md"
             >
-              <Save size={16} /> Simpan
+              {dosens.map((dosen) => (
+                <option key={dosen.NIP_dosbing} value={dosen.NIP_dosbing}>
+                  {dosen.nama_dosbing}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-x-2">
+            <button type="submit" className="btn btn-primary">
+              Simpan
             </button>
           </div>
         </form>

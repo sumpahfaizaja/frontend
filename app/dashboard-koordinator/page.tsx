@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CalendarDateRangePicker } from '@/components/date-range-picker';
-import PageContainer from '@/components/layout/page-container';
-
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -12,6 +11,8 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import PageContainer from '@/components/layout/page-container';
+import Link from 'next/link';
 
 export default function DashboardMBKM() {
   const [stats, setStats] = useState({
@@ -31,14 +32,12 @@ export default function DashboardMBKM() {
       NIP_koor_mbkm: number;
     }[]
   >([]);
-  const [program, setProgram] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all data in parallel
         const responses = await Promise.allSettled([
           fetch('https://backend-si-mbkm.vercel.app/api/mahasiswa'),
           fetch('https://backend-si-mbkm.vercel.app/api/program-mbkm'),
@@ -46,7 +45,6 @@ export default function DashboardMBKM() {
           fetch('https://backend-si-mbkm.vercel.app/api/dosbing')
         ]);
 
-        // Handle each response
         const [studentsRes, programsRes, activitiesRes, mentorsRes] = responses;
 
         if (studentsRes.status === 'fulfilled' && studentsRes.value.ok) {
@@ -64,25 +62,6 @@ export default function DashboardMBKM() {
             ...prev,
             programCount: programsData.length
           }));
-          setProgram(
-            programsData.map(
-              (program: {
-                id_program_mbkm: number;
-                company: string;
-                deskripsi: string;
-                role: string;
-                status: string;
-                category_id: number;
-              }) => ({
-                id_program_mbkm: program.id_program_mbkm,
-                label: program.company,
-                value: program.deskripsi,
-                role: program.role,
-                status: program.status,
-                category_id: program.category_id
-              })
-            )
-          );
         }
 
         if (activitiesRes.status === 'fulfilled' && activitiesRes.value.ok) {
@@ -97,17 +76,6 @@ export default function DashboardMBKM() {
             mentorsCount: mentorsData.length
           }));
         }
-
-        // Check for errors in any failed fetch
-        if (
-          responses.some(
-            (res) =>
-              res.status === 'rejected' ||
-              (res.status === 'fulfilled' && !res.value.ok)
-          )
-        ) {
-          setError('Some data could not be fetched. Please try again later.');
-        }
       } catch (err) {
         setError('An unknown error occurred.');
       } finally {
@@ -118,27 +86,25 @@ export default function DashboardMBKM() {
     fetchData();
   }, []);
 
-  console.log(students);
-
   return (
-    <PageContainer scrollable={true}>
-      <div className="space-y-4">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-4">
-          <h2 className="text-xl font-semibold tracking-tight md:text-2xl">
-            Selamat datang, Koordinator MBKM 👋
-          </h2>
-          <div className="ml-auto flex items-center gap-x-2">
-            {/* <CalendarDateRangePicker /> */}
-            <Button>Download Laporan</Button>
-          </div>
+    <PageContainer scrollable>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold tracking-tight">Dashboard MBKM</h2>
+          <Button variant="outline" asChild>
+            <Link href={'/dashboard-koordinator/program/create'}>
+              Tambah Program
+            </Link>
+          </Button>
         </div>
 
-        {/* Statistik Utama */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Statistik Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[
-            { title: 'Total Mahasiswa', count: stats.studentCount },
-            { title: 'Total Program MBKM', count: stats.programCount },
-            { title: 'Total Dosen Pembimbing', count: stats.mentorsCount }
+            { title: 'Mahasiswa Terdaftar', count: stats.studentCount },
+            { title: 'Program MBKM', count: stats.programCount },
+            { title: 'Dosen Pembimbing', count: stats.mentorsCount }
           ].map((stat, index) => (
             <Card key={index}>
               <CardHeader>
@@ -146,80 +112,80 @@ export default function DashboardMBKM() {
               </CardHeader>
               <CardContent>
                 {loading ? (
-                  <p>Loading...</p>
+                  <Skeleton className="h-6 w-20" />
                 ) : (
-                  <p className="text-lg">{stat.count}</p>
+                  <p className="text-2xl font-semibold">{stat.count}</p>
                 )}
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Second Card */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Aktivitas Terbaru */}
-          <div className="grid grid-cols-1 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Aktivitas Terbaru</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <p>Loading...</p>
-                ) : pengumuman && pengumuman.length > 0 ? (
-                  <ul className="space-y-2">
-                    {pengumuman.map((activity, index) => (
-                      <li key={index}>
-                        <div className="flex w-full items-center justify-between">
-                          <p>{activity.judul}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Intl.DateTimeFormat('id-ID', {
-                              dateStyle: 'long'
-                            }).format(new Date(activity.tanggal))}
-                          </p>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          {activity.isi}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>Tidak ada aktivitas terbaru.</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+        {/* Recent Activities & Students List */}
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Recent Activities */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Aktivitas Terbaru</CardTitle>
+              <CardDescription>
+                Pengumuman terbaru dari sistem MBKM.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-20 w-full" />
+              ) : pengumuman.length > 0 ? (
+                <ul className="space-y-3">
+                  {pengumuman.map((activity) => (
+                    <li key={activity.id_pengumuman}>
+                      <Badge>{activity.judul}</Badge>
+                      <p className="text-sm text-muted-foreground">
+                        {activity.isi}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Intl.DateTimeFormat('id-ID', {
+                          dateStyle: 'medium'
+                        }).format(new Date(activity.tanggal))}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Tidak ada pengumuman terbaru.</p>
+              )}
+            </CardContent>
+          </Card>
 
-          {/* Daftar Mahasiswa */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Daftar Mahasiswa</CardTitle>
-                <CardDescription>
-                  Nama-nama mahasiswa yang terdaftar dalam sistem MBKM.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <p>Loading...</p>
-                ) : students && students.length > 0 ? (
-                  <ul className="flex w-full flex-col gap-y-1 rounded-lg border bg-background p-4 text-foreground">
-                    {students.map((student, index) => (
-                      <li key={index} className="flex items-center">
-                        <p className="text-sm">{student.nama_mahasiswa}</p>
-                        <p className="ml-auto text-xs text-muted-foreground">
-                          {student.NIM}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p style={{ color: 'red' }}>{error}</p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          {/* Students List */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Daftar Mahasiswa</CardTitle>
+              <CardDescription>
+                Nama-nama mahasiswa yang terdaftar.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-20 w-full" />
+              ) : students.length > 0 ? (
+                <ul className="divide-y">
+                  {students.map((student) => (
+                    <li
+                      key={student.NIM}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <p>{student.nama_mahasiswa}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {student.NIM}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Tidak ada data mahasiswa.</p>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </PageContainer>

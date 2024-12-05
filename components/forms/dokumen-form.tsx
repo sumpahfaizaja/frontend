@@ -7,8 +7,16 @@ import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '../ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 
@@ -17,7 +25,7 @@ const DOCUMENT_TYPES = [
   { label: 'KTP', value: 'KTP' },
   { label: 'Transkrip Nilai', value: 'transkrip' },
   { label: 'Sertifikat Organisasi', value: 'sertifikat' },
-  { label: 'Dokumen Tambahan', value: 'dokumen_tambahan' },
+  { label: 'Dokumen Tambahan', value: 'dokumen_tambahan' }
 ];
 
 export default function UploadDocumentPage() {
@@ -34,43 +42,43 @@ export default function UploadDocumentPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     if (!file || !documentType) {
       setMessage('Pilih jenis dokumen dan file terlebih dahulu!');
       return;
     }
-  
+
     console.log('Jenis Berkas:', documentType); // Debug log
     console.log('File:', file); // Debug log
-    
+
     const token = Cookies.get('token');
     if (!token) {
       setMessage('Token tidak ditemukan, silakan login ulang.');
       return;
     }
-  
+
     setLoading(true);
-  
+
     // Mendekode token JWT untuk mengambil NIM
     const decodedToken = jwtDecode<{ NIM: string }>(token);
     const nim = decodedToken.NIM;
-  
+
     const formData = new FormData();
     formData.append('file', file);
     formData.append('jenis_berkas', documentType);
     formData.append('NIM', nim); // Menambahkan NIM ke dalam FormData
-  
+
     try {
       const response = await fetch(API_UPLOAD_URL, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        body: formData,
+        body: formData
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         setMessage('Upload berhasil!');
       } else {
@@ -83,14 +91,22 @@ export default function UploadDocumentPage() {
       setLoading(false);
     }
   };
-  
 
   return (
-    <PageContainer>
+    <>
       <Heading
         title="Upload Dokumen"
         description="Unggah dokumen yang diperlukan untuk MBKM"
       />
+      {message && (
+        <Alert className="mt-4">
+          <AlertTitle className="font-semibold">
+            {message.includes('berhasil') ? 'Sukses' : 'Error'}
+          </AlertTitle>
+          <AlertDescription>{message}</AlertDescription>
+        </Alert>
+      )}
+      <Separator className="my-4" />
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>Form Upload Dokumen</CardTitle>
@@ -118,6 +134,6 @@ export default function UploadDocumentPage() {
           {message && <p className="mt-2 text-sm text-red-500">{message}</p>}
         </CardContent>
       </Card>
-    </PageContainer>
+    </>
   );
 }

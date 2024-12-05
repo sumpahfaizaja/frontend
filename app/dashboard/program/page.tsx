@@ -23,7 +23,7 @@ interface ProgramMBKM {
   id_program_mbkm: number;
   company: string;
   deskripsi: string | null;
-  syarat: string;
+  role: string;
   status: string;
   date: string;
   category_id: string;
@@ -77,7 +77,10 @@ export default function ProgramMBKMPage() {
               programs
                 .filter((program) => program.status === 'Active') // Filter kegiatan aktif
                 .map((program) => (
-                  <Card key={program.id_program_mbkm} className="shadow-lg">
+                  <Card
+                    key={program.id_program_mbkm}
+                    className="flex flex-col shadow-lg"
+                  >
                     <CardHeader>
                       <CardTitle className="text-lg">
                         {program.company}
@@ -88,14 +91,18 @@ export default function ProgramMBKMPage() {
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                       </p>
                     </CardContent>
-                    <div className="flex w-full items-end justify-between gap-x-4 p-4">
+                    <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
                       <p className="line-clamp-1 text-sm text-gray-600">
-                        <strong>Syarat:</strong> {program.syarat}
+                        <strong>Role:</strong> {program.role}
                       </p>
                       <Link
                         href={`/dashboard/program/${program.id_program_mbkm}`}
                       >
-                        <Button variant="default" className="w-full">
+                        <Button
+                          variant="default"
+                          size={'sm'}
+                          className="w-full"
+                        >
                           Daftar
                         </Button>
                       </Link>
@@ -115,7 +122,10 @@ export default function ProgramMBKMPage() {
               programs
                 .filter((program) => program.status !== 'Active') // Filter kegiatan tidak aktif
                 .map((program) => (
-                  <Card key={program.id_program_mbkm} className="shadow-lg">
+                  <Card
+                    key={program.id_program_mbkm}
+                    className="flex flex-col shadow-lg"
+                  >
                     <CardHeader>
                       <CardTitle className="text-lg">
                         {program.company}
@@ -126,17 +136,10 @@ export default function ProgramMBKMPage() {
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                       </p>
                     </CardContent>
-                    <div className="flex w-full items-end justify-between gap-x-4 p-4">
+                    <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
                       <p className="line-clamp-1 text-sm text-gray-600">
-                        <strong>Syarat:</strong> {program.syarat}
+                        <strong>role:</strong> {program.role}
                       </p>
-                      <Link
-                        href={`/dashboard/program/${program.id_program_mbkm}`}
-                      >
-                        <Button variant="default" className="w-full">
-                          Lihat Detail
-                        </Button>
-                      </Link>
                     </div>
                   </Card>
                 ))

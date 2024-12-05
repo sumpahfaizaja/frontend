@@ -461,12 +461,6 @@ export const navItems: Record<
       },
       { separator: true },
       {
-        title: 'Sertifikat',
-        href: '/dashboard/sertifikat',
-        icon: 'book-check',
-        label: 'sertifikat'
-      },
-      {
         title: 'Dokumen',
         href: '/dashboard/dokumen',
         icon: 'help',

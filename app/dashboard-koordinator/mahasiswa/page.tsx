@@ -12,7 +12,7 @@ const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
 const breadcrumbItems = [
   { title: 'Dashboard', link: '/dashboard-koordinator' },
-  { title: 'Data Mahasiswa', link: '/dashboard-koordinator/mahasiswa' },
+  { title: 'Data Mahasiswa', link: '/dashboard-koordinator/mahasiswa' }
 ];
 
 interface Student {
@@ -63,14 +63,19 @@ const StudentsPage = () => {
 
     try {
       const token = getAuthToken();
-      const response = await axios.delete(`${API_BASE_URL}/mahasiswa/${deleteNIM}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.delete(
+        `${API_BASE_URL}/mahasiswa/${deleteNIM}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
       if (response.status === 204) {
-        setStudents((prev) => prev.filter((student) => student.NIM !== deleteNIM));
+        setStudents((prev) =>
+          prev.filter((student) => student.NIM !== deleteNIM)
+        );
         setFilteredStudents((prev) =>
           prev.filter((student) => student.NIM !== deleteNIM)
         );
@@ -108,7 +113,7 @@ const StudentsPage = () => {
 
         {/* Notifikasi Sukses */}
         {successMessage && (
-          <div className="p-4 rounded-lg bg-green-100 text-green-800 flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2 rounded-lg bg-green-100 p-4 text-green-800">
             <CheckCircle size={20} />
             {successMessage}
           </div>
@@ -123,8 +128,12 @@ const StudentsPage = () => {
                 className="flex cursor-pointer justify-between border-b px-4 py-2.5 hover:bg-gray-100"
               >
                 <div className="flex flex-col gap-y-1">
-                  <p className="font-semibold leading-none">{student.nama_mahasiswa}</p>
-                  <p className="font-light leading-none text-muted-foreground">{student.NIM}</p>
+                  <p className="font-semibold leading-none">
+                    {student.nama_mahasiswa}
+                  </p>
+                  <p className="font-light leading-none text-muted-foreground">
+                    {student.NIM}
+                  </p>
                 </div>
                 <div className="flex space-x-2">
                   <Link
@@ -153,29 +162,43 @@ const StudentsPage = () => {
       </div>
 
       {/* Modal Konfirmasi */}
+      {/* Delete Confirmation */}
       {deleteNIM && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md rounded-lg bg-white p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold">Konfirmasi Penghapusan</h2>
-              <button
-                onClick={() => setDeleteNIM(null)}
-                className="text-gray-500 hover:text-black"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+          <div className="w-full max-w-md scale-100 transform rounded-lg bg-white p-6 shadow-lg transition-transform">
+            <div className="text-center">
+              <svg
+                className="mx-auto h-12 w-12 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <XCircle size={20} />
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                />
+              </svg>
+              <h2 className="mt-4 text-lg font-bold text-gray-800">
+                Konfirmasi Hapus
+              </h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak
+                dapat dibatalkan.
+              </p>
             </div>
-            <p className="mt-2">Apakah Anda yakin ingin menghapus mahasiswa ini?</p>
-            <div className="mt-4 flex justify-end gap-x-2">
+            <div className="mt-6 flex justify-center gap-4">
               <button
                 onClick={() => setDeleteNIM(null)}
-                className="rounded-md border border-gray-300 px-4 py-2 text-gray-700"
+                className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               >
                 Batal
               </button>
               <button
                 onClick={handleDelete}
-                className="rounded-md bg-red-600 px-4 py-2 text-white"
+                className="w-full max-w-xs rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
                 Hapus
               </button>

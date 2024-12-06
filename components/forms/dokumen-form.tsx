@@ -1,24 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '../ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
+const API_GET_FILES_URL = 'https://backend-si-mbkm.vercel.app/api/upload/nim';
 
 const DOCUMENT_TYPES = [
   { label: 'CV', value: 'CV' },
@@ -29,44 +22,76 @@ const DOCUMENT_TYPES = [
 ];
 
 export default function UploadDocumentPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [documentType, setDocumentType] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [files, setFiles] = useState<Record<string, any>>({});
+  const [newFile, setNewFile] = useState<Record<string, File | null>>({});
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const token = Cookies.get('token');
+  const nim = token ? jwtDecode<{ NIM: string }>(token).NIM : null;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+  useEffect(() => {
+    if (nim) {
+      fetchUploadedFiles(nim);
+    }
+  }, [nim]);
+
+  const fetchUploadedFiles = async (nim: string) => {
+    try {
+      const response = await fetch(`${API_GET_FILES_URL}/${nim}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+
+      if (response.ok) {
+        const filesMap = DOCUMENT_TYPES.reduce(
+          (acc, type) => {
+            const file = data.data.find(
+              (f: any) => f.jenis_berkas === type.value
+            );
+            acc[type.value] = file || null;
+            return acc;
+          },
+          {} as Record<string, any>
+        );
+        setFiles(filesMap);
+      } else {
+        setMessage(data.message || 'Gagal memuat data dokumen.');
+      }
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      setMessage('Terjadi kesalahan saat memuat data dokumen.');
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setNewFile({ ...newFile, [type]: e.target.files[0] });
+    }
+  };
 
-    if (!file || !documentType) {
-      setMessage('Pilih jenis dokumen dan file terlebih dahulu!');
+  const handleUpload = async (type: string) => {
+    const file = newFile[type];
+    if (!file) {
+      setMessage(`Pilih file untuk jenis dokumen ${type}!`);
       return;
     }
 
-    console.log('Jenis Berkas:', documentType); // Debug log
-    console.log('File:', file); // Debug log
-
-    const token = Cookies.get('token');
-    if (!token) {
-      setMessage('Token tidak ditemukan, silakan login ulang.');
+    if (!nim) {
+      setMessage('NIM tidak ditemukan, silakan login ulang.');
       return;
     }
 
     setLoading(true);
 
-    // Mendekode token JWT untuk mengambil NIM
-    const decodedToken = jwtDecode<{ NIM: string }>(token);
-    const nim = decodedToken.NIM;
-
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('jenis_berkas', documentType);
-    formData.append('NIM', nim); // Menambahkan NIM ke dalam FormData
+    formData.append('jenis_berkas', type);
+    formData.append('NIM', nim);
 
     try {
       const response = await fetch(API_UPLOAD_URL, {
@@ -80,13 +105,47 @@ export default function UploadDocumentPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage('Upload berhasil!');
+        setMessage(`Upload dokumen ${type} berhasil!`);
+        fetchUploadedFiles(nim);
       } else {
-        setMessage(data.message || 'Upload gagal');
+        setMessage(data.message || `Gagal mengunggah dokumen ${type}.`);
       }
     } catch (error) {
-      console.error('Error during file upload:', error);
-      setMessage('Terjadi kesalahan saat upload file.');
+      console.error(`Error uploading ${type}:`, error);
+      setMessage('Terjadi kesalahan saat mengunggah file.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (type: string) => {
+    const file = files[type];
+    if (!file) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${API_UPLOAD_URL}/${file.id_berkas_penilaian}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && nim) {
+        setMessage(`Dokumen ${type} berhasil dihapus!`);
+        fetchUploadedFiles(nim);
+      } else {
+        setMessage(data.message || `Gagal menghapus dokumen ${type}.`);
+      }
+    } catch (error) {
+      console.error(`Error deleting ${type}:`, error);
+      setMessage('Terjadi kesalahan saat menghapus file.');
     } finally {
       setLoading(false);
     }
@@ -107,33 +166,49 @@ export default function UploadDocumentPage() {
         </Alert>
       )}
       <Separator className="my-4" />
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>Form Upload Dokumen</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Select onValueChange={setDocumentType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih jenis dokumen" />
-              </SelectTrigger>
-              <SelectContent>
-                {DOCUMENT_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    {type.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Input type="file" onChange={handleFileChange} />
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Mengunggah...' : 'Unggah'}
-            </Button>
-          </form>
-          {message && <p className="mt-2 text-sm text-red-500">{message}</p>}
-        </CardContent>
-      </Card>
+      {DOCUMENT_TYPES.map((type) => (
+        <Card key={type.value} className="mb-4">
+          <CardHeader>
+            <CardTitle>{type.label}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {files[type.value] ? (
+              <div className="space-y-2">
+                <p>
+                  File:{' '}
+                  <a
+                    href={files[type.value].nama_berkas}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    {files[type.value].nama_berkas}
+                  </a>
+                </p>
+                <Button
+                  onClick={() => handleDelete(type.value)}
+                  disabled={loading}
+                >
+                  Hapus
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <Input
+                  type="file"
+                  onChange={(e) => handleFileChange(e, type.value)}
+                />
+                <Button
+                  onClick={() => handleUpload(type.value)}
+                  disabled={loading}
+                >
+                  {loading ? 'Mengunggah...' : 'Unggah'}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ))}
     </>
   );
 }

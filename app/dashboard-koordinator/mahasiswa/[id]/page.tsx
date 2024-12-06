@@ -67,16 +67,22 @@ const DetailMahasiswaPage = () => {
       try {
         const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`);
         setStudent(response.data);
-        // Fetch program and dosbing details after student details
-        const programResponse = await axios.get(
-          `${API_BASE_URL}/program-mbkm/${response.data.id_program_mbkm}`
-        );
-        const dosbingResponse = await axios.get(
-          `${API_BASE_URL}/dosbing/${response.data.NIP_dosbing}`
-        );
 
-        setProgram(programResponse.data);
-        setDosbing(dosbingResponse.data);
+        // Fetch program and dosbing details after student details, check if they exist
+        if (response.data.id_program_mbkm) {
+          const programResponse = await axios.get(
+            `${API_BASE_URL}/program-mbkm/${response.data.id_program_mbkm}`
+          );
+          setProgram(programResponse.data);
+        }
+
+        if (response.data.NIP_dosbing) {
+          const dosbingResponse = await axios.get(
+            `${API_BASE_URL}/dosbing/${response.data.NIP_dosbing}`
+          );
+          setDosbing(dosbingResponse.data);
+        }
+
         setLoading(false);
       } catch (err) {
         console.error('Error fetching student details:', err);
@@ -161,7 +167,7 @@ const DetailMahasiswaPage = () => {
           <div className="rounded-md bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Program MBKM</p>
             <p className="font-semibold">
-              {program ? program.company : 'Loading...'}
+              {program ? program.company : 'Data Tidak Tersedia'}
             </p>
             <p className="text-sm text-gray-500">
               {program ? program.role : ''}
@@ -172,7 +178,7 @@ const DetailMahasiswaPage = () => {
           <div className="rounded-md bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Nama Dosen Pembimbing</p>
             <p className="font-semibold">
-              {dosbing ? dosbing.nama_dosbing : 'Loading...'}
+              {dosbing ? dosbing.nama_dosbing : 'Data Tidak Tersedia'}
             </p>
           </div>
         </div>

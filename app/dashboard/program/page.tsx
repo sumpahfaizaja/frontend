@@ -93,7 +93,8 @@ export default function ProgramMBKMPage() {
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
                       <p className="line-clamp-1 text-sm text-gray-600">
-                        <strong>Role:</strong> {program.role}
+                        <strong>Role:</strong>{' '}
+                        {program.role || 'Tidak dicantumkan'}
                       </p>
                       <Link
                         href={`/dashboard/program/${program.id_program_mbkm}`}
@@ -138,7 +139,8 @@ export default function ProgramMBKMPage() {
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
                       <p className="line-clamp-1 text-sm text-gray-600">
-                        <strong>role:</strong> {program.role}
+                        <strong>role:</strong>{' '}
+                        {program.role || 'Tidak dicantumkan'}
                       </p>
                     </div>
                   </Card>

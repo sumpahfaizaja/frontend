@@ -509,12 +509,6 @@ export const navItems: Record<
         label: 'Mahasiswa'
       },
       {
-        title: 'Program Saya',
-        href: '/dashboard-dosbing/program',
-        icon: 'graduation-cap',
-        label: 'Program Saya'
-      },
-      {
         title: 'Logbook',
         href: '/dashboard-dosbing/logbook',
         icon: 'graduation-cap',
@@ -529,20 +523,14 @@ export const navItems: Record<
     ]
   },
   admin: {
-    label: 'Admin',
+    label: 'Admin SIAP',
     role: 'admin_siap',
     items: [
       {
         title: 'Dashboard Admin',
         href: '/dashboard-admin',
         icon: 'dashboard',
-        label: 'Dashboard Admin'
-      },
-      {
-        title: 'Nilai & Konversi',
-        href: '/dashboard-admin/nilai-konversi',
-        icon: 'graduation-cap',
-        label: 'Nilai & Konversi'
+        label: 'Konversi Nilai'
       }
     ]
   },

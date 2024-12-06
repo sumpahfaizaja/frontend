@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie'; // You need to import js-cookie to handle the token
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -15,7 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Calendar, Info, AlertTriangle, ClipboardList } from 'lucide-react';
+import { Calendar, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 
 // API URL
@@ -46,6 +47,9 @@ export default function ProgramDetailPage({
 
   const [program, setProgram] = useState<ProgramMBKM | null>(null);
   const [loading, setLoading] = useState(true);
+  const [registrationStatus, setRegistrationStatus] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (id) {
@@ -63,6 +67,38 @@ export default function ProgramDetailPage({
     } catch (err) {
       console.error('Error fetching program details:', err);
       setLoading(false);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const NIM = parseInt(Cookies.get('token') || '0'); // Get NIM from token (assuming token is stored in cookies)
+    const NIP_dosbing = program?.category.id || ''; // Assuming you have a way to get NIP_dosbing
+    const tanggal = new Date().toISOString();
+
+    const formData = new FormData();
+    formData.append('NIM', NIM.toString());
+    formData.append('NIP_dosbing', NIP_dosbing);
+    formData.append(
+      'id_program_mbkm',
+      program?.id_program_mbkm.toString() || ''
+    );
+    formData.append('status', 'pending');
+    formData.append('tanggal', tanggal);
+
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/pendaftaran-mbkm`, // Adjust API endpoint as needed
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      setRegistrationStatus('Pendaftaran berhasil');
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setRegistrationStatus('Pendaftaran gagal');
     }
   };
 
@@ -94,7 +130,6 @@ export default function ProgramDetailPage({
     return (
       <PageContainer scrollable={true}>
         <Alert variant="destructive">
-          <AlertTriangle className="h-5 w-5" />
           <AlertTitle>Program tidak ditemukan</AlertTitle>
           <AlertDescription>
             Silakan periksa kembali ID program.
@@ -121,7 +156,7 @@ export default function ProgramDetailPage({
             {program.deskripsi ?? 'Deskripsi tidak tersedia'}
           </CardDescription>
         </CardHeader>
-        <Separator />
+        <Separator className="mb-6" />
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="flex items-center gap-4">
@@ -142,30 +177,30 @@ export default function ProgramDetailPage({
                 </p>
               </div>
             </div>
-            {program.waktu_pelaksanaan && (
-              <div className="flex items-center gap-4">
-                <Calendar className="h-6 w-6 text-orange-500" />
-                <div>
-                  <h4 className="text-sm font-medium text-gray-700">
-                    Waktu Pelaksanaan
-                  </h4>
-                  <p className="text-gray-900">
-                    {new Date(program.waktu_pelaksanaan).toLocaleDateString(
-                      'id-ID'
-                    )}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
           <div className="mt-6 flex items-center justify-end gap-x-2 md:gap-x-3">
             <Button variant="secondary" className="w-full md:w-auto" asChild>
               <Link href={'/dashboard/program'}>Kembali</Link>
             </Button>
-            <Button variant="default" className="w-full md:w-auto">
+            <Button
+              variant="default"
+              className="w-full md:w-auto"
+              onClick={handleSubmit}
+            >
               Ajukan Pendaftaran
             </Button>
           </div>
+          {registrationStatus && (
+            <Alert
+              variant={
+                registrationStatus === 'Pendaftaran berhasil'
+                  ? 'default'
+                  : 'destructive'
+              }
+            >
+              <AlertTitle>{registrationStatus}</AlertTitle>
+            </Alert>
+          )}
         </CardContent>
       </Card>
     </PageContainer>

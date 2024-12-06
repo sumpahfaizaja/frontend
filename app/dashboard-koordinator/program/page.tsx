@@ -47,16 +47,20 @@ const ProgramsPage = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-  
+
     const filtered = programs.filter((program) => {
       // Check if company, role, or category_id is not null or undefined before calling toLowerCase
-      const companyMatch = program.company && program.company.toLowerCase().includes(query);
-      const roleMatch = program.role && program.role.toLowerCase().includes(query);
-      const categoryMatch = program.category_id && program.category_id.toLowerCase().includes(query);
-  
+      const companyMatch =
+        program.company && program.company.toLowerCase().includes(query);
+      const roleMatch =
+        program.role && program.role.toLowerCase().includes(query);
+      const categoryMatch =
+        program.category_id &&
+        program.category_id.toLowerCase().includes(query);
+
       return companyMatch || roleMatch || categoryMatch;
     });
-  
+
     setFilteredPrograms(filtered);
   };
 
@@ -64,25 +68,28 @@ const ProgramsPage = () => {
     return Cookies.get('token'); // Getting the token from the cookies
   };
 
-const handleDelete = async (id_program_mbkm: number) => {
-  console.log('Delete program with ID:', id_program_mbkm);
-  try {
-    // Get the authentication token (you need to implement getAuthToken() function)
-    const token = getAuthToken();
+  const handleDelete = async (id_program_mbkm: number) => {
+    console.log('Delete program with ID:', id_program_mbkm);
+    try {
+      // Get the authentication token (you need to implement getAuthToken() function)
+      const token = getAuthToken();
 
-    // Make a DELETE request to remove the program
-    const response = await axios.delete(`${API_BASE_URL}/program-mbkm/${id_program_mbkm}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      // Make a DELETE request to remove the program
+      const response = await axios.delete(
+        `${API_BASE_URL}/program-mbkm/${id_program_mbkm}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
 
-    // Call fetchPrograms after deletion
-    fetchPrograms();
-  } catch (error) {
-    console.error('Error deleting program:', error);
-  }
-};
+      // Call fetchPrograms after deletion
+      fetchPrograms();
+    } catch (error) {
+      console.error('Error deleting program:', error);
+    }
+  };
 
   useEffect(() => {
     fetchPrograms();

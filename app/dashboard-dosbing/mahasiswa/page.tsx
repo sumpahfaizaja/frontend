@@ -31,34 +31,40 @@ const StudentsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null); // Success message state
-  const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null); // Deletion confirmation state
+  const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(
+    null
+  ); // Deletion confirmation state
 
   useEffect(() => {
     const token = Cookies.get('token');
-  
+
     if (!token) {
       setIsAuthorized(false);
       setError('Token tidak ditemukan, silakan login terlebih dahulu.');
       return;
     }
-  
+
     const fetchStudents = async () => {
       try {
-        const decodedToken = jwtDecode<{ NIP_dosbing: string, role: string }>(token);
+        const decodedToken = jwtDecode<{ NIP_dosbing: string; role: string }>(
+          token
+        );
         const { NIP_dosbing, role } = decodedToken;
-  
+
         if (role !== 'dosbing') {
           setIsAuthorized(false);
           setError('Anda tidak memiliki akses.');
           return;
         }
-  
-        const response = await fetch(`${API_BASE_URL}/mahasiswa/dosbing/${NIP_dosbing}`);
-  
+
+        const response = await fetch(
+          `${API_BASE_URL}/mahasiswa/dosbing/${NIP_dosbing}`
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-  
+
         const data = await response.json();
         setStudents(data as Student[]);
         setFilteredStudents(data as Student[]);
@@ -70,9 +76,9 @@ const StudentsPage = () => {
         setLoading(false);
       }
     };
-  
+
     fetchStudents();
-  }, []); 
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value.toLowerCase();
@@ -93,18 +99,23 @@ const StudentsPage = () => {
 
     try {
       const token = Cookies.get('token');
-      const response = await fetch(`${API_BASE_URL}/mahasiswa/${deleteConfirmation}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass the token for authentication
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/mahasiswa/${deleteConfirmation}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}` // Pass the token for authentication
+          }
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      setStudents((prev) => prev.filter((student) => student.NIM !== deleteConfirmation));
+      setStudents((prev) =>
+        prev.filter((student) => student.NIM !== deleteConfirmation)
+      );
       setFilteredStudents((prev) =>
         prev.filter((student) => student.NIM !== deleteConfirmation)
       );
@@ -126,13 +137,13 @@ const StudentsPage = () => {
         {/* Success/Error Messages */}
         <div className="my-4">
           {successMessage && (
-            <div className="p-4 rounded-lg bg-green-100 text-green-800 flex items-center gap-x-2 mb-4">
+            <div className="flex items-center gap-x-2 rounded-lg bg-green-100 p-4 text-green-800">
               <p>{successMessage}</p>
             </div>
           )}
 
           {error && (
-            <div className="p-4 rounded-lg bg-red-100 text-red-800 flex items-center gap-x-2 mb-4">
+            <div className="flex items-center gap-x-2 rounded-lg bg-red-100 p-4 text-red-800">
               <p>{error}</p>
             </div>
           )}
@@ -195,21 +206,41 @@ const StudentsPage = () => {
 
         {/* Delete Confirmation */}
         {deleteConfirmation && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
-              <p className="text-lg font-semibold text-red-600">
-                Anda yakin ingin menghapus mahasiswa ini?
-              </p>
-              <div className="flex justify-between mt-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+            <div className="w-full max-w-md scale-100 transform rounded-lg bg-white p-6 shadow-lg transition-transform">
+              <div className="text-center">
+                <svg
+                  className="mx-auto h-12 w-12 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                  />
+                </svg>
+                <h2 className="mt-4 text-lg font-bold text-gray-800">
+                  Konfirmasi Hapus
+                </h2>
+                <p className="mt-2 text-sm text-gray-600">
+                  Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak
+                  dapat dibatalkan.
+                </p>
+              </div>
+              <div className="mt-6 flex justify-center gap-4">
                 <button
                   onClick={() => setDeleteConfirmation(null)}
-                  className="px-4 py-2 bg-gray-300 rounded"
+                  className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   Batal
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded"
+                  className="w-full max-w-xs rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 >
                   Hapus
                 </button>

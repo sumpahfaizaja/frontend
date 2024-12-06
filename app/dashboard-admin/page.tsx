@@ -1,155 +1,138 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import PageContainer from '@/components/layout/page-container';
+import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
 
-interface Student {
-  nim: string;
-  nama_mahasiswa: string;
-  program_mbkm: string;
-  id_program_mbkm: number;
+interface GradeConversion {
+  id_konversi_nilai: number;
+  grade: string;
+  nama_berkas: string;
+  nilai_akhir: number;
 }
 
-interface Grade {
-  id: number;
-  nim: string;
-  konversi_selesai: boolean;
-  file_url: string | null;
-}
+const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-const AdminDashboardPage: React.FC = () => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [grades, setGrades] = useState<Grade[]>([]);
+export default function AdminGradesPage() {
+  const [nilaiMahasiswa, setNilaiMahasiswa] = useState<GradeConversion[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const dummyStudents: Student[] = [
-    {
-      nim: '12345678',
-      nama_mahasiswa: 'John Doe',
-      program_mbkm: 'Program Magang',
-      id_program_mbkm: 1
-    },
-    {
-      nim: '23456789',
-      nama_mahasiswa: 'Jane Smith',
-      program_mbkm: 'Program Kampus Merdeka',
-      id_program_mbkm: 2
-    },
-    {
-      nim: '34567890',
-      nama_mahasiswa: 'Michael Johnson',
-      program_mbkm: 'Program Studi Independen',
-      id_program_mbkm: 3
-    }
-  ];
-
-  const dummyGrades: Grade[] = [
-    {
-      id: 1,
-      nim: '12345678',
-      konversi_selesai: true,
-      file_url: '/dummy/file1.pdf'
-    },
-    { id: 2, nim: '23456789', konversi_selesai: false, file_url: null },
-    { id: 3, nim: '34567890', konversi_selesai: false, file_url: null }
-  ];
-
   useEffect(() => {
-    setStudents(dummyStudents);
-    setGrades(dummyGrades);
-    setLoading(false);
+    fetchKonversiNilai();
   }, []);
 
-  const handleKonversi = async (id: number): Promise<void> => {
+  const getAuthToken = () => Cookies.get('token');
+
+  const fetchKonversiNilai = async () => {
     try {
-      setGrades((prevGrades) =>
-        prevGrades.map((grade) =>
-          grade.id === id
-            ? {
-                ...grade,
-                konversi_selesai: true,
-                file_url: `/dummy/file${id}.pdf`
-              }
-            : grade
-        )
-      );
-      alert('Program Telah Selesai!');
+      const token = getAuthToken();
+      const response = await axios.get(`${API_BASE_URL}/konversi-nilai`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setNilaiMahasiswa(response.data);
     } catch (error) {
-      console.error('Error konversi nilai:', error);
-      alert('Terjadi kesalahan saat mengkonversi nilai.');
+      console.error('Kesalahan saat mengambil data nilai:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDownload = (fileUrl: string | null): void => {
-    if (fileUrl) {
-      window.open(fileUrl, '_blank');
-    } else {
-      alert('File tidak tersedia.');
+  const hapusNilai = async (id: number) => {
+    const konfirmasi = window.confirm(
+      'Apakah Anda yakin ingin menghapus nilai ini?'
+    );
+
+    if (konfirmasi) {
+      try {
+        const token = getAuthToken();
+        await axios.delete(`${API_BASE_URL}/konversi-nilai/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Hapus item dari daftar lokal
+        setNilaiMahasiswa((prevState) =>
+          prevState.filter((nilai) => nilai.id_konversi_nilai !== id)
+        );
+
+        alert('Nilai berhasil dihapus!');
+      } catch (error) {
+        console.error('Kesalahan saat menghapus nilai:', error);
+        alert('Terjadi kesalahan saat menghapus nilai.');
+      }
     }
   };
 
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold">Dashboard Admin</h1>
+    <PageContainer>
+      <Heading
+        title="Konversi Nilai Mahasiswa"
+        description="Daftar file keperluan konversi nilai."
+      />
+      <Separator className="my-4" />
       {loading ? (
         <p>Loading...</p>
       ) : (
-        <div>
-          <h2 className="mb-4 text-xl font-semibold">Daftar Mahasiswa</h2>
-          <table className="w-full border-collapse border border-gray-300">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>Nama</th>
-                <th>NIM</th>
-                <th>Program</th>
-                <th>Status Konversi</th>
-                <th>Aksi</th>
-                <th>Download File</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student, index) => {
-                const grade = grades.find((grade) => grade.nim === student.nim);
-                return (
-                  <tr key={student.nim}>
-                    <td>{index + 1}</td>
-                    <td>{student.nama_mahasiswa}</td>
-                    <td>{student.nim}</td>
-                    <td>{student.program_mbkm}</td>
-                    <td>
-                      {grade?.konversi_selesai
-                        ? '✔ Program Telah Selesai'
-                        : '✘ Belum Konversi'}
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleKonversi(grade!.id)}
-                        disabled={!!grade?.konversi_selesai}
+        <div className="overflow-x-auto rounded-lg shadow">
+          <Table className="w-full text-left">
+            <TableHeader>
+              <TableRow className="bg-gray-100">
+                <TableHead className="px-4 py-3">ID</TableHead>
+                <TableHead className="px-4 py-3">Nilai awal</TableHead>
+                <TableHead className="px-4 py-3">Nilai akhir</TableHead>
+                <TableHead className="px-4 py-3 text-right">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {nilaiMahasiswa.map((nilai, index) => (
+                <TableRow
+                  key={nilai.id_konversi_nilai}
+                  className={`${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  } hover:bg-gray-100`}
+                >
+                  <TableCell className="px-4 py-3">
+                    {nilai.id_konversi_nilai}
+                  </TableCell>
+                  <TableCell className="px-4 py-3">{nilai.grade}</TableCell>
+                  <TableCell className="px-4 py-3">
+                    {nilai.nilai_akhir}
+                  </TableCell>
+                  <TableCell className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => window.open(nilai.nama_berkas, '_blank')}
                       >
-                        {grade?.konversi_selesai
-                          ? 'Program Telah Selesai'
-                          : 'Konversi Nilai'}
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => handleDownload(grade?.file_url ?? null)}
-                        disabled={!grade?.file_url}
+                        Detail
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => hapusNilai(nilai.id_konversi_nilai)}
                       >
-                        {grade?.file_url
-                          ? 'Download File'
-                          : 'File Tidak Tersedia'}
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                        Hapus
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
-    </div>
+    </PageContainer>
   );
-};
-
-export default AdminDashboardPage;
+}

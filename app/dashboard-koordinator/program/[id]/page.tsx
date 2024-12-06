@@ -96,7 +96,7 @@ const DetailProgramMBKMPage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-2">
             <Link
-              href="/dashboard-koordinator/program-mbkm"
+              href="/dashboard-koordinator/program"
               className="rounded-full p-2 hover:bg-gray-100"
             >
               <ChevronLeft size={24} />

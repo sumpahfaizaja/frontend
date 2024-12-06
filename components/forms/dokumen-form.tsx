@@ -8,8 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { cn } from '@/lib/utils'; // Utility for conditional classNames
 
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 const API_GET_FILES_URL = 'https://backend-si-mbkm.vercel.app/api/upload/nim';
@@ -162,19 +160,6 @@ export default function UploadDocumentPage() {
         title="Upload Dokumen"
         description="Unggah dokumen yang diperlukan untuk MBKM"
       />
-      {message && (
-        <Alert
-          className={cn(
-            'mt-4',
-            message.includes('berhasil') ? 'bg-green-100' : 'bg-red-100'
-          )}
-        >
-          <AlertTitle className="font-semibold">
-            {message.includes('berhasil') ? 'Sukses' : 'Error'}
-          </AlertTitle>
-          <AlertDescription>{message}</AlertDescription>
-        </Alert>
-      )}
       <Separator className="my-4" />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {DOCUMENT_TYPES.map((type) => (

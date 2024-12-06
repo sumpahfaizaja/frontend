@@ -531,6 +531,12 @@ export const navItems: Record<
         href: '/dashboard-admin',
         icon: 'dashboard',
         label: 'Konversi Nilai'
+      },
+      {
+        title: 'Kegiatan',
+        href: '/dashboard-admin/pendaftaran',
+        icon: 'dashboard',
+        label: 'Manajemen Kegiatan'
       }
     ]
   },

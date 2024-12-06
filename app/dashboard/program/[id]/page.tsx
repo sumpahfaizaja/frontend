@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie'; // You need to import js-cookie to handle the token
+import Cookies from 'js-cookie';
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Calendar, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
+import { jwtDecode } from 'jwt-decode';
 
 // API URL
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
@@ -71,32 +72,43 @@ export default function ProgramDetailPage({
   };
 
   const handleSubmit = async () => {
-    const NIM = parseInt(Cookies.get('token') || '0'); // Get NIM from token (assuming token is stored in cookies)
-    const NIP_dosbing = program?.category.id || ''; // Assuming you have a way to get NIP_dosbing
+    const token = Cookies.get('token');
+
+    let NIM: number | null = null; // Ensure it's a number or null
+    let NIP_dosbing: string | null = null;
+
+    if (token) {
+      const decodedToken = jwtDecode<{ NIM: string; NIP_dosbing?: string }>(
+        token
+      );
+      if (decodedToken.NIM) {
+        NIM = parseInt(decodedToken.NIM, 10); // Parse as a number
+        if (isNaN(NIM)) {
+          console.error('Invalid NIM value in token');
+          setRegistrationStatus('Invalid NIM value in token');
+          return;
+        }
+      }
+      NIP_dosbing = decodedToken.NIP_dosbing || null;
+    }
+
     const tanggal = new Date().toISOString();
 
-    const formData = new FormData();
-    formData.append('NIM', NIM.toString());
-    formData.append('NIP_dosbing', NIP_dosbing);
-    formData.append(
-      'id_program_mbkm',
-      program?.id_program_mbkm.toString() || ''
-    );
-    formData.append('status', 'pending');
-    formData.append('tanggal', tanggal);
+    const formData = {
+      NIM,
+      NIP_dosbing,
+      id_program_mbkm: program?.id_program_mbkm || null,
+      status: 'pending',
+      tanggal
+    };
 
     try {
       const token = Cookies.get('token');
-      const response = await axios.post(
-        `${API_BASE_URL}/pendaftaran-mbkm`, // Adjust API endpoint as needed
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`
-          }
+      await axios.post(`${API_BASE_URL}/pendaftaran-mbkm`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
+      });
       setRegistrationStatus('Pendaftaran berhasil');
     } catch (error) {
       console.error('Error during registration:', error);

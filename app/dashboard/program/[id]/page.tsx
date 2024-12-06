@@ -86,12 +86,14 @@ export default function ProgramDetailPage({
     formData.append('tanggal', tanggal);
 
     try {
+      const token = Cookies.get('token');
       const response = await axios.post(
         `${API_BASE_URL}/pendaftaran-mbkm`, // Adjust API endpoint as needed
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
           }
         }
       );

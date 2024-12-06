@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 const API_GET_FILES_URL = 'https://backend-si-mbkm.vercel.app/api/upload/nim';
@@ -125,6 +126,9 @@ export default function UploadDocumentPage() {
     const file = files[type];
     if (!file) return;
 
+    // Optimistically remove the file from state
+    setFiles((prev) => ({ ...prev, [type]: null }));
+
     setLoadingState(type, true);
 
     try {
@@ -140,14 +144,17 @@ export default function UploadDocumentPage() {
 
       const data = await response.json();
 
-      if (response.ok && nim) {
+      if (response.ok) {
         setMessage(`Dokumen ${type} berhasil dihapus!`);
-        fetchUploadedFiles(nim);
       } else {
+        // Revert state if delete fails
+        setFiles((prev) => ({ ...prev, [type]: file }));
         setMessage(data.message || `Gagal menghapus dokumen ${type}.`);
       }
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
+      // Revert state if an error occurs
+      setFiles((prev) => ({ ...prev, [type]: file }));
       setMessage('Terjadi kesalahan saat menghapus file.');
     } finally {
       setLoadingState(type, false);
@@ -169,20 +176,18 @@ export default function UploadDocumentPage() {
                 {type.label}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="overflow-hidden">
               {files[type.value] ? (
                 <div className="space-y-2">
-                  <p>
-                    File:{' '}
-                    <a
+                  <Button asChild variant={'default'} className="w-full">
+                    <Link
                       href={files[type.value].nama_berkas}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-500 underline"
                     >
-                      {files[type.value].nama_berkas}
-                    </a>
-                  </p>
+                      Lihat file
+                    </Link>
+                  </Button>
                   <Button
                     onClick={() => handleDelete(type.value)}
                     disabled={loading[type.value]}
@@ -192,7 +197,7 @@ export default function UploadDocumentPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Input
                     type="file"
                     onChange={(e) => handleFileChange(e, type.value)}

@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils'; // Utility for conditional classNames
 
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 const API_GET_FILES_URL = 'https://backend-si-mbkm.vercel.app/api/upload/nim';
@@ -24,7 +25,7 @@ const DOCUMENT_TYPES = [
 export default function UploadDocumentPage() {
   const [files, setFiles] = useState<Record<string, any>>({});
   const [newFile, setNewFile] = useState<Record<string, File | null>>({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [message, setMessage] = useState<string | null>(null);
   const token = Cookies.get('token');
   const nim = token ? jwtDecode<{ NIM: string }>(token).NIM : null;
@@ -74,6 +75,10 @@ export default function UploadDocumentPage() {
     }
   };
 
+  const setLoadingState = (type: string, isLoading: boolean) => {
+    setLoading((prev) => ({ ...prev, [type]: isLoading }));
+  };
+
   const handleUpload = async (type: string) => {
     const file = newFile[type];
     if (!file) {
@@ -86,7 +91,7 @@ export default function UploadDocumentPage() {
       return;
     }
 
-    setLoading(true);
+    setLoadingState(type, true);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -114,7 +119,7 @@ export default function UploadDocumentPage() {
       console.error(`Error uploading ${type}:`, error);
       setMessage('Terjadi kesalahan saat mengunggah file.');
     } finally {
-      setLoading(false);
+      setLoadingState(type, false);
     }
   };
 
@@ -122,7 +127,7 @@ export default function UploadDocumentPage() {
     const file = files[type];
     if (!file) return;
 
-    setLoading(true);
+    setLoadingState(type, true);
 
     try {
       const response = await fetch(
@@ -147,7 +152,7 @@ export default function UploadDocumentPage() {
       console.error(`Error deleting ${type}:`, error);
       setMessage('Terjadi kesalahan saat menghapus file.');
     } finally {
-      setLoading(false);
+      setLoadingState(type, false);
     }
   };
 
@@ -158,7 +163,12 @@ export default function UploadDocumentPage() {
         description="Unggah dokumen yang diperlukan untuk MBKM"
       />
       {message && (
-        <Alert className="mt-4">
+        <Alert
+          className={cn(
+            'mt-4',
+            message.includes('berhasil') ? 'bg-green-100' : 'bg-red-100'
+          )}
+        >
           <AlertTitle className="font-semibold">
             {message.includes('berhasil') ? 'Sukses' : 'Error'}
           </AlertTitle>
@@ -166,49 +176,55 @@ export default function UploadDocumentPage() {
         </Alert>
       )}
       <Separator className="my-4" />
-      {DOCUMENT_TYPES.map((type) => (
-        <Card key={type.value} className="mb-4">
-          <CardHeader>
-            <CardTitle>{type.label}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {files[type.value] ? (
-              <div className="space-y-2">
-                <p>
-                  File:{' '}
-                  <a
-                    href={files[type.value].nama_berkas}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline"
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {DOCUMENT_TYPES.map((type) => (
+          <Card key={type.value} className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-lg font-medium text-gray-800">
+                {type.label}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {files[type.value] ? (
+                <div className="space-y-2">
+                  <p>
+                    File:{' '}
+                    <a
+                      href={files[type.value].nama_berkas}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {files[type.value].nama_berkas}
+                    </a>
+                  </p>
+                  <Button
+                    onClick={() => handleDelete(type.value)}
+                    disabled={loading[type.value]}
+                    className="w-full bg-red-500 text-white hover:bg-red-600"
                   >
-                    {files[type.value].nama_berkas}
-                  </a>
-                </p>
-                <Button
-                  onClick={() => handleDelete(type.value)}
-                  disabled={loading}
-                >
-                  Hapus
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <Input
-                  type="file"
-                  onChange={(e) => handleFileChange(e, type.value)}
-                />
-                <Button
-                  onClick={() => handleUpload(type.value)}
-                  disabled={loading}
-                >
-                  {loading ? 'Mengunggah...' : 'Unggah'}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      ))}
+                    {loading[type.value] ? 'Menghapus...' : 'Hapus'}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <Input
+                    type="file"
+                    onChange={(e) => handleFileChange(e, type.value)}
+                  />
+                  <Button
+                    onClick={() => handleUpload(type.value)}
+                    disabled={loading[type.value]}
+                    className="w-full bg-blue-500 text-white hover:bg-blue-600"
+                  >
+                    {loading[type.value] ? 'Mengunggah...' : 'Unggah'}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </>
   );
 }

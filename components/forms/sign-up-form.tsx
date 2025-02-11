@@ -61,7 +61,7 @@ export default function SignUpForm() {
         throw new Error('Registration failed');
       }
 
-      router.push('/login');
+      router.push('/');
     } catch (error) {
       console.error('Registration error:', error);
     } finally {

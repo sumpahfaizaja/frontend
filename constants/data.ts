@@ -454,6 +454,12 @@ export const navItems: Record<
       },
       { separator: true },
       {
+        title: 'Riwayat',
+        href: '/dashboard/riwayat',
+        icon: 'history',
+        label: 'riwayat'
+      },
+      {
         title: 'Laporan',
         href: '/dashboard/laporan',
         icon: 'file-check',
@@ -489,6 +495,12 @@ export const navItems: Record<
         href: '/dashboard-koordinator/program',
         icon: 'graduation-cap',
         label: 'Manajemen Program'
+      },
+      {
+        title: 'Kegiatan',
+        href: '/dashboard-koordinator/kegiatan',
+        icon: 'dashboard',
+        label: 'Manajemen Kegiatan'
       }
     ]
   },
@@ -531,12 +543,6 @@ export const navItems: Record<
         href: '/dashboard-admin',
         icon: 'dashboard',
         label: 'Konversi Nilai'
-      },
-      {
-        title: 'Kegiatan',
-        href: '/dashboard-admin/pendaftaran',
-        icon: 'dashboard',
-        label: 'Manajemen Kegiatan'
       }
     ]
   },

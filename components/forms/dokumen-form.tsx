@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
@@ -21,18 +22,44 @@ const DOCUMENT_TYPES = [
   { label: 'Dokumen Tambahan', value: 'dokumen_tambahan' }
 ];
 
-export default function UploadDocumentPage() {
+interface DokumenFormProps {
+  nim: string;
+  allowDelete?: boolean;
+}
+
+const DokumenForm: React.FC<DokumenFormProps> = ({ nim, allowDelete }) => {
+  let localNim = nim;
+
+  const handleDelete = () => {
+    console.log(`Dokumen milik NIM ${localNim} akan dihapus`);
+    localNim = ''; // Reset nilai jika dihapus
+  };
+
+  return (
+    <div>
+      {allowDelete && <button onClick={handleDelete}>Hapus Dokumen</button>}
+    </div>
+  );
+};
+
+export default function UploadDocumentPage(props: {
+  nim: string | null;
+  allowDelete?: boolean;
+}) {
+  const { nim: initialNim, allowDelete = true } = props;
   const [files, setFiles] = useState<Record<string, any>>({});
   const [newFile, setNewFile] = useState<Record<string, File | null>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [message, setMessage] = useState<string | null>(null);
   const token = Cookies.get('token');
-  const nim = token ? jwtDecode<{ NIM: string }>(token).NIM : null;
+
+  let nim = initialNim;
+  if (!initialNim) nim = token ? jwtDecode<{ NIM: string }>(token).NIM : null;
+
+  console.log(nim);
 
   useEffect(() => {
-    if (nim) {
-      fetchUploadedFiles(nim);
-    }
+    if (nim) fetchUploadedFiles(nim);
   }, [nim]);
 
   const fetchUploadedFiles = async (nim: string) => {
@@ -168,6 +195,7 @@ export default function UploadDocumentPage() {
         description="Unggah dokumen yang diperlukan untuk MBKM"
       />
       <Separator className="my-4" />
+      <DokumenForm nim={nim || ''} allowDelete={allowDelete} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {DOCUMENT_TYPES.map((type) => (
           <Card key={type.value} className="shadow-lg">
@@ -188,13 +216,15 @@ export default function UploadDocumentPage() {
                       Lihat file
                     </Link>
                   </Button>
-                  <Button
-                    onClick={() => handleDelete(type.value)}
-                    disabled={loading[type.value]}
-                    className="w-full bg-red-500 text-white hover:bg-red-600"
-                  >
-                    {loading[type.value] ? 'Menghapus...' : 'Hapus'}
-                  </Button>
+                  {allowDelete && (
+                    <Button
+                      onClick={() => handleDelete(type.value)}
+                      disabled={loading[type.value]}
+                      className="w-full bg-red-500 text-white hover:bg-red-600"
+                    >
+                      {loading[type.value] ? 'Menghapus...' : 'Hapus'}
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -205,7 +235,7 @@ export default function UploadDocumentPage() {
                   <Button
                     onClick={() => handleUpload(type.value)}
                     disabled={loading[type.value]}
-                    className="w-full bg-blue-500 text-white hover:bg-blue-600"
+                    className="w-full bg-green-600 text-white hover:bg-green-500"
                   >
                     {loading[type.value] ? 'Mengunggah...' : 'Unggah'}
                   </Button>

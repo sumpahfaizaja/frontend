@@ -1,277 +1,254 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import axios from 'axios';
+import PageContainer from '@/components/layout/page-container';
+import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
+import { Separator } from '@/components/ui/separator';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
-// Data Dummy
-const penilaianData: {
-  id: number;
+const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
+
+interface Mahasiswa {
   NIM: string;
-  id_program_mbkm: number;
-  nilai: string;
-  file_nilai_url: string | null;
-}[] = [
-  {
-    id: 1,
-    NIM: '12345678',
-    id_program_mbkm: 1,
-    nilai: '',
-    file_nilai_url: null
-  },
-  {
-    id: 2,
-    NIM: '87654321',
-    id_program_mbkm: 2,
-    nilai: '',
-    file_nilai_url: null
-  }
-];
+  nama_mahasiswa: string;
+  id_program_mbkm: string;
+  NIP_dosbing: string;
+}
 
-const mahasiswaData = [
-  {
-    NIM: '12345678',
-    nama_mahasiswa: 'John Doe',
-    semester: 5,
-    id_program_mbkm: 1,
-    NIP_dosbing: '987654321'
-  },
-  {
-    NIM: '87654321',
-    nama_mahasiswa: 'Jane Smith',
-    semester: 7,
-    id_program_mbkm: 2,
-    NIP_dosbing: '123456789'
-  }
-];
+interface KonversiNilai {
+  id_konversi_nilai: number;
+  nilai_akhir: number | null;
+  nama_berkas: string | null;
+  NIM: string;
+  NIP_dosbing: string;
+  status: 'Pending' | 'ACC';
+  grade: string | null;
+}
 
-const programMBKMData = [
-  {
-    id: 1,
-    nama_program: 'Magang di Perusahaan ABC',
-    deskripsi: 'Program magang selama 6 bulan di perusahaan ABC.'
-  },
-  {
-    id: 2,
-    nama_program: 'Studi Independen Data Science',
-    deskripsi: 'Program studi independen selama 6 bulan tentang Data Science.'
-  }
-];
-
-// Komponen Utama
-export default function PenilaianProgramMBKM() {
-  const [penilaians, setPenilaians] = useState<typeof penilaianData>([]);
-  const [mahasiswa, setMahasiswa] = useState<typeof mahasiswaData>([]);
-  const [programMBKM, setProgramMBKM] = useState<typeof programMBKMData>([]);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState<
-    (typeof mahasiswaData)[0] | null
-  >(null);
-  const [selectedPenilaian, setSelectedPenilaian] = useState<
-    (typeof penilaianData)[0] | null
-  >(null);
-  const [nilai, setNilai] = useState<string>('');
-  const [fileNilai, setFileNilai] = useState<File | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState<string>('');
+export default function NilaiPage() {
+  const [mahasiswaList, setMahasiswaList] = useState<Mahasiswa[]>([]);
+  const [konversiData, setKonversiData] = useState<KonversiNilai[]>([]);
+  const [searchStudent, setSearchStudent] = useState<string>('');
 
   useEffect(() => {
-    setPenilaians(penilaianData);
-    setMahasiswa(mahasiswaData);
-    setProgramMBKM(programMBKMData);
+    const fetchMahasiswa = async () => {
+      try {
+        const token = Cookies.get('token');
+        if (!token) {
+          console.error('Token not found. Please log in first.');
+          return;
+        }
+
+        const decoded = jwtDecode<{ NIP_dosbing: string }>(token);
+        const { NIP_dosbing } = decoded;
+
+        const response = await axios.get(
+          `${API_BASE_URL}/mahasiswa/dosbing/${NIP_dosbing}`,
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        setMahasiswaList(response.data);
+
+        const konversiList = response.data.map((student: Mahasiswa) => ({
+          id_konversi_nilai: 0,
+          NIM: student.NIM,
+          NIP_dosbing: student.NIP_dosbing,
+          nilai_akhir: null,
+          nama_berkas: null,
+          status: 'Pending' as 'Pending' | 'ACC',
+          grade: null
+        }));
+
+        setKonversiData(konversiList);
+      } catch (error) {
+        console.error('Error fetching mahasiswa data:', error);
+      }
+    };
+
+    fetchMahasiswa();
   }, []);
 
-  const handleEditPenilaian = (penilaian: (typeof penilaianData)[0]) => {
-    setSelectedPenilaian(penilaian);
-    setNilai(penilaian.nilai);
-    setFileNilai(null);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    if (searchStudent.trim() !== '') {
+      setKonversiData(
+        konversiData.filter(
+          (student) =>
+            mahasiswaList
+              .find((mahasiswa) => mahasiswa.NIM === student.NIM)
+              ?.nama_mahasiswa.toLowerCase()
+              .includes(searchStudent.toLowerCase())
+        )
+      );
+    } else {
+      setKonversiData(konversiData);
+    }
+  }, [searchStudent, mahasiswaList]);
 
-  const handleSavePenilaian = () => {
-    setPenilaians((prevState) =>
-      prevState.map((penilaian) =>
-        penilaian.id === selectedPenilaian?.id
-          ? {
-              ...penilaian,
-              nilai: nilai,
-              file_nilai_url: fileNilai
-                ? URL.createObjectURL(fileNilai)
-                : penilaian.file_nilai_url
-            }
-          : penilaian
-      )
-    );
-    setIsModalOpen(false);
-    alert('Penilaian berhasil disimpan!');
-  };
+  const toggleStatus = async (student: KonversiNilai) => {
+    if (!student.nilai_akhir || !student.nama_berkas) {
+      console.log('Nilai atau berkas belum diisi.');
+      return;
+    }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFileNilai(e.target.files[0]);
+    try {
+      const token = Cookies.get('token');
+      if (!token) {
+        console.error('Token not found. Please log in first.');
+        return;
+      }
+
+      const decoded = jwtDecode<{ NIP_dosbing: string }>(token);
+      const { NIP_dosbing } = decoded;
+
+      const grade =
+        student.nilai_akhir >= 85 ? 'A' : student.nilai_akhir >= 70 ? 'B' : 'C';
+
+      const formData = new FormData();
+      formData.append('id_konversi_nilai', '0');
+      formData.append('NIM', student.NIM);
+      formData.append('id_berkas_penilaian', '0');
+      formData.append('nama_berkas', student.nama_berkas);
+      formData.append('NIP_dosbing', student.NIP_dosbing);
+      formData.append('nilai_akhir', student.nilai_akhir.toString());
+      formData.append('grade', grade);
+      formData.append('status', 'Pending');
+
+      const fileInput = document.getElementById(
+        `file-input-${student.NIM}`
+      ) as HTMLInputElement;
+      if (fileInput?.files?.length) {
+        formData.append('file', fileInput.files[0]);
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/konversi-nilai`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      console.log('Response:', response);
+
+      if (response.status === 200) {
+        setKonversiData((prev) =>
+          prev.map((data) =>
+            data.NIM === student.NIM ? { ...data, status: 'ACC' } : data
+          )
+        );
+        console.log('Data berhasil ditambahkan ke database');
+      } else {
+        console.log('Terjadi kesalahan saat mengirim data');
+      }
+    } catch (error) {
+      console.error('Error posting konversi nilai:', error);
     }
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
-
-  const filteredMahasiswa = mahasiswa.filter((mhs) =>
-    mhs.nama_mahasiswa.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <div className="p-6">
-      <h1 className="mb-6 text-2xl font-semibold">Penilaian Program MBKM</h1>
-
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Cari mahasiswa..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="w-full rounded border border-gray-300 p-2"
+    <PageContainer scrollable>
+      <div className="flex flex-col gap-y-4">
+        <Heading
+          title="Konversi Nilai"
+          description="Daftar konversi nilai mahasiswa yang dibimbing."
         />
+        <Separator />
+
+        <div>
+          <label htmlFor="student-search">Cari Mahasiswa:</label>
+          <input
+            id="student-search"
+            type="text"
+            placeholder="Ketik nama mahasiswa..."
+            value={searchStudent}
+            onChange={(e) => setSearchStudent(e.target.value)}
+            className="w-full rounded-md border p-2"
+          />
+        </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>No</TableHead>
+              <TableHead>Nama Mahasiswa</TableHead>
+              <TableHead>NIM</TableHead>
+              <TableHead>Nilai Akhir</TableHead>
+              <TableHead>Berkas</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {konversiData.map((student, index) => (
+              <TableRow key={student.NIM}>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>
+                  {mahasiswaList.find((s) => s.NIM === student.NIM)
+                    ?.nama_mahasiswa || 'N/A'}
+                </TableCell>
+                <TableCell>{student.NIM}</TableCell>
+                <TableCell>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={student.nilai_akhir || ''}
+                    onChange={(e) =>
+                      setKonversiData((prev) =>
+                        prev.map((data) =>
+                          data.NIM === student.NIM
+                            ? { ...data, nilai_akhir: parseInt(e.target.value) }
+                            : data
+                        )
+                      )
+                    }
+                    className="rounded-md border p-2"
+                  />
+                </TableCell>
+                <TableCell>
+                  <input
+                    id={`file-input-${student.NIM}`}
+                    type="file"
+                    onChange={(e) => {
+                      const files = e.target.files;
+                      if (files && files.length > 0) {
+                        setKonversiData((prev) =>
+                          prev.map((data) =>
+                            data.NIM === student.NIM
+                              ? { ...data, nama_berkas: files[0].name }
+                              : data
+                          )
+                        );
+                      }
+                    }}
+                  />
+                </TableCell>
+                <TableCell>{student.status}</TableCell>
+                <TableCell>
+                  <Button onClick={() => toggleStatus(student)}>
+                    Konfirmasi
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
-
-      <section>
-        <h2 className="mb-4 text-xl font-semibold">Tabel Penilaian</h2>
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr>
-              <th className="border border-gray-300 px-4 py-2">No</th>
-              <th className="border border-gray-300 px-4 py-2">Mahasiswa</th>
-              <th className="border border-gray-300 px-4 py-2">Program</th>
-              <th className="border border-gray-300 px-4 py-2">Nilai</th>
-              <th className="border border-gray-300 px-4 py-2">File Nilai</th>
-              <th className="border border-gray-300 px-4 py-2">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {penilaians.map((penilaian, index) => {
-              const mahasiswaInfo = mahasiswa.find(
-                (mhs) => mhs.NIM === penilaian.NIM
-              );
-              const programInfo = programMBKM.find(
-                (program) => program.id === penilaian.id_program_mbkm
-              );
-              return (
-                filteredMahasiswa.some((mhs) => mhs.NIM === penilaian.NIM) && (
-                  <tr key={penilaian.id}>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {index + 1}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <button
-                        onClick={() =>
-                          setSelectedMahasiswa(mahasiswaInfo || null)
-                        }
-                        className="text-blue-500 underline"
-                      >
-                        {mahasiswaInfo?.nama_mahasiswa || 'Tidak Ditemukan'}
-                      </button>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {programInfo?.nama_program || 'Tidak Ditemukan'}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {penilaian.nilai || 'Belum dinilai'}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      {penilaian.file_nilai_url ? (
-                        <a
-                          href={penilaian.file_nilai_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-500 underline"
-                        >
-                          Lihat File
-                        </a>
-                      ) : (
-                        'Belum ada file'
-                      )}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2">
-                      <button
-                        className="rounded bg-blue-500 px-4 py-2 text-white"
-                        onClick={() => handleEditPenilaian(penilaian)}
-                      >
-                        Edit
-                      </button>
-                    </td>
-                  </tr>
-                )
-              );
-            })}
-          </tbody>
-        </table>
-      </section>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-96 rounded bg-white p-6 shadow-md">
-            <h3 className="mb-4 text-xl font-semibold">Edit Penilaian</h3>
-            <div className="mb-4">
-              <label className="mb-2 block">Nilai:</label>
-              <input
-                type="text"
-                value={nilai}
-                onChange={(e) => setNilai(e.target.value)}
-                className="w-full rounded border border-gray-300 p-2"
-                placeholder="Masukkan nilai"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="mb-2 block">Upload File Nilai:</label>
-              <input
-                type="file"
-                onChange={handleFileChange}
-                className="w-full rounded border border-gray-300 p-2"
-              />
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={handleSavePenilaian}
-                className="mr-2 rounded bg-green-500 px-4 py-2 text-white"
-              >
-                Simpan
-              </button>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="rounded bg-gray-300 px-4 py-2 text-black"
-              >
-                Batal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {selectedMahasiswa && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="rounded bg-white p-6 shadow-md">
-            <h3 className="mb-4 text-xl font-semibold">Informasi Mahasiswa</h3>
-            <p>
-              <strong>NIM:</strong> {selectedMahasiswa.NIM}
-            </p>
-            <p>
-              <strong>Nama:</strong> {selectedMahasiswa.nama_mahasiswa}
-            </p>
-            <p>
-              <strong>Semester:</strong> {selectedMahasiswa.semester}
-            </p>
-            <p>
-              <strong>NIP Dosen Pembimbing:</strong>{' '}
-              {selectedMahasiswa.NIP_dosbing}
-            </p>
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => setSelectedMahasiswa(null)}
-                className="rounded bg-gray-300 px-4 py-2 text-black"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </PageContainer>
   );
 }

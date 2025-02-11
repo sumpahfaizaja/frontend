@@ -158,7 +158,12 @@ export default function ProgramMBKMPage() {
             <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
-            {pendingRegistrations.length > 0 ? (
+            {verifiedRegistrations.length > 0 ? (
+              <p>
+                Data pada tab pending disembunyikan karena ada data yang
+                terverifikasi.
+              </p>
+            ) : pendingRegistrations.length > 0 ? (
               pendingRegistrations.map((item) => {
                 const program = programDetails[item.id_program_mbkm];
                 return (

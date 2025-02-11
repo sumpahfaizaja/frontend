@@ -7,13 +7,19 @@ import { Breadcrumbs } from '@/components/breadcrumbs';
 import PageContainer from '@/components/layout/page-container';
 import { ChevronLeft, Save, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
 import Cookies from 'js-cookie';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-// API Base URL
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-// Type definitions
 interface Student {
   NIM: string;
   nama_mahasiswa: string;
@@ -92,15 +98,9 @@ const EditMahasiswaPage = () => {
     if (NIM) fetchData();
   }, [NIM]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setStudent((prevState) => ({
-      ...prevState,
-      [name]: value
-    }));
+    setStudent((prevState) => ({ ...prevState, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -108,12 +108,8 @@ const EditMahasiswaPage = () => {
 
     const updatedStudent: Partial<Student> = {
       ...student,
-      id_program_mbkm: student.id_program_mbkm
-        ? student.id_program_mbkm.toString() // Konversi menjadi string
-        : undefined, // Ubah null menjadi undefined
-      NIP_dosbing: student.NIP_dosbing
-        ? student.NIP_dosbing.toString() // Konversi menjadi string
-        : undefined // Ubah null menjadi undefined
+      id_program_mbkm: student.id_program_mbkm || undefined,
+      NIP_dosbing: student.NIP_dosbing || undefined
     };
 
     try {
@@ -163,37 +159,36 @@ const EditMahasiswaPage = () => {
   }
 
   return (
-    <PageContainer scrollable>
-      <div className="flex flex-col gap-y-4">
+    <PageContainer>
+      <div className="space-y-4">
         <Breadcrumbs items={breadcrumbItems} />
 
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-x-2">
-            <Link
-              href="/dashboard-koordinator/mahasiswa"
-              className="rounded-full p-2 hover:bg-gray-100"
-            >
-              <ChevronLeft size={24} />
-            </Link>
-            <h1 className="text-2xl font-bold">Edit Data Mahasiswa</h1>
-          </div>
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold">Edit Data Mahasiswa</h1>
         </div>
 
         {successMessage && (
-          <div className="flex items-center gap-x-2 rounded-lg bg-green-100 p-4 text-green-800">
-            <CheckCircle size={20} />
+          <div className="rounded-md bg-green-100 p-4 text-green-700">
+            <CheckCircle size={18} className="mr-2 inline" />
             {successMessage}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div>
-              <label htmlFor="NIM">NIM</label>
+              <label htmlFor="NIM" className="block text-sm font-medium">
+                NIM
+              </label>
               <Input type="text" id="NIM" value={student.NIM} disabled />
             </div>
             <div>
-              <label htmlFor="nama_mahasiswa">Nama Mahasiswa</label>
+              <label
+                htmlFor="nama_mahasiswa"
+                className="block text-sm font-medium"
+              >
+                Nama Mahasiswa
+              </label>
               <Input
                 type="text"
                 id="nama_mahasiswa"
@@ -202,7 +197,9 @@ const EditMahasiswaPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="semester">Semester</label>
+              <label htmlFor="semester" className="block text-sm font-medium">
+                Semester
+              </label>
               <Input
                 type="number"
                 id="semester"
@@ -212,47 +209,68 @@ const EditMahasiswaPage = () => {
               />
             </div>
             <div>
-              <label htmlFor="id_program_mbkm">Program MBKM</label>
-              <select
-                id="id_program_mbkm"
-                name="id_program_mbkm"
-                value={student.id_program_mbkm || ''}
-                onChange={handleInputChange}
-                className="h-9 w-full rounded-md border border-gray-300"
+              <label
+                htmlFor="id_program_mbkm"
+                className="block text-sm font-medium"
               >
-                <option value="">Pilih Program</option>
-                {programs.map((program) => (
-                  <option
-                    key={program.id_program_mbkm}
-                    value={program.id_program_mbkm}
-                  >
-                    {program.company} - {program.role}
-                  </option>
-                ))}
-              </select>
+                Program MBKM
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setStudent((prev) => ({ ...prev, id_program_mbkm: value }))
+                }
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Program MBKM" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[30svh] overflow-y-scroll md:max-h-[50svh]">
+                  {programs.map((program) => (
+                    <SelectItem
+                      key={program.id_program_mbkm}
+                      value={program.id_program_mbkm.toString()}
+                    >
+                      {program.company} - {program.role}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label htmlFor="NIP_dosbing">Dosen Pembimbing</label>
-              <select
-                id="NIP_dosbing"
-                name="NIP_dosbing"
-                value={student.NIP_dosbing}
-                onChange={handleInputChange}
-                className="h-9 w-full rounded-md border border-gray-300"
+              <label
+                htmlFor="NIP_dosbing"
+                className="block text-sm font-medium"
               >
-                <option value="">Pilih Dosen Pembimbing</option>
-                {dosens.map((dosen) => (
-                  <option key={dosen.NIP_dosbing} value={dosen.NIP_dosbing}>
-                    {dosen.nama_dosbing}
-                  </option>
-                ))}
-              </select>
+                Dosen Pembimbing
+              </label>
+              <Select
+                onValueChange={(value) =>
+                  setStudent((prev) => ({ ...prev, NIP_dosbing: value }))
+                }
+                disabled={loading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Dosen Pembimbing" />
+                </SelectTrigger>
+                <SelectContent className="overflow-y-scroll md:max-h-[50svh]">
+                  {dosens.map((dosen) => (
+                    <SelectItem
+                      key={dosen.NIP_dosbing}
+                      value={dosen.NIP_dosbing.toString()}
+                    >
+                      {dosen.nama_dosbing}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-          <div className="flex justify-end gap-x-4">
-            <button type="submit" className="btn btn-primary">
-              <Save size={16} /> Simpan
-            </button>
+
+          <div className="flex justify-end">
+            <Button type="submit" disabled={loading} className="gap-2">
+              <Save size={16} />
+              Simpan
+            </Button>
           </div>
         </form>
       </div>

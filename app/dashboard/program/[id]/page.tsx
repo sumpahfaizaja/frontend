@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
@@ -110,9 +110,19 @@ export default function ProgramDetailPage({
         }
       });
       setRegistrationStatus('Pendaftaran berhasil');
-    } catch (error) {
-      console.error('Error during registration:', error);
-      setRegistrationStatus('Pendaftaran gagal');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        // Now TypeScript knows `error` is an instance of `Error`
+        console.error('Error during registration:', error.message);
+        if (error instanceof AxiosError && error.response) {
+          console.error('Backend Error:', error.response.data);
+        }
+        setRegistrationStatus('Pendaftaran gagal');
+      } else {
+        // Handle the case where the error is not an instance of `Error`
+        console.error('Unexpected error:', error);
+        setRegistrationStatus('Pendaftaran gagal');
+      }
     }
   };
 

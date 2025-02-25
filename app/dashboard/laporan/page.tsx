@@ -26,6 +26,7 @@ const API_FETCH_LOGBOOKS = 'https://backend-si-mbkm.vercel.app/api/logbook';
 const API_PENDING_VERIFIED =
   'https://backend-si-mbkm.vercel.app/api/pendaftaran-mbkm';
 const API_DELETE_LOGBOOK = 'https://backend-si-mbkm.vercel.app/api/logbook';
+const API_UPLOAD_PENILAIAN = 'https://backend-si-mbkm.vercel.app/api/penilaian';
 
 interface Logbook {
   id_logbook: string;
@@ -139,6 +140,52 @@ const LogbookForm = ({
           'Unggah Logbook'
         )}
       </Button>
+    </form>
+  );
+};
+
+const PenilaianForm = ({
+  onSubmit,
+  onCancel,
+  loading
+}: {
+  onSubmit: (file: File) => void;
+  onCancel: () => void;
+  loading: boolean;
+}) => {
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (file) {
+      onSubmit(file);
+    } else {
+      alert('Harap pilih file terlebih dahulu.');
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <Input
+        type="file"
+        onChange={(e) => e.target.files && setFile(e.target.files[0])}
+        disabled={loading}
+      />
+      <div className="flex gap-2">
+        <Button type="submit" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader className="mr-2 animate-spin" size={16} />
+              Mengunggah...
+            </>
+          ) : (
+            'Unggah Penilaian'
+          )}
+        </Button>
+        <Button variant="outline" onClick={onCancel} disabled={loading}>
+          Batalkan
+        </Button>
+      </div>
     </form>
   );
 };
@@ -316,8 +363,40 @@ export default function LogbookPage() {
     }
   };
 
-  const handleEdit = (logbook: Logbook) => {
-    alert('Edit functionality to be implemented');
+  const handlePenilaianUpload = async (file: File) => {
+    const token = Cookies.get('token');
+    if (!token) {
+      setMessage('Token tidak ditemukan, silakan login ulang.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setLoading(true);
+    try {
+      const response = await fetch(API_UPLOAD_PENILAIAN, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload penilaian gagal');
+      }
+
+      setMessage('Penilaian berhasil diunggah!');
+    } catch (err: any) {
+      setMessage(err.message || 'Terjadi kesalahan saat unggah penilaian.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePenilaianCancel = () => {
+    // Clear file if user cancels
+    setMessage(null);
   };
 
   return (
@@ -346,6 +425,8 @@ export default function LogbookPage() {
             </CardContent>
           </Card>
 
+          {/* Form Upload Penilaian */}
+
           {/* Tampilkan Card Riwayat Logbook hanya jika ada logbook */}
           {logbooks.length > 0 && (
             <Card>
@@ -356,15 +437,23 @@ export default function LogbookPage() {
                 {error ? (
                   <p className="text-red-500">{error}</p>
                 ) : (
-                  <LogbookTable
-                    logbooks={logbooks}
-                    onDelete={handleDelete}
-                    onEdit={handleEdit}
-                  />
+                  <LogbookTable logbooks={logbooks} onDelete={handleDelete} />
                 )}
               </CardContent>
             </Card>
           )}
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Upload Penilaian Program</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PenilaianForm
+                onSubmit={handlePenilaianUpload}
+                onCancel={handlePenilaianCancel}
+                loading={loading}
+              />
+            </CardContent>
+          </Card>
         </>
       ) : (
         <Alert className="mt-4">

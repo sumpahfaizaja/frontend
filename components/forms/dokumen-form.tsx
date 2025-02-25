@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { Heading } from '@/components/ui/heading';
@@ -14,33 +13,17 @@ import Link from 'next/link';
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/upload';
 const API_GET_FILES_URL = 'https://backend-si-mbkm.vercel.app/api/upload/nim';
 
-const DOCUMENT_TYPES = [
+let DOCUMENT_TYPES = [
   { label: 'CV', value: 'CV' },
   { label: 'KTP', value: 'KTP' },
   { label: 'Transkrip Nilai', value: 'transkrip' },
   { label: 'Sertifikat Organisasi', value: 'sertifikat' },
-  { label: 'Dokumen Tambahan', value: 'dokumen_tambahan' }
+  { label: 'Dokumen Tambahan 1', value: 'dokumen_tambahan_1' },
+  { label: 'Dokumen Tambahan 2', value: 'dokumen_tambahan_2' },
+  { label: 'Dokumen Tambahan 3', value: 'dokumen_tambahan_3' },
+  { label: 'Dokumen Tambahan 4', value: 'dokumen_tambahan_4' },
+  { label: 'Dokumen Tambahan 5', value: 'dokumen_tambahan_5' }
 ];
-
-interface DokumenFormProps {
-  nim: string;
-  allowDelete?: boolean;
-}
-
-const DokumenForm: React.FC<DokumenFormProps> = ({ nim, allowDelete }) => {
-  let localNim = nim;
-
-  const handleDelete = () => {
-    console.log(`Dokumen milik NIM ${localNim} akan dihapus`);
-    localNim = ''; // Reset nilai jika dihapus
-  };
-
-  return (
-    <div>
-      {allowDelete && <button onClick={handleDelete}>Hapus Dokumen</button>}
-    </div>
-  );
-};
 
 export default function UploadDocumentPage(props: {
   nim: string | null;
@@ -51,12 +34,13 @@ export default function UploadDocumentPage(props: {
   const [newFile, setNewFile] = useState<Record<string, File | null>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [additionalDocs, setAdditionalDocs] = useState<
+    { label: string; value: string }[]
+  >([]);
   const token = Cookies.get('token');
 
   let nim = initialNim;
   if (!initialNim) nim = token ? jwtDecode<{ NIM: string }>(token).NIM : null;
-
-  console.log(nim);
 
   useEffect(() => {
     if (nim) fetchUploadedFiles(nim);
@@ -72,17 +56,38 @@ export default function UploadDocumentPage(props: {
       const data = await response.json();
 
       if (response.ok) {
-        const filesMap = DOCUMENT_TYPES.reduce(
+        const filesMap = [...DOCUMENT_TYPES, ...additionalDocs].reduce(
           (acc, type) => {
-            const file = data.data.find(
-              (f: any) => f.jenis_berkas === type.value
-            );
-            acc[type.value] = file || null;
+            if (type.value.includes('dokumen_tambahan')) {
+              const files = data.data.filter((f: any) =>
+                f.jenis_berkas.includes('dokumen_tambahan')
+              );
+
+              for (let i = 0; i < files.length; i++) {
+                acc[`${files[i].jenis_berkas}_${i + 1}`] = files[i] || null;
+                // DOCUMENT_TYPES.push({
+                //   label: `Dokumen Tambahan ${i + 1}`,
+                //   value: `${files[i].jenis_berkas}_${i + 1}`
+                // });
+              }
+
+              // files.forEach((file: any, index: number) => {
+              //   console.error(index);
+              //   acc[type.value] = file || null;
+              // });
+            } else {
+              const file = data.data.find(
+                (f: any) => f.jenis_berkas === type.value
+              );
+
+              acc[type.value] = file || null;
+            }
             return acc;
           },
           {} as Record<string, any>
         );
         setFiles(filesMap);
+        console.log(filesMap);
       } else {
         setMessage(data.message || 'Gagal memuat data dokumen.');
       }
@@ -105,7 +110,9 @@ export default function UploadDocumentPage(props: {
     setLoading((prev) => ({ ...prev, [type]: isLoading }));
   };
 
-  const handleUpload = async (type: string) => {
+  const handleUpload = async (oldType: string) => {
+    let type = oldType;
+
     const file = newFile[type];
     if (!file) {
       setMessage(`Pilih file untuk jenis dokumen ${type}!`);
@@ -120,11 +127,18 @@ export default function UploadDocumentPage(props: {
     setLoadingState(type, true);
 
     const formData = new FormData();
+
+    if (type.includes('dokumen_tambahan')) type = 'dokumen_tambahan';
     formData.append('file', file);
     formData.append('jenis_berkas', type);
     formData.append('NIM', nim);
 
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
+
     try {
+      console.log('handleUpload function called', file);
       const response = await fetch(API_UPLOAD_URL, {
         method: 'POST',
         headers: {
@@ -133,16 +147,21 @@ export default function UploadDocumentPage(props: {
         body: formData
       });
 
-      const data = await response.json();
+      console.log('fetch url:', API_UPLOAD_URL);
+      console.log('Form data:', formData);
+      console.log('fetch response:', response);
 
-      if (response.ok) {
-        setMessage(`Upload dokumen ${type} berhasil!`);
-        fetchUploadedFiles(nim);
-      } else {
-        setMessage(data.message || `Gagal mengunggah dokumen ${type}.`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        setMessage(errorData.message || `Gagal mengunggah dokumen ${type}.`);
+        return;
       }
+
+      const data = await response.json();
+      setMessage(`Upload dokumen ${type} berhasil!`);
+      fetchUploadedFiles(nim);
     } catch (error) {
-      console.error(`Error uploading ${type}:`, error);
+      console.error('Error in handleUpload:', error);
       setMessage('Terjadi kesalahan saat mengunggah file.');
     } finally {
       setLoadingState(type, false);
@@ -153,7 +172,6 @@ export default function UploadDocumentPage(props: {
     const file = files[type];
     if (!file) return;
 
-    // Optimistically remove the file from state
     setFiles((prev) => ({ ...prev, [type]: null }));
 
     setLoadingState(type, true);
@@ -174,18 +192,26 @@ export default function UploadDocumentPage(props: {
       if (response.ok) {
         setMessage(`Dokumen ${type} berhasil dihapus!`);
       } else {
-        // Revert state if delete fails
         setFiles((prev) => ({ ...prev, [type]: file }));
         setMessage(data.message || `Gagal menghapus dokumen ${type}.`);
       }
     } catch (error) {
       console.error(`Error deleting ${type}:`, error);
-      // Revert state if an error occurs
       setFiles((prev) => ({ ...prev, [type]: file }));
       setMessage('Terjadi kesalahan saat menghapus file.');
     } finally {
       setLoadingState(type, false);
     }
+  };
+
+  const handleAddAdditionalDoc = () => {
+    const newIndex = additionalDocs.length + 1;
+    const newDoc = {
+      label: `Dokumen Tambahan ${newIndex}`,
+      value: `dokumen_tambahan_${newIndex}`
+    };
+
+    setAdditionalDocs((prev) => [...prev, newDoc]);
   };
 
   return (
@@ -195,9 +221,8 @@ export default function UploadDocumentPage(props: {
         description="Unggah dokumen yang diperlukan untuk MBKM"
       />
       <Separator className="my-4" />
-      <DokumenForm nim={nim || ''} allowDelete={allowDelete} />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {DOCUMENT_TYPES.map((type) => (
+        {[...DOCUMENT_TYPES, ...additionalDocs].map((type) => (
           <Card key={type.value} className="shadow-lg">
             <CardHeader>
               <CardTitle className="text-lg font-medium text-gray-800">
@@ -244,6 +269,12 @@ export default function UploadDocumentPage(props: {
             </CardContent>
           </Card>
         ))}
+        {/* <Button
+          onClick={handleAddAdditionalDoc}
+          className="w-full bg-blue-600 text-white hover:bg-blue-500"
+        >
+          Tambah Dokumen
+        </Button> */}
       </div>
     </>
   );

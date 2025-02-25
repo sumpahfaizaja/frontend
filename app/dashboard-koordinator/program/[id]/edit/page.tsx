@@ -25,6 +25,7 @@ interface ProgramDetails {
   status: string;
   date: string;
   category_id: string;
+  syarat: string | null;
   Category: Category;
 }
 
@@ -41,6 +42,7 @@ const EditProgramPage = () => {
     status: 'Active',
     date: '',
     category_id: '',
+    syarat: '',
     Category: { id: '', name: '' }
   });
 
@@ -92,10 +94,19 @@ const EditProgramPage = () => {
     fetchCategories();
   }, [id_program_mbkm]);
 
-  // Handle Input changes
+  // Handle Input changes for input and select
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
+    const { name, value } = e.target;
+    setProgram((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle Textarea change
+  const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProgram((prev) => ({
       ...prev,
@@ -197,104 +208,8 @@ const EditProgramPage = () => {
                 name="id_program_mbkm"
                 value={program.id_program_mbkm}
                 disabled
-                className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm"
+                className="mt-1 block w-full"
               />
-            </div>
-
-            {/* Company */}
-            <div>
-              <label
-                htmlFor="company"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Company
-              </label>
-              <Input
-                type="text"
-                id="company"
-                name="company"
-                value={program.company}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-
-            {/* Deskripsi */}
-            <div>
-              <label
-                htmlFor="deskripsi"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Deskripsi
-              </label>
-              <Input
-                type="text"
-                id="deskripsi"
-                name="deskripsi"
-                value={program.deskripsi || ''}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-
-            {/* Role */}
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Role
-              </label>
-              <Input
-                type="text"
-                id="role"
-                name="role"
-                value={program.role}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-
-            {/* Tanggal */}
-            <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Tanggal
-              </label>
-              <Input
-                type="date"
-                id="date"
-                name="date"
-                value={new Date(program.date).toISOString().split('T')[0]} // Convert date to correct format
-                onChange={handleInputChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-              />
-            </div>
-
-            {/* Status */}
-            <div>
-              <label
-                htmlFor="status"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Status Program
-              </label>
-              <select
-                id="status"
-                name="status"
-                value={program.status}
-                onChange={handleInputChange}
-                required
-                className="mt-1 block h-9 w-full rounded-md border border-gray-300 shadow-sm"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
             </div>
 
             {/* Category */}
@@ -303,15 +218,14 @@ const EditProgramPage = () => {
                 htmlFor="category_id"
                 className="block text-sm font-medium text-gray-700"
               >
-                Category
+                Kategori Program
               </label>
               <select
                 id="category_id"
                 name="category_id"
                 value={program.category_id}
                 onChange={handleCategoryChange}
-                required
-                className="mt-1 block h-9 w-full rounded-md border border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -322,14 +236,69 @@ const EditProgramPage = () => {
             </div>
           </div>
 
+          {/* Company */}
+          <div>
+            <label
+              htmlFor="company"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Perusahaan
+            </label>
+            <Input
+              type="text"
+              id="company"
+              name="company"
+              value={program.company}
+              onChange={handleInputChange}
+              required
+              className="mt-1 block w-full"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label
+              htmlFor="deskripsi"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Deskripsi Program
+            </label>
+            <textarea
+              id="deskripsi"
+              name="deskripsi"
+              value={program.deskripsi || ''}
+              onChange={handleTextAreaChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+              rows={4}
+            />
+          </div>
+
+          {/* Requirements */}
+          <div>
+            <label
+              htmlFor="syarat"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Syarat Program
+            </label>
+            <textarea
+              id="syarat"
+              name="syarat"
+              value={program.syarat || ''}
+              onChange={handleTextAreaChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+              rows={4}
+            />
+          </div>
+
           {/* Save Button */}
           <div className="flex justify-end">
             <button
               type="submit"
-              className="flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white shadow-sm hover:bg-blue-700"
+              className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
-              <Save size={16} className="mr-2" />
-              Save Changes
+              <Save size={18} className="mr-2" />
+              Simpan
             </button>
           </div>
         </form>

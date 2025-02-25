@@ -22,6 +22,7 @@ const CreateProgramPage = () => {
   const [program, setProgram] = useState({
     company: '',
     deskripsi: '',
+    syarat: '', // Added syarat here
     role: '',
     status: 'Active',
     date: '',
@@ -130,6 +131,22 @@ const CreateProgramPage = () => {
                 id="deskripsi"
                 name="deskripsi"
                 value={program.deskripsi}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="syarat"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Syarat
+              </label>
+              <Input
+                type="text"
+                id="syarat"
+                name="syarat"
+                value={program.syarat}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
               />

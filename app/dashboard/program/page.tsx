@@ -23,6 +23,7 @@ interface ProgramMBKM {
   id_program_mbkm: number;
   company: string;
   deskripsi: string | null;
+  syarat: string | null;
   role: string;
   status: string;
   date: string;
@@ -75,7 +76,7 @@ export default function ProgramMBKMPage() {
               <p>Loading...</p>
             ) : (
               programs
-                .filter((program) => program.status === 'Active') // Filter kegiatan aktif
+                .filter((program) => program.status === 'Active')
                 .map((program) => (
                   <Card
                     key={program.id_program_mbkm}
@@ -89,6 +90,10 @@ export default function ProgramMBKMPage() {
                     <CardContent>
                       <p className="line-clamp-3 text-base text-gray-600">
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
+                      </p>
+                      <p className="mt-2 text-sm text-gray-500">
+                        <strong>Syarat:</strong>{' '}
+                        {program.syarat ?? 'Syarat tidak tersedia'}
                       </p>
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
@@ -121,7 +126,7 @@ export default function ProgramMBKMPage() {
               <p>Loading...</p>
             ) : (
               programs
-                .filter((program) => program.status !== 'Active') // Filter kegiatan tidak aktif
+                .filter((program) => program.status !== 'Active')
                 .map((program) => (
                   <Card
                     key={program.id_program_mbkm}
@@ -136,10 +141,14 @@ export default function ProgramMBKMPage() {
                       <p className="line-clamp-3 text-base text-gray-600">
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                       </p>
+                      <p className="mt-2 text-sm text-gray-500">
+                        <strong>Syarat:</strong>{' '}
+                        {program.syarat ?? 'Syarat tidak tersedia'}
+                      </p>
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
                       <p className="line-clamp-1 text-sm text-gray-600">
-                        <strong>role:</strong>{' '}
+                        <strong>Role:</strong>{' '}
                         {program.role || 'Tidak dicantumkan'}
                       </p>
                     </div>

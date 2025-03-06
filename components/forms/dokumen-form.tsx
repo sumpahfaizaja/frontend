@@ -26,7 +26,7 @@ let DOCUMENT_TYPES = [
 ];
 
 export default function UploadDocumentPage(props: {
-  nim: string | null;
+  nim?: string | null;
   allowDelete?: boolean;
 }) {
   const { nim: initialNim, allowDelete = true } = props;

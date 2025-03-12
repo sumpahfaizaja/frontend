@@ -1,63 +1,79 @@
-import React, { ChangeEvent, FormEvent } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
-interface Program {
-  id: string;
-  name: string;
-  description: string;
-  requirements: string;
+// Definisi tipe data untuk Mata Kuliah Konversi
+interface MataKuliahKonversi {
+  nama_matkul: string;
+  kode_matkul: string;
+  sks: number;
 }
 
+// Definisi tipe data untuk Props yang diterima oleh PopupModal
 interface PopupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  program: Program;
-  onFileUpload: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleSubmit: (programId: string) => void;
+  nim: string | null;
 }
 
-export default function PopupModal({
-  isOpen,
-  onClose,
-  program,
-  onFileUpload,
-  handleSubmit
-}: PopupModalProps) {
-  if (!isOpen) return null;
+const PopupModal: React.FC<PopupModalProps> = ({ isOpen, onClose, nim }) => {
+  const [data, setData] = useState<MataKuliahKonversi | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && nim) {
+      setLoading(true);
+      fetch(
+        `https://backend-si-mbkm.vercel.app/api/pendaftaran-mbkm/nim/${nim}`
+      )
+        .then((res) => res.json())
+        .then((result: { mata_kuliah_konversi?: MataKuliahKonversi }) => {
+          if (result.mata_kuliah_konversi) {
+            setData(result.mata_kuliah_konversi);
+          } else {
+            setError('Data tidak ditemukan.');
+          }
+        })
+        .catch(() => setError('Gagal mengambil data.'))
+        .finally(() => setLoading(false));
+    }
+  }, [isOpen, nim]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="w-96 rounded-lg bg-white p-6">
-        <button
-          className="absolute right-2 top-2 text-gray-500 hover:text-gray-800"
-          onClick={onClose}
-        >
-          ✕
-        </button>
-        <h3 className="mb-4 text-xl font-semibold">{program.name}</h3>
-        <p className="mb-2">Deskripsi: {program.description}</p>
-        <p className="mb-4">Syarat: {program.requirements}</p>
-        <form
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            handleSubmit(program.id);
-          }}
-        >
-          <label className="mb-2 block">
-            Upload File:
-            <input
-              type="file"
-              className="mt-1 block w-full rounded border"
-              onChange={onFileUpload}
-            />
-          </label>
-          <button
-            type="submit"
-            className="mt-4 w-full rounded bg-blue-600 px-4 py-2 text-white"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
-    </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Detail Mata Kuliah Konversi</DialogTitle>
+        </DialogHeader>
+        {loading ? (
+          <p>Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : data ? (
+          <div>
+            <p>
+              <strong>Nama Mata Kuliah:</strong> {data.nama_matkul}
+            </p>
+            <p>
+              <strong>Kode Mata Kuliah:</strong> {data.kode_matkul}
+            </p>
+            <p>
+              <strong>SKS:</strong> {data.sks}
+            </p>
+          </div>
+        ) : (
+          <p>Tidak ada data.</p>
+        )}
+        <Button onClick={onClose}>Tutup</Button>
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default PopupModal;

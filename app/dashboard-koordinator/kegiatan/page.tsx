@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
 import {
   Select,
   SelectItem,
@@ -29,6 +30,18 @@ interface ProgramRegistration {
   tanggal: string;
   status: string;
   id_program_mbkm: number;
+}
+
+interface MatkulKonversi {
+  id_pendaftaran_mbkm: number;
+  id_matkul_knvrs: number;
+}
+
+interface Matkul {
+  nama_matkul: string;
+  id_matkul_knvrs: number;
+  kode_matkul: string;
+  sks: number;
 }
 
 interface DosenPembimbing {
@@ -53,6 +66,7 @@ export default function AdminRegistrationsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [verifiedNIMs, setVerifiedNIMs] = useState<Set<string>>(new Set());
+
   const [selectedDosbing, setSelectedDosbing] = useState<{
     [key: number]: string;
   }>({}); // Track selected dosen pembimbing
@@ -268,7 +282,9 @@ export default function AdminRegistrationsPage() {
                 <TableHead className="px-4 py-3">Company</TableHead>
                 <TableHead className="px-4 py-3">Nama Mahasiswa</TableHead>
                 <TableHead className="px-4 py-3">Tanggal</TableHead>
-                <TableHead className="px-4 py-3">Status</TableHead>
+                <TableHead className="px-4 py-3">
+                  Mata Kuliah Konversi
+                </TableHead>
                 <TableHead className="px-4 py-3">Dosen Pembimbing</TableHead>
                 <TableHead className="px-4 py-3 text-right">Aksi</TableHead>
               </TableRow>
@@ -285,14 +301,24 @@ export default function AdminRegistrationsPage() {
                     {programs[pendaftaran.id_program_mbkm] || 'Memuat...'}
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    {students[pendaftaran.NIM] || 'Memuat...'}
+                    {students[pendaftaran.NIM] ? (
+                      <Link
+                        href={`/dashboard-koordinator/mahasiswa/${pendaftaran.NIM}`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {students[pendaftaran.NIM]}
+                      </Link>
+                    ) : (
+                      'Memuat...'
+                    )}
                   </TableCell>
                   <TableCell className="px-4 py-3">
                     {new Date(pendaftaran.tanggal).toLocaleDateString()}
                   </TableCell>
-                  <TableCell className="px-4 py-3 capitalize">
-                    {pendaftaran.status}
+                  <TableCell className="px-4 py-3">
+                    ini untuk nilai nama mata kuliahnya apa aja
                   </TableCell>
+
                   <TableCell className="px-4 py-3">
                     {isPending ? (
                       <Select

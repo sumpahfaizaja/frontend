@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import Link from 'next/link';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -196,48 +197,78 @@ export default function LogbookPage() {
           className="w-full rounded-md border p-2"
         />
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>No</TableHead>
-              <TableHead>Mahasiswa</TableHead>
-              <TableHead>Judul</TableHead>
-              <TableHead>Subjek</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredLogbooks.map((logbook, index) => (
-              <TableRow key={logbook.id_logbook}>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{logbook.nama_mahasiswa}</TableCell>
-                <TableCell>{logbook.judul}</TableCell>
-                <TableCell>{logbook.subjek}</TableCell>
-                <TableCell>{logbook.status}</TableCell>
-                <TableCell>
-                  <Button
-                    onClick={() =>
-                      toggleStatus(
-                        logbook.id_logbook,
-                        logbook.status === 'Menunggu' || null
-                          ? 'ACC'
-                          : 'Menunggu'
-                      )
-                    }
-                    size={'sm'}
-                    variant={
-                      logbook.status === 'ACC' ? 'destructive' : 'default'
-                    }
-                    className="w-full"
+        <div className="overflow-x-auto rounded-lg shadow">
+          <div className="max-h-[400px] overflow-y-auto">
+            <Table className="w-full text-left">
+              <TableHeader className="sticky top-0 z-10 bg-secondary shadow-sm">
+                <TableRow className="text-secondary-foreground">
+                  <TableHead className="px-4 py-3">No.</TableHead>
+                  <TableHead className="px-4 py-3">Mahasiswa</TableHead>
+                  <TableHead className="px-4 py-3">Judul</TableHead>
+                  <TableHead className="px-4 py-3">Subjek</TableHead>
+                  <TableHead className="px-4 py-3">Status</TableHead>
+                  <TableHead className="px-4 py-3 text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredLogbooks.map((logbook, index) => (
+                  <TableRow
+                    key={logbook.id_logbook}
+                    className={`${
+                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    } hover:bg-gray-100`}
                   >
-                    {logbook.status === 'ACC' ? 'Batal ACC' : 'ACC'}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    <TableCell className="px-4 py-3">{index + 1}</TableCell>
+                    <TableCell className="px-4 py-3">
+                      {logbook.nama_mahasiswa}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {logbook.nama_file ? (
+                        <div className="flex items-center gap-x-2">
+                          <span className="mr-auto">{logbook.judul}</span>
+                          <Button
+                            asChild
+                            className="bg-blue-500 text-white hover:bg-blue-600"
+                          >
+                            <Link href={logbook.nama_file} target="_blank">
+                              Lihat File
+                            </Link>
+                          </Button>
+                        </div>
+                      ) : (
+                        'Tidak Ada File'
+                      )}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {logbook.subjek}
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {logbook.status}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right">
+                      <Button
+                        onClick={() =>
+                          toggleStatus(
+                            logbook.id_logbook,
+                            logbook.status === 'Menunggu' ? 'ACC' : 'Menunggu'
+                          )
+                        }
+                        size="sm"
+                        className={`w-full ${
+                          logbook.status === 'ACC'
+                            ? 'bg-red-500 hover:bg-red-600'
+                            : 'bg-green-500 hover:bg-green-600'
+                        } text-white`}
+                      >
+                        {logbook.status === 'ACC' ? 'Batalkan' : 'ACC'}
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </PageContainer>
   );

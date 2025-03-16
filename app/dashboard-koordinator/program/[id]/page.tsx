@@ -63,7 +63,7 @@ const DetailProgramMBKMPage = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-muted md:m-12 dark:text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -109,43 +109,43 @@ const DetailProgramMBKMPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* Program Name (Company) */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Perusahaan</p>
+            <p className="text-sm text-muted-foreground">Perusahaan</p>
             <p className="font-semibold">{program?.company || '-'}</p>
           </div>
 
           {/* Deskripsi */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Deskripsi</p>
+            <p className="text-sm text-muted-foreground">Deskripsi</p>
             <p className="font-semibold">{program?.deskripsi || '-'}</p>
           </div>
 
           {/* Syarat */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Syarat</p>
+            <p className="text-sm text-muted-foreground">Syarat</p>
             <p className="font-semibold">{program?.syarat || '-'}</p>
           </div>
 
           {/* Role */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Role</p>
+            <p className="text-sm text-muted-foreground">Role</p>
             <p className="font-semibold">{program?.role || '-'}</p>
           </div>
 
           {/* Status */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Status</p>
+            <p className="text-sm text-muted-foreground">Status</p>
             <p className="font-semibold">{program?.status || '-'}</p>
           </div>
 
           {/* Date */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Tanggal</p>
+            <p className="text-sm text-muted-foreground">Tanggal</p>
             <p className="font-semibold">{program?.date || '-'}</p>
           </div>
 
           {/* Category ID */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Category ID</p>
+            <p className="text-sm text-muted-foreground">Category ID</p>
             <p className="font-semibold">{program?.category_id || '-'}</p>
           </div>
         </div>

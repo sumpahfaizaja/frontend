@@ -33,7 +33,7 @@ export default function UploadDocumentPage(props: {
   const [files, setFiles] = useState<Record<string, any>>({});
   const [newFile, setNewFile] = useState<Record<string, File | null>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [_, setMessage] = useState<string | null>(null);
   const [additionalDocs, setAdditionalDocs] = useState<
     { label: string; value: string }[]
   >([]);
@@ -225,7 +225,7 @@ export default function UploadDocumentPage(props: {
         {[...DOCUMENT_TYPES, ...additionalDocs].map((type) => (
           <Card key={type.value} className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-lg font-medium text-gray-800">
+              <CardTitle className="text-lg font-medium text-foreground">
                 {type.label}
               </CardTitle>
             </CardHeader>

@@ -105,14 +105,14 @@ export default function ProfilePage() {
               type="file"
               accept="image/*"
               onChange={handleProfilePictureChange}
-              className="block w-full text-sm text-gray-700"
+              className="block w-full text-sm text-muted-foreground"
             />
           )}
         </div>
 
         {/* Form untuk mengedit profil */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-muted-foreground">
             Nama:
           </label>
           {isEditing ? (
@@ -123,13 +123,13 @@ export default function ProfilePage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           ) : (
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-foreground">
               {profile.nama}
             </p>
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-muted-foreground">
             Email:
           </label>
           {isEditing ? (
@@ -142,13 +142,13 @@ export default function ProfilePage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           ) : (
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-foreground">
               {profile.email}
             </p>
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-muted-foreground">
             NIM:
           </label>
           {isEditing ? (
@@ -159,11 +159,13 @@ export default function ProfilePage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           ) : (
-            <p className="text-lg font-semibold text-gray-900">{profile.nim}</p>
+            <p className="text-lg font-semibold text-foreground">
+              {profile.nim}
+            </p>
           )}
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-muted-foreground">
             Semester:
           </label>
           {isEditing ? (
@@ -176,7 +178,7 @@ export default function ProfilePage() {
               className="w-full rounded-md border border-gray-300 px-3 py-2"
             />
           ) : (
-            <p className="text-lg font-semibold text-gray-900">
+            <p className="text-lg font-semibold text-foreground">
               {profile.semester}
             </p>
           )}
@@ -228,7 +230,7 @@ export default function ProfilePage() {
           <div className="w-96 rounded-md bg-white p-6 shadow-lg">
             <h3 className="mb-4 text-xl font-semibold">Ubah Kata Sandi</h3>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-muted-foreground">
                 Kata Sandi Saat Ini:
               </label>
               <input
@@ -239,7 +241,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-muted-foreground">
                 Kata Sandi Baru:
               </label>
               <input
@@ -250,7 +252,7 @@ export default function ProfilePage() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-muted-foreground">
                 Konfirmasi Kata Sandi Baru:
               </label>
               <input

@@ -9,17 +9,19 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 // URL API
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
 // Interfaces
-interface Category {
+type Category = {
   id: string;
   name: string;
-}
+};
 
-interface ProgramMBKM {
+type ProgramMBKM = {
   id_program_mbkm: number;
   company: string;
   deskripsi: string | null;
@@ -29,15 +31,35 @@ interface ProgramMBKM {
   date: string;
   category_id: string;
   Category: Category;
-}
+};
+
+type PendaftaranMBKM = {
+  status: string;
+  id_program_mbkm: number;
+};
 
 export default function ProgramMBKMPage() {
   const [programs, setPrograms] = useState<ProgramMBKM[]>([]);
+  const [pendaftaran, setPendaftaran] = useState<PendaftaranMBKM[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch MBKM programs
   useEffect(() => {
-    fetchPrograms();
+    const token = Cookies.get('token'); // Ambil token dari cookies
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode<{ NIM: string }>(token); // Decode token
+        const nim = decodedToken.NIM; // Ambil NIM dari token
+        fetchPendaftaran(nim);
+        fetchPrograms();
+      } catch (err) {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+
+    setLoading(false);
   }, []);
 
   const fetchPrograms = async () => {
@@ -46,12 +68,28 @@ export default function ProgramMBKMPage() {
         `${API_BASE_URL}/program-mbkm`
       );
       setPrograms(response.data);
-      setLoading(false);
     } catch (err) {
-      console.error('Error fetching programs:', err);
+      setPrograms([]);
+    }
+  };
+
+  const fetchPendaftaran = async (nim: string) => {
+    try {
+      const response = await axios.get<PendaftaranMBKM[]>(
+        `${API_BASE_URL}/pendaftaran-mbkm/nim/${nim}`
+      );
+      setPendaftaran(response.data);
+    } catch (err) {
       setLoading(false);
     }
   };
+
+  const registeredProgramIds = new Set(
+    pendaftaran.map((p) => p.id_program_mbkm)
+  );
+
+  console.log('programs: ', programs);
+  console.log('registered: ', registeredProgramIds);
 
   return (
     <PageContainer scrollable={true}>
@@ -76,7 +114,11 @@ export default function ProgramMBKMPage() {
               <p>Loading...</p>
             ) : (
               programs
-                .filter((program) => program.status === 'Active')
+                .filter(
+                  (program) =>
+                    program.status === 'Active' &&
+                    !registeredProgramIds.has(program.id_program_mbkm)
+                )
                 .map((program) => (
                   <Card
                     key={program.id_program_mbkm}
@@ -88,16 +130,16 @@ export default function ProgramMBKMPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="line-clamp-3 text-base text-gray-600">
+                      <p className="line-clamp-3 text-base text-muted-foreground">
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                       </p>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         <strong>Syarat:</strong>{' '}
                         {program.syarat ?? 'Syarat tidak tersedia'}
                       </p>
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
-                      <p className="line-clamp-1 text-sm text-gray-600">
+                      <p className="line-clamp-1 text-sm text-muted-foreground">
                         <strong>Role:</strong>{' '}
                         {program.role || 'Tidak dicantumkan'}
                       </p>
@@ -138,16 +180,16 @@ export default function ProgramMBKMPage() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="line-clamp-3 text-base text-gray-600">
+                      <p className="line-clamp-3 text-base text-muted-foreground">
                         {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                       </p>
-                      <p className="mt-2 text-sm text-gray-500">
+                      <p className="mt-2 text-sm text-muted-foreground">
                         <strong>Syarat:</strong>{' '}
                         {program.syarat ?? 'Syarat tidak tersedia'}
                       </p>
                     </CardContent>
                     <div className="mt-auto flex w-full items-end justify-between gap-x-4 p-4">
-                      <p className="line-clamp-1 text-sm text-gray-600">
+                      <p className="line-clamp-1 text-sm text-muted-foreground">
                         <strong>Role:</strong>{' '}
                         {program.role || 'Tidak dicantumkan'}
                       </p>

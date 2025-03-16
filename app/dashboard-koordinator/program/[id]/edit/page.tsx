@@ -149,7 +149,7 @@ const EditProgramPage = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-muted md:m-12 dark:text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -198,7 +198,7 @@ const EditProgramPage = () => {
             <div>
               <label
                 htmlFor="id_program_mbkm"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 ID Program MBKM
               </label>
@@ -216,7 +216,7 @@ const EditProgramPage = () => {
             <div>
               <label
                 htmlFor="category_id"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Kategori Program
               </label>
@@ -240,7 +240,7 @@ const EditProgramPage = () => {
           <div>
             <label
               htmlFor="company"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-muted-foreground"
             >
               Perusahaan
             </label>
@@ -259,7 +259,7 @@ const EditProgramPage = () => {
           <div>
             <label
               htmlFor="deskripsi"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-muted-foreground"
             >
               Deskripsi Program
             </label>
@@ -277,7 +277,7 @@ const EditProgramPage = () => {
           <div>
             <label
               htmlFor="syarat"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-muted-foreground"
             >
               Syarat Program
             </label>

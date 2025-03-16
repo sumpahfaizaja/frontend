@@ -4,7 +4,13 @@ import { useEffect, useState } from 'react';
 import axios, { AxiosError } from 'axios';
 import Cookies from 'js-cookie';
 import PageContainer from '@/components/layout/page-container';
-import { Heading } from '@/components/ui/heading';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import {
   Card,
@@ -23,8 +29,16 @@ import { jwtDecode } from 'jwt-decode';
 // API URLs
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
-// Interfaces
-interface ProgramMBKM {
+// types
+type Mahasiswa = {
+  nim: string;
+  nama_mahasiswa: string;
+  semester: number;
+  id_program_mbkm: number;
+  NIP_dosbing: string;
+};
+
+type ProgramMBKM = {
   id_program_mbkm: number;
   company: string;
   deskripsi: string | null;
@@ -37,15 +51,16 @@ interface ProgramMBKM {
     id: string;
     name: string;
   };
-}
+  mahasiswa: Mahasiswa[];
+};
 
-interface MataKuliahKonversi {
+type MataKuliahKonversi = {
   id_matkul_knvrs: number;
   nama_matkul: string;
   sks: number;
   jenis_matkul: string;
   kode_matkul: string;
-}
+};
 
 export default function ProgramDetailPage({
   params
@@ -135,7 +150,7 @@ export default function ProgramDetailPage({
       tanggal
     };
 
-    console.log(formData);
+    // console.log(formData);
 
     try {
       const token = Cookies.get('token');
@@ -164,7 +179,7 @@ export default function ProgramDetailPage({
       <div role="status">
         <svg
           aria-hidden="true"
-          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-muted md:m-12 dark:text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -214,7 +229,7 @@ export default function ProgramDetailPage({
               {program.status}
             </Badge>
           </CardTitle>
-          <CardDescription className="text-lg text-gray-600">
+          <CardDescription className="text-lg text-muted-foreground">
             {program.deskripsi ?? 'Deskripsi tidak tersedia'}
           </CardDescription>
         </CardHeader>
@@ -225,7 +240,9 @@ export default function ProgramDetailPage({
             <div className="flex items-center gap-4">
               <ClipboardList className="h-6 w-6 text-blue-500" />
               <div>
-                <h4 className="text-sm font-medium text-gray-700">Jenis</h4>
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Jenis
+                </h4>
                 <Badge variant="secondary">{program.category.name}</Badge>
               </div>
             </div>
@@ -234,8 +251,10 @@ export default function ProgramDetailPage({
             <div className="flex items-center gap-4">
               <ClipboardList className="h-6 w-6 text-blue-500" />
               <div>
-                <h4 className="text-sm font-medium text-gray-700">Deskripsi</h4>
-                <p className="text-gray-900">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  Deskripsi
+                </h4>
+                <p className="text-foreground">
                   {program.deskripsi ?? 'Deskripsi tidak tersedia'}
                 </p>
               </div>
@@ -247,10 +266,10 @@ export default function ProgramDetailPage({
             <div className="flex items-center gap-4">
               <Calendar className="h-6 w-6 text-green-500" />
               <div>
-                <h4 className="text-sm font-medium text-gray-700">
+                <h4 className="text-sm font-medium text-muted-foreground">
                   Tanggal Mulai
                 </h4>
-                <p className="text-gray-900">
+                <p className="text-foreground">
                   {new Date(program.date).toLocaleDateString('id-ID')}
                 </p>
               </div>
@@ -261,10 +280,10 @@ export default function ProgramDetailPage({
               <div className="flex items-center gap-4">
                 <Calendar className="h-6 w-6 text-blue-500" />
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700">
+                  <h4 className="text-sm font-medium text-muted-foreground">
                     Waktu Pelaksanaan
                   </h4>
-                  <p className="text-gray-900">
+                  <p className="text-foreground">
                     {new Date(program.waktu_pelaksanaan).toLocaleDateString(
                       'id-ID'
                     )}
@@ -277,35 +296,41 @@ export default function ProgramDetailPage({
           {/* Mata Kuliah Konversi */}
           <div className="mt-6 flex items-center gap-4">
             <ClipboardList className="h-6 w-6 text-blue-500" />
-            <div>
-              <h4 className="text-sm font-medium text-gray-700">
+            <div className="w-full">
+              <h4 className="text-sm font-medium text-muted-foreground">
                 Pilih Mata Kuliah Konversi
               </h4>
-              <select
-                className="w-full rounded-md border p-2"
-                multiple
-                value={selectedMataKuliah.map(String)} // Now an array
-                onChange={(e) => {
-                  const selectedOptions = Array.from(
-                    e.target.selectedOptions,
-                    (option) => Number(option.value)
-                  );
-                  setSelectedMataKuliah(selectedOptions); // Update state as an array
+              <Select
+                onValueChange={(value) => {
+                  const selectedOptions = value.split(',').map(Number);
+                  setSelectedMataKuliah(selectedOptions);
                 }}
               >
-                <option value="" disabled>
-                  Pilih Mata Kuliah
-                </option>
-                {filteredMatkulList.map((matkul) => (
-                  <option
-                    key={matkul.id_matkul_knvrs}
-                    value={matkul.id_matkul_knvrs}
-                  >
-                    {matkul.nama_matkul} ({matkul.sks} SKS) -{' '}
-                    {matkul.jenis_matkul}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pilih Mata Kuliah" />
+                </SelectTrigger>
+                <SelectContent className="max-h-[50svh]">
+                  {filteredMatkulList.map((matkul) => (
+                    <SelectItem
+                      key={matkul.id_matkul_knvrs}
+                      value={String(matkul.id_matkul_knvrs)}
+                    >
+                      {matkul.nama_matkul} ({matkul.sks} SKS) -{' '}
+                      {matkul.jenis_matkul}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center gap-4">
+            <ClipboardList className="h-6 w-6 text-blue-500" />
+            <div>
+              <h4 className="text-sm font-medium text-muted-foreground">
+                Jumlah Pendaftar
+              </h4>
+              <p className="text-foreground">{program.mahasiswa.length}</p>
             </div>
           </div>
 

@@ -162,7 +162,7 @@ const StudentsPage = () => {
 
         {/* Loading / Error Messages */}
         {loading ? (
-          <p className="text-gray-500">Memuat data mahasiswa...</p>
+          <p className="text-muted-foreground">Memuat data mahasiswa...</p>
         ) : (
           <div className="my-4">
             <ul>
@@ -174,7 +174,9 @@ const StudentsPage = () => {
                   {/* Student Info */}
                   <div>
                     <p className="font-semibold">{student.nama_mahasiswa}</p>
-                    <p className="text-sm text-gray-500">{student.NIM}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {student.NIM}
+                    </p>
                   </div>
 
                   {/* Actions */}
@@ -223,10 +225,10 @@ const StudentsPage = () => {
                     d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
                   />
                 </svg>
-                <h2 className="mt-4 text-lg font-bold text-gray-800">
+                <h2 className="mt-4 text-lg font-bold text-foreground">
                   Konfirmasi Hapus
                 </h2>
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak
                   dapat dibatalkan.
                 </p>
@@ -234,7 +236,7 @@ const StudentsPage = () => {
               <div className="mt-6 flex justify-center gap-4">
                 <button
                   onClick={() => setDeleteConfirmation(null)}
-                  className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-foreground hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                 >
                   Batal
                 </button>

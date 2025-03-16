@@ -71,10 +71,6 @@ export default function ProgramMBKMPage() {
               fetch(`${API_BASE_URL}/program-mbkm/${item.id_program_mbkm}`)
                 .then((res) => res.json())
                 .catch((err) => {
-                  console.error(
-                    `Gagal mengambil detail program untuk ID: ${item.id_program_mbkm}`,
-                    err
-                  );
                   return null;
                 })
             );
@@ -92,12 +88,10 @@ export default function ProgramMBKMPage() {
             setLoading(false);
           })
           .catch((err) => {
-            console.error(err);
             setError('Gagal mengambil data');
             setLoading(false);
           });
       } catch (err) {
-        console.error(err);
         setError('Token tidak valid');
         setLoading(false);
       }
@@ -114,13 +108,15 @@ export default function ProgramMBKMPage() {
     return (
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="font-medium text-gray-600">Jenis Program:</span>
+          <span className="font-medium text-muted-foreground">
+            Jenis Program:
+          </span>
           <span className="font-semibold">
             {program.category?.name || 'Tidak ada keterangan'}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="font-medium text-gray-600">
+          <span className="font-medium text-muted-foreground">
             Tanggal Pelaksanaan:
           </span>
           <span className="font-semibold">
@@ -158,12 +154,7 @@ export default function ProgramMBKMPage() {
             <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
-            {verifiedRegistrations.length > 0 ? (
-              <p>
-                Data pada tab pending disembunyikan karena ada data yang
-                terverifikasi.
-              </p>
-            ) : pendingRegistrations.length > 0 ? (
+            {pendingRegistrations.length > 0 ? (
               pendingRegistrations.map((item) => {
                 const program = programDetails[item.id_program_mbkm];
                 return (
@@ -179,7 +170,7 @@ export default function ProgramMBKMPage() {
                     <CardContent>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-muted-foreground">
                             Tanggal Pendaftaran:
                           </span>
                           <span className="font-semibold">
@@ -221,7 +212,7 @@ export default function ProgramMBKMPage() {
                     <CardContent>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-muted-foreground">
                             Tanggal Pendaftaran:
                           </span>
                           <span className="font-semibold">

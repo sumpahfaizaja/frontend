@@ -176,11 +176,24 @@ const StudentsPage = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <div className="text-center">
-              <XCircle className="mx-auto h-12 w-12 text-red-600" />
-              <h2 className="mt-4 text-lg font-bold text-gray-800">
+              <svg
+                className="mx-auto h-12 w-12 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+                />
+              </svg>
+              <h2 className="mt-4 text-lg font-bold text-foreground">
                 Konfirmasi Hapus
               </h2>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Anda yakin ingin menghapus mahasiswa ini? Tindakan ini tidak
                 dapat dibatalkan.
               </p>
@@ -188,7 +201,7 @@ const StudentsPage = () => {
             <div className="mt-6 flex justify-center gap-4">
               <button
                 onClick={() => setDeleteNIM(null)}
-                className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400"
+                className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-foreground hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
               >
                 Batal
               </button>

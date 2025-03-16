@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icons } from '@/components/icons';
 import { cn } from '@/lib/utils';
-import { NavItemOrSeparator, NavItemWithChildren } from '@/types'; // Ensure correct import
+import { NavItemOrSeparator } from '@/types'; // Ensure correct import
 import { Dispatch, SetStateAction } from 'react';
 import { useSidebar } from '@/hooks/useSidebar';
 import {

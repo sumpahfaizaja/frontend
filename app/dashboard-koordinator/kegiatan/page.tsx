@@ -287,8 +287,8 @@ export default function AdminRegistrationsPage() {
       <div className="overflow-x-auto rounded-lg shadow">
         <div className="max-h-[400px] overflow-y-auto">
           <Table className="w-full text-left">
-            <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
-              <TableRow className="bg-gray-100">
+            <TableHeader className="sticky top-0 z-10 bg-secondary shadow-sm">
+              <TableRow className="text-secondary-foreground">
                 <TableHead className="px-4 py-3">Company</TableHead>
                 <TableHead className="px-4 py-3">Nama Mahasiswa</TableHead>
                 <TableHead className="px-4 py-3">Tanggal</TableHead>

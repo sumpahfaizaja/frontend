@@ -531,6 +531,12 @@ export const navItems: Record<
         href: '/dashboard-dosbing/logbook',
         icon: 'graduation-cap',
         label: 'Logbook'
+      },
+      {
+        title: 'Penilaian',
+        href: '/dashboard-dosbing/nilai',
+        icon: 'graduation-cap',
+        label: 'Penilaian'
       }
     ]
   },

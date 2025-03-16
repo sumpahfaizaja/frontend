@@ -95,7 +95,7 @@ const DetailMahasiswaPage = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-muted md:m-12 dark:text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -141,36 +141,38 @@ const DetailMahasiswaPage = () => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* NIM */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">NIM</p>
+            <p className="text-sm text-muted-foreground">NIM</p>
             <p className="font-semibold">{student.NIM}</p>
           </div>
 
           {/* Nama Mahasiswa */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Nama Mahasiswa</p>
+            <p className="text-sm text-muted-foreground">Nama Mahasiswa</p>
             <p className="font-semibold">{student.nama_mahasiswa}</p>
           </div>
 
           {/* Semester */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Semester</p>
+            <p className="text-sm text-muted-foreground">Semester</p>
             <p className="font-semibold">{student.semester}</p>
           </div>
 
           {/* Program MBKM */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Program MBKM</p>
+            <p className="text-sm text-muted-foreground">Program MBKM</p>
             <p className="font-semibold">
               {program ? program.company : 'Loading...'}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {program ? program.role : ''}
             </p>
           </div>
 
           {/* Dosen Pembimbing */}
           <div className="rounded-md bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">Nama Dosen Pembimbing</p>
+            <p className="text-sm text-muted-foreground">
+              Nama Dosen Pembimbing
+            </p>
             <p className="font-semibold">
               {dosbing ? dosbing.nama_dosbing : 'Loading...'}
             </p>

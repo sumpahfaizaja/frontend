@@ -146,7 +146,7 @@ export default function ProgramDosen() {
                           </li>
                         ))
                       ) : (
-                        <p className="text-gray-500">
+                        <p className="text-muted-foreground">
                           Tidak ada mahasiswa yang mengikuti program ini.
                         </p>
                       )}

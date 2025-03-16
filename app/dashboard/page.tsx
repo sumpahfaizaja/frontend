@@ -62,7 +62,7 @@ export default function DashboardPage() {
           <p className="text-lg">
             <strong>{student.nama_mahasiswa.toUpperCase()}</strong>
           </p>
-          <p className="text-sm text-gray-600">{student.NIM}</p>
+          <p className="text-sm text-muted-foreground">{student.NIM}</p>
           <p className="mt-4">
             Selamat datang di portal Merdeka Belajar Kampus Merdeka (MBKM).
           </p>

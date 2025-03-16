@@ -129,7 +129,9 @@ const ProgramsPage = () => {
                       {program.role}
                     </p>
                     <p className="text-sm">{program.category_id}</p>
-                    <p className="text-sm text-gray-500">{program.status}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {program.status}
+                    </p>
                   </div>
                   <div className="flex space-x-2">
                     <Link

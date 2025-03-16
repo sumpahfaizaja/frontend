@@ -108,13 +108,15 @@ export default function ProgramMBKMPage() {
     return (
       <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span className="font-medium text-gray-600">Jenis Program:</span>
+          <span className="font-medium text-muted-foreground">
+            Jenis Program:
+          </span>
           <span className="font-semibold">
             {program.category?.name || 'Tidak ada keterangan'}
           </span>
         </div>
         <div className="flex justify-between">
-          <span className="font-medium text-gray-600">
+          <span className="font-medium text-muted-foreground">
             Tanggal Pelaksanaan:
           </span>
           <span className="font-semibold">
@@ -152,12 +154,7 @@ export default function ProgramMBKMPage() {
             <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
-            {verifiedRegistrations.length > 0 ? (
-              <p>
-                Data pada tab pending disembunyikan karena ada data yang
-                terverifikasi.
-              </p>
-            ) : pendingRegistrations.length > 0 ? (
+            {pendingRegistrations.length > 0 ? (
               pendingRegistrations.map((item) => {
                 const program = programDetails[item.id_program_mbkm];
                 return (
@@ -173,7 +170,7 @@ export default function ProgramMBKMPage() {
                     <CardContent>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-muted-foreground">
                             Tanggal Pendaftaran:
                           </span>
                           <span className="font-semibold">
@@ -215,7 +212,7 @@ export default function ProgramMBKMPage() {
                     <CardContent>
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span className="font-medium text-gray-600">
+                          <span className="font-medium text-muted-foreground">
                             Tanggal Pendaftaran:
                           </span>
                           <span className="font-semibold">

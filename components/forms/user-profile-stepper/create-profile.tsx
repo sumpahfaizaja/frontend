@@ -178,16 +178,12 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
         {initialData && (
-          <Button
-            disabled={loading}
-            variant="destructive"
-            size="sm"
-          >
+          <Button disabled={loading} variant="destructive" size="sm">
             <Trash className="h-4 w-4" />
           </Button>
         )}
       </div>
-      <Separator className='mt-4'/>
+      <Separator className="mt-4" />
       <div>
         <ul className="flex gap-4">
           {steps.map((step, index) => (
@@ -211,7 +207,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </div>
               ) : (
                 <div className="group flex h-full w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                  <span className="text-sm font-medium text-gray-500 transition-colors">
+                  <span className="text-sm font-medium text-muted-foreground transition-colors">
                     {step.id}
                   </span>
                   <span className="text-sm font-medium">{step.name}</span>

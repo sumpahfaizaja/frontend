@@ -105,7 +105,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="company"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Company
               </label>
@@ -122,7 +122,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="deskripsi"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Deskripsi
               </label>
@@ -138,7 +138,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="syarat"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Syarat
               </label>
@@ -154,7 +154,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="role"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Role
               </label>
@@ -171,7 +171,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Start Date
               </label>
@@ -188,7 +188,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="waktu_pelaksanaan"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 End Date
               </label>
@@ -205,7 +205,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="status"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Status
               </label>
@@ -224,7 +224,7 @@ const CreateProgramPage = () => {
             <div>
               <label
                 htmlFor="category_id"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-muted-foreground"
               >
                 Category
               </label>

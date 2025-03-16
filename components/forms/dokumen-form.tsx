@@ -225,7 +225,7 @@ export default function UploadDocumentPage(props: {
         {[...DOCUMENT_TYPES, ...additionalDocs].map((type) => (
           <Card key={type.value} className="shadow-lg">
             <CardHeader>
-              <CardTitle className="text-lg font-medium text-gray-800">
+              <CardTitle className="text-lg font-medium text-foreground">
                 {type.label}
               </CardTitle>
             </CardHeader>

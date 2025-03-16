@@ -73,8 +73,8 @@ const EditMahasiswaPage = () => {
         const token = getAuthToken();
         const response = await axios.get(`${API_BASE_URL}/mahasiswa/${NIM}`, {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         });
         setStudent(response.data);
         setLoading(false);
@@ -146,7 +146,7 @@ const EditMahasiswaPage = () => {
       <div role="status">
         <svg
           aria-hidden="true"
-          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-gray-200 md:m-12 dark:text-gray-600"
+          className="m-6 h-8 w-8 animate-spin fill-blue-600 text-muted md:m-12 dark:text-muted-foreground"
           viewBox="0 0 100 101"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -190,7 +190,7 @@ const EditMahasiswaPage = () => {
 
         {/* Success Notification */}
         {successMessage && (
-          <div className="p-4 rounded-lg bg-green-100 text-green-800 flex items-center gap-x-2">
+          <div className="flex items-center gap-x-2 rounded-lg bg-green-100 p-4 text-green-800">
             <Save size={20} />
             {successMessage}
           </div>
@@ -199,7 +199,9 @@ const EditMahasiswaPage = () => {
         {/* Edit Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold">Nama Mahasiswa</label>
+            <label className="block text-sm font-semibold">
+              Nama Mahasiswa
+            </label>
             <Input
               type="text"
               name="nama_mahasiswa"
@@ -207,29 +209,29 @@ const EditMahasiswaPage = () => {
               onChange={handleInputChange}
             />
           </div>
-            {/* Semester */}
-            <div>
-              <label
-                htmlFor="semester"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Semester
-              </label>
-              <Input
-                type="number"
-                id="semester"
-                name="semester"
-                value={student.semester}
-                onChange={handleInputChange}
-              />
-            </div>
+          {/* Semester */}
+          <div>
+            <label
+              htmlFor="semester"
+              className="block text-sm font-medium text-muted-foreground"
+            >
+              Semester
+            </label>
+            <Input
+              type="number"
+              id="semester"
+              name="semester"
+              value={student.semester}
+              onChange={handleInputChange}
+            />
+          </div>
           <div>
             <label className="block text-sm font-semibold">Program MBKM</label>
             <select
               name="id_program_mbkm"
               value={student.id_program_mbkm}
               onChange={handleInputChange}
-              className="block w-full py-2 px-3 border rounded-md"
+              className="block w-full rounded-md border px-3 py-2"
             >
               {programs.map((program) => (
                 <option
@@ -243,12 +245,14 @@ const EditMahasiswaPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold">Dosen Pembimbing</label>
+            <label className="block text-sm font-semibold">
+              Dosen Pembimbing
+            </label>
             <select
               name="NIP_dosbing"
               value={student.NIP_dosbing}
               onChange={handleInputChange}
-              className="block w-full py-2 px-3 border rounded-md"
+              className="block w-full rounded-md border px-3 py-2"
             >
               {dosens.map((dosen) => (
                 <option key={dosen.NIP_dosbing} value={dosen.NIP_dosbing}>

@@ -501,6 +501,12 @@ export const navItems: Record<
         href: '/dashboard-koordinator/kegiatan',
         icon: 'dashboard',
         label: 'Manajemen Kegiatan'
+      },
+      {
+        title: 'Penilaian',
+        href: '/dashboard-koordinator/nilai',
+        icon: 'graduation-cap',
+        label: 'Penilaian'
       }
     ]
   },
@@ -525,12 +531,6 @@ export const navItems: Record<
         href: '/dashboard-dosbing/logbook',
         icon: 'graduation-cap',
         label: 'Logbook'
-      },
-      {
-        title: 'Penilaian',
-        href: '/dashboard-dosbing/nilai',
-        icon: 'graduation-cap',
-        label: 'Penilaian'
       }
     ]
   },

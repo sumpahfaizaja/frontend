@@ -119,68 +119,64 @@ const StudentsPage = () => {
           </div>
         )}
 
-        {/* Daftar Mahasiswa */}
-        <div className="my-4">
-          <ul>
-            {filteredStudents.map((student) => (
-              <li
-                key={student.NIM}
-                className="flex cursor-pointer justify-between border-b px-4 py-2.5 hover:bg-gray-100"
-              >
-                <div className="flex flex-col gap-y-1">
-                  <p className="font-semibold leading-none">
+        {/* Tabel Mahasiswa */}
+        <div className="my-4 overflow-x-auto">
+          <table className="min-w-full border-collapse border border-gray-200">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-4 py-2">No.</th>
+                <th className="border border-gray-300 px-4 py-2">
+                  Nama Mahasiswa
+                </th>
+                <th className="border border-gray-300 px-4 py-2">NIM</th>
+                <th className="border border-gray-300 px-4 py-2">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredStudents.map((student, index) => (
+                <tr key={student.NIM} className="hover:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
                     {student.nama_mahasiswa}
-                  </p>
-                  <p className="font-light leading-none text-muted-foreground">
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
                     {student.NIM}
-                  </p>
-                </div>
-                <div className="flex space-x-2">
-                  <Link
-                    href={`/dashboard-koordinator/mahasiswa/${student.NIM}`}
-                    className="grid size-8 place-items-center rounded bg-blue-600 p-1 text-white"
-                  >
-                    <Eye size={14} />
-                  </Link>
-                  <Link
-                    href={`/dashboard-koordinator/mahasiswa/${student.NIM}/edit`}
-                    className="grid size-8 place-items-center rounded bg-amber-500 p-1 text-white"
-                  >
-                    <Edit size={14} />
-                  </Link>
-                  <button
-                    onClick={() => confirmDelete(student.NIM)}
-                    className="grid size-8 place-items-center rounded bg-red-600 p-1 text-white"
-                  >
-                    <Trash size={14} />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                  </td>
+                  <td className="flex justify-center space-x-2 border border-gray-300 px-4 py-2">
+                    <Link
+                      href={`/dashboard-koordinator/mahasiswa/${student.NIM}`}
+                      className="grid size-8 place-items-center rounded bg-blue-600 p-1 text-white"
+                    >
+                      <Eye size={14} />
+                    </Link>
+                    <Link
+                      href={`/dashboard-koordinator/mahasiswa/${student.NIM}/edit`}
+                      className="grid size-8 place-items-center rounded bg-amber-500 p-1 text-white"
+                    >
+                      <Edit size={14} />
+                    </Link>
+                    <button
+                      onClick={() => confirmDelete(student.NIM)}
+                      className="grid size-8 place-items-center rounded bg-red-600 p-1 text-white"
+                    >
+                      <Trash size={14} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Modal Konfirmasi */}
-      {/* Delete Confirmation */}
       {deleteNIM && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-          <div className="w-full max-w-md scale-100 transform rounded-lg bg-white p-6 shadow-lg transition-transform">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
             <div className="text-center">
-              <svg
-                className="mx-auto h-12 w-12 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
-                />
-              </svg>
+              <XCircle className="mx-auto h-12 w-12 text-red-600" />
               <h2 className="mt-4 text-lg font-bold text-gray-800">
                 Konfirmasi Hapus
               </h2>
@@ -192,13 +188,13 @@ const StudentsPage = () => {
             <div className="mt-6 flex justify-center gap-4">
               <button
                 onClick={() => setDeleteNIM(null)}
-                className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                className="w-full max-w-xs rounded-lg bg-gray-300 px-4 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-400"
               >
                 Batal
               </button>
               <button
                 onClick={handleDelete}
-                className="w-full max-w-xs rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                className="w-full max-w-xs rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
               >
                 Hapus
               </button>

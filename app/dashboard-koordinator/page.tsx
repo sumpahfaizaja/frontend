@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+
 import {
   Card,
   CardContent,
@@ -90,14 +90,7 @@ export default function DashboardMBKM() {
     <PageContainer scrollable>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold tracking-tight">Dashboard MBKM</h2>
-          <Button variant="outline" asChild>
-            <Link href={'/dashboard-koordinator/program/create'}>
-              Tambah Program
-            </Link>
-          </Button>
-        </div>
+      
 
         {/* Statistik Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

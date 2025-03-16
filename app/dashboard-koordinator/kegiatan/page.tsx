@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Link from 'next/link';
 import {
   Select,
@@ -65,6 +66,7 @@ export default function AdminRegistrationsPage() {
   const [programs, setPrograms] = useState<{ [key: number]: string }>({}); // Store company names
   const [loading, setLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
+
   const [verifiedNIMs, setVerifiedNIMs] = useState<Set<string>>(new Set());
 
   const [selectedDosbing, setSelectedDosbing] = useState<{
@@ -242,6 +244,13 @@ export default function AdminRegistrationsPage() {
   const filterRegistrations = (registrations: ProgramRegistration[]) => {
     return registrations.filter((pendaftaran) => {
       const searchTerm = searchQuery.toLowerCase();
+      const isVerified = verifiedNIMs.has(pendaftaran.NIM); // Cek apakah NIM sudah diverifikasi
+
+      // Sembunyikan pendaftaran dengan status "pending" jika NIM sudah terverifikasi
+      if (isVerified && pendaftaran.status.toLowerCase() === 'pending') {
+        return false;
+      }
+
       return (
         pendaftaran.id_pendaftaran_mbkm.toString().includes(searchTerm) ||
         students[pendaftaran.NIM]?.toLowerCase().includes(searchTerm) ||
@@ -255,6 +264,7 @@ export default function AdminRegistrationsPage() {
 
   const filterPendingRegistrations = (registrations: ProgramRegistration[]) => {
     return registrations.filter((pendaftaran) => {
+      // Pastikan pendaftaran pending hanya ditampilkan jika NIM belum diverifikasi
       if (
         pendaftaran.status === 'pending' &&
         verifiedNIMs.has(pendaftaran.NIM)
@@ -418,18 +428,31 @@ export default function AdminRegistrationsPage() {
               className="w-full rounded-lg border px-4 py-2"
             />
           </div>
-          {renderTable(
-            verifiedRegistrations,
-            'Daftar Pendaftaran Terverifikasi',
-            'Daftar pendaftaran yang sudah terverifikasi.',
-            false
-          )}
-          {renderTable(
-            pendingRegistrations,
-            'Daftar Pendaftaran Pending',
-            'Daftar pendaftaran yang masih menunggu konfirmasi.',
-            true
-          )}
+
+          <Tabs defaultValue="pending">
+            <TabsList>
+              <TabsTrigger value="pending">Pending</TabsTrigger>
+              <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="pending">
+              {renderTable(
+                pendingRegistrations,
+                'Daftar Pendaftaran Pending',
+                'Daftar pendaftaran yang masih menunggu konfirmasi.',
+                true
+              )}
+            </TabsContent>
+
+            <TabsContent value="verified">
+              {renderTable(
+                verifiedRegistrations,
+                'Daftar Pendaftaran Terverifikasi',
+                'Daftar pendaftaran yang sudah terverifikasi.',
+                false
+              )}
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </PageContainer>

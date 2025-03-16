@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import * as XLSX from 'xlsx';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -23,11 +24,11 @@ interface Mahasiswa {
   NIM: string;
   nama_mahasiswa: string;
   id_program_mbkm: string;
+  id_matkul_knvrs: string;
   NIP_dosbing: string;
 }
 
 interface KonversiNilai {
-  id_konversi_nilai: number;
   nilai_akhir: number | null;
   nama_berkas: string | null;
   NIM: string;
@@ -35,6 +36,27 @@ interface KonversiNilai {
   status: 'Pending' | 'ACC';
   grade: string | null;
 }
+
+const dummyData = [
+  {
+    nama_mahasiswa: 'John Doe',
+    nim_mahasiswa: '123456789',
+    nama_dosbing: 'Dr. Smith',
+    nim_dosbing: '987654321',
+    nilai_akhir: 85,
+    mata_kuliah: ['Math', 'Physics', 'Computer Science'],
+    total_sks: 20
+  },
+  {
+    nama_mahasiswa: 'Jane Doe',
+    nim_mahasiswa: '987654321',
+    nama_dosbing: 'Dr. Brown',
+    nim_dosbing: '123456789',
+    nilai_akhir: 90,
+    mata_kuliah: ['Biology', 'Chemistry', 'English'],
+    total_sks: 18
+  }
+];
 
 export default function NilaiPage() {
   const [mahasiswaList, setMahasiswaList] = useState<Mahasiswa[]>([]);
@@ -59,10 +81,11 @@ export default function NilaiPage() {
             headers: { Authorization: `Bearer ${token}` }
           }
         );
+
         setMahasiswaList(response.data);
+        console.log('list mahasiswa: ', response.data);
 
         const konversiList = response.data.map((student: Mahasiswa) => ({
-          id_konversi_nilai: 0,
           NIM: student.NIM,
           NIP_dosbing: student.NIP_dosbing,
           nilai_akhir: null,
@@ -72,6 +95,7 @@ export default function NilaiPage() {
         }));
 
         setKonversiData(konversiList);
+        console.log('list konversi: ', konversiList);
       } catch (error) {
         console.error('Error fetching mahasiswa data:', error);
       }
@@ -116,9 +140,8 @@ export default function NilaiPage() {
         student.nilai_akhir >= 85 ? 'A' : student.nilai_akhir >= 70 ? 'B' : 'C';
 
       const formData = new FormData();
-      formData.append('id_konversi_nilai', '0');
+
       formData.append('NIM', student.NIM);
-      formData.append('id_berkas_penilaian', '0');
       formData.append('nama_berkas', student.nama_berkas);
       formData.append('NIP_dosbing', student.NIP_dosbing);
       formData.append('nilai_akhir', student.nilai_akhir.toString());
@@ -143,8 +166,6 @@ export default function NilaiPage() {
         }
       );
 
-      console.log('Response:', response);
-
       if (response.status === 200) {
         setKonversiData((prev) =>
           prev.map((data) =>
@@ -160,6 +181,37 @@ export default function NilaiPage() {
     }
   };
 
+  const exportToExcel = (title = 'MahasiswaData', worksheetName = 'Sheet1') => {
+    try {
+      const dataToExport = dummyData.map(
+        ({
+          nama_mahasiswa,
+          nim_mahasiswa,
+          nama_dosbing,
+          nim_dosbing,
+          nilai_akhir,
+          mata_kuliah,
+          total_sks
+        }) => ({
+          Nama_Mahasiswa: nama_mahasiswa,
+          NIM_Mahasiswa: nim_mahasiswa,
+          Nama_Dosbing: nama_dosbing,
+          NIM_Dosbing: nim_dosbing,
+          Nilai_Akhir: nilai_akhir,
+          Mata_Kuliah: mata_kuliah.join(', '),
+          Total_SKS: total_sks
+        })
+      );
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+      XLSX.utils.book_append_sheet(workbook, worksheet, worksheetName);
+      XLSX.writeFile(workbook, `${title}.xlsx`);
+    } catch (error) {
+      console.error('Export Error:', error);
+    }
+  };
+
   return (
     <PageContainer scrollable>
       <div className="flex flex-col gap-y-4">
@@ -169,17 +221,15 @@ export default function NilaiPage() {
         />
         <Separator />
 
-        <div>
-          <label htmlFor="student-search">Cari Mahasiswa:</label>
-          <input
-            id="student-search"
-            type="text"
-            placeholder="Ketik nama mahasiswa..."
-            value={searchStudent}
-            onChange={(e) => setSearchStudent(e.target.value)}
-            className="w-full rounded-md border p-2"
-          />
-        </div>
+        <input
+          id="student-search"
+          type="text"
+          placeholder="Ketik nama mahasiswa..."
+          value={searchStudent}
+          onChange={(e) => setSearchStudent(e.target.value)}
+          className="w-full rounded-md border p-2"
+        />
+        <Button onClick={() => exportToExcel()}>Export to Excel</Button>
 
         <Table>
           <TableHeader>
@@ -212,7 +262,10 @@ export default function NilaiPage() {
                       setKonversiData((prev) =>
                         prev.map((data) =>
                           data.NIM === student.NIM
-                            ? { ...data, nilai_akhir: parseInt(e.target.value) }
+                            ? {
+                                ...data,
+                                nilai_akhir: parseInt(e.target.value)
+                              }
                             : data
                         )
                       )

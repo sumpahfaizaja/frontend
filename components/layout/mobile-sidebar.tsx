@@ -3,16 +3,42 @@ import { DashboardNav } from '@/components/dashboard-nav';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { navItems } from '@/constants/data';
 import { MenuIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
-// import { Playlist } from "../data/playlists";
-
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  // playlists: Playlist[];
-}
-
-export function MobileSidebar({ className }: SidebarProps) {
+export function MobileSidebar({ className }: { className?: string }) {
   const [open, setOpen] = useState(false);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [filteredNavItems, setFilteredNavItems] = useState<typeof navItems>({});
+
+  useEffect(() => {
+    const token = Cookies.get('token');
+
+    if (token) {
+      try {
+        const decoded: any = jwtDecode(token);
+        console.log(decoded);
+
+        setRoles(decoded.roles || []);
+
+        // Filter navItems based on the user's role
+        const filteredItems: typeof navItems = {};
+
+        // Check the user's role and include the relevant items
+        Object.entries(navItems).forEach(([key, value]) => {
+          if (value.role === decoded.role) {
+            filteredItems[key] = value;
+          }
+        });
+
+        setFilteredNavItems(filteredItems);
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+      }
+    }
+  }, []);
+
   return (
     <>
       <Sheet open={open} onOpenChange={setOpen}>
@@ -27,7 +53,7 @@ export function MobileSidebar({ className }: SidebarProps) {
               </h2>
               <div className="h-[calc(100svh-92px)] overflow-y-auto">
                 <DashboardNav
-                  items={navItems}
+                  items={filteredNavItems}
                   isMobileNav={true}
                   setOpen={setOpen}
                 />

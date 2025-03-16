@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { useToast } from '@/components/ui/use-toast';
 
 // API Endpoints
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/logbook';

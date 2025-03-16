@@ -71,10 +71,6 @@ export default function ProgramMBKMPage() {
               fetch(`${API_BASE_URL}/program-mbkm/${item.id_program_mbkm}`)
                 .then((res) => res.json())
                 .catch((err) => {
-                  console.error(
-                    `Gagal mengambil detail program untuk ID: ${item.id_program_mbkm}`,
-                    err
-                  );
                   return null;
                 })
             );
@@ -92,12 +88,10 @@ export default function ProgramMBKMPage() {
             setLoading(false);
           })
           .catch((err) => {
-            console.error(err);
             setError('Gagal mengambil data');
             setLoading(false);
           });
       } catch (err) {
-        console.error(err);
         setError('Token tidak valid');
         setLoading(false);
       }

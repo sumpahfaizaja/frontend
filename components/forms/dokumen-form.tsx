@@ -50,7 +50,7 @@ export default function UploadDocumentPage(props: {
   const [files, setFiles] = useState<Record<string, any>>({});
   const [newFile, setNewFile] = useState<Record<string, File | null>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [_, setMessage] = useState<string | null>(null);
   const token = Cookies.get('token');
 
   let nim = initialNim;

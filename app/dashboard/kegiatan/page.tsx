@@ -154,42 +154,52 @@ export default function ProgramMBKMPage() {
             <TabsTrigger value="verified">Terverifikasi</TabsTrigger>
           </TabsList>
           <TabsContent value="pending">
+            {verifiedRegistrations && (
+              <div className="mb-4 flex justify-center">
+                <span className="rounded-full bg-red-500 px-4 py-1 text-sm font-semibold text-white">
+                  Anda memiliki program yang sedang berjalan
+                </span>
+              </div>
+            )}
             {pendingRegistrations.length > 0 ? (
-              pendingRegistrations.map((item) => {
-                const program = programDetails[item.id_program_mbkm];
-                return (
-                  <Card
-                    key={item.id_pendaftaran_mbkm}
-                    className="mb-4 shadow-md"
-                  >
-                    <CardHeader>
-                      <CardTitle>
-                        {program?.company || 'Program tidak ditemukan'}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">
-                            Tanggal Pendaftaran:
-                          </span>
-                          <span className="font-semibold">
-                            {new Date(item.tanggal).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              }
-                            )}
-                          </span>
+              pendingRegistrations
+                .slice()
+                .reverse()
+                .map((item) => {
+                  const program = programDetails[item.id_program_mbkm];
+                  return (
+                    <Card
+                      key={item.id_pendaftaran_mbkm}
+                      className="mb-4 shadow-md"
+                    >
+                      <CardHeader>
+                        <CardTitle>
+                          {program?.company || 'Program tidak ditemukan'}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-muted-foreground">
+                              Tanggal Pendaftaran:
+                            </span>
+                            <span className="font-semibold">
+                              {new Date(item.tanggal).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                }
+                              )}
+                            </span>
+                          </div>
+                          {renderProgramDetails(item.id_program_mbkm)}
                         </div>
-                        {renderProgramDetails(item.id_program_mbkm)}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
+                      </CardContent>
+                    </Card>
+                  );
+                })
             ) : (
               <p>Tidak ada program yang pending</p>
             )}
@@ -197,41 +207,44 @@ export default function ProgramMBKMPage() {
 
           <TabsContent value="verified">
             {verifiedRegistrations.length > 0 ? (
-              verifiedRegistrations.map((item) => {
-                const program = programDetails[item.id_program_mbkm];
-                return (
-                  <Card
-                    key={item.id_pendaftaran_mbkm}
-                    className="mb-4 shadow-md"
-                  >
-                    <CardHeader>
-                      <CardTitle>
-                        {program?.company || 'Program tidak ditemukan'}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="font-medium text-muted-foreground">
-                            Tanggal Pendaftaran:
-                          </span>
-                          <span className="font-semibold">
-                            {new Date(item.tanggal).toLocaleDateString(
-                              'id-ID',
-                              {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric'
-                              }
-                            )}
-                          </span>
+              verifiedRegistrations
+                .slice()
+                .reverse()
+                .map((item) => {
+                  const program = programDetails[item.id_program_mbkm];
+                  return (
+                    <Card
+                      key={item.id_pendaftaran_mbkm}
+                      className="mb-4 shadow-md"
+                    >
+                      <CardHeader>
+                        <CardTitle>
+                          {program?.company || 'Program tidak ditemukan'}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="font-medium text-muted-foreground">
+                              Tanggal Pendaftaran:
+                            </span>
+                            <span className="font-semibold">
+                              {new Date(item.tanggal).toLocaleDateString(
+                                'id-ID',
+                                {
+                                  day: 'numeric',
+                                  month: 'long',
+                                  year: 'numeric'
+                                }
+                              )}
+                            </span>
+                          </div>
+                          {renderProgramDetails(item.id_program_mbkm)}
                         </div>
-                        {renderProgramDetails(item.id_program_mbkm)}
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
+                      </CardContent>
+                    </Card>
+                  );
+                })
             ) : (
               <p>Tidak ada program yang terverifikasi</p>
             )}

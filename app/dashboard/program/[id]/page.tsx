@@ -20,7 +20,7 @@ import { Calendar, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
 
-// API URL
+// API URLs
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
 // Interfaces
@@ -39,6 +39,14 @@ interface ProgramMBKM {
   };
 }
 
+interface MataKuliahKonversi {
+  id_matkul_knvrs: number;
+  nama_matkul: string;
+  sks: number;
+  jenis_matkul: string;
+  kode_matkul: string;
+}
+
 export default function ProgramDetailPage({
   params
 }: {
@@ -47,6 +55,10 @@ export default function ProgramDetailPage({
   const id = params.id;
 
   const [program, setProgram] = useState<ProgramMBKM | null>(null);
+  const [mataKuliahList, setMataKuliahList] = useState<MataKuliahKonversi[]>(
+    []
+  );
+  const [selectedMataKuliah, setSelectedMataKuliah] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [registrationStatus, setRegistrationStatus] = useState<string | null>(
     null
@@ -57,6 +69,10 @@ export default function ProgramDetailPage({
       fetchProgramDetails();
     }
   }, [id]);
+
+  useEffect(() => {
+    fetchMataKuliahKonversi();
+  }, []);
 
   const fetchProgramDetails = async () => {
     try {
@@ -71,10 +87,26 @@ export default function ProgramDetailPage({
     }
   };
 
+  const fetchMataKuliahKonversi = async () => {
+    try {
+      const response = await axios.get<MataKuliahKonversi[]>(
+        `${API_BASE_URL}/matkul-knvrs`
+      );
+      setMataKuliahList(response.data);
+    } catch (err) {
+      console.error('Error fetching Mata Kuliah Konversi:', err);
+    }
+  };
+
   const handleSubmit = async () => {
+    if (selectedMataKuliah.length === 0) {
+      setRegistrationStatus('Pilih mata kuliah konversi terlebih dahulu');
+      return;
+    }
+
     const token = Cookies.get('token');
 
-    let NIM: number | null = null; // Ensure it's a number or null
+    let NIM: number | null = null;
     let NIP_dosbing: string | null = null;
 
     if (token) {
@@ -82,7 +114,7 @@ export default function ProgramDetailPage({
         token
       );
       if (decodedToken.NIM) {
-        NIM = parseInt(decodedToken.NIM, 10); // Parse as a number
+        NIM = parseInt(decodedToken.NIM, 10);
         if (isNaN(NIM)) {
           console.error('Invalid NIM value in token');
           setRegistrationStatus('Invalid NIM value in token');
@@ -98,9 +130,12 @@ export default function ProgramDetailPage({
       NIM,
       NIP_dosbing,
       id_program_mbkm: program?.id_program_mbkm || null,
+      matkul_knvrs: selectedMataKuliah,
       status: 'pending',
       tanggal
     };
+
+    console.log(formData);
 
     try {
       const token = Cookies.get('token');
@@ -112,14 +147,12 @@ export default function ProgramDetailPage({
       setRegistrationStatus('Pendaftaran berhasil');
     } catch (error: unknown) {
       if (error instanceof Error) {
-        // Now TypeScript knows `error` is an instance of `Error`
         console.error('Error during registration:', error.message);
         if (error instanceof AxiosError && error.response) {
           console.error('Backend Error:', error.response.data);
         }
         setRegistrationStatus('Pendaftaran gagal');
       } else {
-        // Handle the case where the error is not an instance of `Error`
         console.error('Unexpected error:', error);
         setRegistrationStatus('Pendaftaran gagal');
       }
@@ -163,6 +196,11 @@ export default function ProgramDetailPage({
     );
   }
 
+  const filteredMatkulList =
+    program.category.name === 'IISMA'
+      ? mataKuliahList.filter((matkul) => matkul.jenis_matkul === 'wajib')
+      : mataKuliahList.filter((matkul) => matkul.jenis_matkul !== 'wajib');
+
   return (
     <PageContainer scrollable={true}>
       <Card>
@@ -183,6 +221,7 @@ export default function ProgramDetailPage({
         <Separator className="mb-6" />
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Jenis Program */}
             <div className="flex items-center gap-4">
               <ClipboardList className="h-6 w-6 text-blue-500" />
               <div>
@@ -190,6 +229,21 @@ export default function ProgramDetailPage({
                 <Badge variant="secondary">{program.category.name}</Badge>
               </div>
             </div>
+
+            {/* Deskripsi Program */}
+            <div className="flex items-center gap-4">
+              <ClipboardList className="h-6 w-6 text-blue-500" />
+              <div>
+                <h4 className="text-sm font-medium text-gray-700">Deskripsi</h4>
+                <p className="text-gray-900">
+                  {program.deskripsi ?? 'Deskripsi tidak tersedia'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Tanggal Mulai */}
             <div className="flex items-center gap-4">
               <Calendar className="h-6 w-6 text-green-500" />
               <div>
@@ -201,7 +255,60 @@ export default function ProgramDetailPage({
                 </p>
               </div>
             </div>
+
+            {/* Waktu Pelaksanaan */}
+            {program.waktu_pelaksanaan && (
+              <div className="flex items-center gap-4">
+                <Calendar className="h-6 w-6 text-blue-500" />
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Waktu Pelaksanaan
+                  </h4>
+                  <p className="text-gray-900">
+                    {new Date(program.waktu_pelaksanaan).toLocaleDateString(
+                      'id-ID'
+                    )}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+
+          {/* Mata Kuliah Konversi */}
+          <div className="mt-6 flex items-center gap-4">
+            <ClipboardList className="h-6 w-6 text-blue-500" />
+            <div>
+              <h4 className="text-sm font-medium text-gray-700">
+                Pilih Mata Kuliah Konversi
+              </h4>
+              <select
+                className="w-full rounded-md border p-2"
+                multiple
+                value={selectedMataKuliah.map(String)} // Now an array
+                onChange={(e) => {
+                  const selectedOptions = Array.from(
+                    e.target.selectedOptions,
+                    (option) => Number(option.value)
+                  );
+                  setSelectedMataKuliah(selectedOptions); // Update state as an array
+                }}
+              >
+                <option value="" disabled>
+                  Pilih Mata Kuliah
+                </option>
+                {filteredMatkulList.map((matkul) => (
+                  <option
+                    key={matkul.id_matkul_knvrs}
+                    value={matkul.id_matkul_knvrs}
+                  >
+                    {matkul.nama_matkul} ({matkul.sks} SKS) -{' '}
+                    {matkul.jenis_matkul}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="mt-6 flex items-center justify-end gap-x-2 md:gap-x-3">
             <Button variant="secondary" className="w-full md:w-auto" asChild>
               <Link href={'/dashboard/program'}>Kembali</Link>

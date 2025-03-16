@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import axios from 'axios';
@@ -18,6 +17,7 @@ interface ProgramMBKMDetails {
   status: string;
   date: string;
   category_id: string;
+  syarat: string; // Added syarat field
 }
 
 const DetailProgramMBKMPage = () => {
@@ -117,6 +117,12 @@ const DetailProgramMBKMPage = () => {
           <div className="rounded-md bg-gray-50 p-4">
             <p className="text-sm text-gray-500">Deskripsi</p>
             <p className="font-semibold">{program?.deskripsi || '-'}</p>
+          </div>
+
+          {/* Syarat */}
+          <div className="rounded-md bg-gray-50 p-4">
+            <p className="text-sm text-gray-500">Syarat</p>
+            <p className="font-semibold">{program?.syarat || '-'}</p>
           </div>
 
           {/* Role */}

@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
+import { useRouter } from 'next/navigation';
 
 // API URLs
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
@@ -68,6 +69,7 @@ export default function ProgramDetailPage({
   params: { id: string };
 }) {
   const id = params.id;
+  const router = useRouter();
 
   const [program, setProgram] = useState<ProgramMBKM | null>(null);
   const [mataKuliahList, setMataKuliahList] = useState<MataKuliahKonversi[]>(
@@ -150,8 +152,6 @@ export default function ProgramDetailPage({
       tanggal
     };
 
-    // console.log(formData);
-
     try {
       const token = Cookies.get('token');
       await axios.post(`${API_BASE_URL}/pendaftaran-mbkm`, formData, {
@@ -159,7 +159,11 @@ export default function ProgramDetailPage({
           Authorization: `Bearer ${token}`
         }
       });
+
       setRegistrationStatus('Pendaftaran berhasil');
+
+      // Redirect to /dashboard/kegiatan
+      router.push('/dashboard/kegiatan');
     } catch (error: unknown) {
       if (error instanceof Error) {
         console.error('Error during registration:', error.message);

@@ -23,37 +23,46 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'; // Import Select components
+import { number } from 'zod';
 
-interface ProgramRegistration {
+type ProgramRegistration = {
   id_pendaftaran_mbkm: number;
   NIM: string;
   NIP_dosbing: string | null;
   tanggal: string;
   status: string;
   id_program_mbkm: number;
-}
+  pendaftaranMbkmMatkulKnvrs: pendaftaranMbkmMatkulKonversi[];
+};
 
-interface MatkulKonversi {
+type pendaftaranMbkmMatkulKonversi = {
+  id_matkul_knvrs: number;
+  kode_matkul: string;
+  nama_matkul: string;
+  sks: number;
+};
+
+type MatkulKonversi = {
   id_pendaftaran_mbkm: number;
   id_matkul_knvrs: number;
-}
+};
 
-interface Matkul {
+type Matkul = {
   nama_matkul: string;
   id_matkul_knvrs: number;
   kode_matkul: string;
   sks: number;
-}
+};
 
-interface DosenPembimbing {
+type DosenPembimbing = {
   NIP_dosbing: string;
   nama_dosbing: string;
-}
+};
 
-interface ProgramMBKMDetails {
+type ProgramMBKMDetails = {
   id_program_mbkm: string;
   company: string;
-}
+};
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -281,7 +290,7 @@ export default function AdminRegistrationsPage() {
     description: string,
     isPending: boolean
   ) => (
-    <div className="mb-8">
+    <div>
       <Heading title={title} description={description} />
       <Separator className="my-4" />
       <div className="overflow-x-auto rounded-lg shadow">
@@ -326,7 +335,14 @@ export default function AdminRegistrationsPage() {
                     {new Date(pendaftaran.tanggal).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="px-4 py-3">
-                    ini untuk nilai nama mata kuliahnya apa aja
+                    {pendaftaran.pendaftaranMbkmMatkulKnvrs.map((Item) => (
+                      <p className="text-xs">
+                        {Item.nama_matkul} -{' '}
+                        <span className="text-muted-foreground">
+                          {Item.sks} SKS
+                        </span>
+                      </p>
+                    ))}
                   </TableCell>
 
                   <TableCell className="px-4 py-3">
@@ -414,7 +430,7 @@ export default function AdminRegistrationsPage() {
   );
 
   return (
-    <PageContainer>
+    <PageContainer scrollable={true}>
       {loading ? (
         <p>Loading...</p>
       ) : (

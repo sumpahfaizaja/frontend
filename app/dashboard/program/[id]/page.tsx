@@ -26,6 +26,7 @@ import { Calendar, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { jwtDecode } from 'jwt-decode';
 import { useRouter } from 'next/navigation';
+import MatkulSelector from '@/components/ui/multi-select';
 
 // API URLs
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
@@ -55,7 +56,7 @@ type ProgramMBKM = {
   mahasiswa: Mahasiswa[];
 };
 
-type MataKuliahKonversi = {
+export type MataKuliahKonversi = {
   id_matkul_knvrs: number;
   nama_matkul: string;
   sks: number;
@@ -151,6 +152,8 @@ export default function ProgramDetailPage({
       status: 'pending',
       tanggal
     };
+
+    console.log(formData)
 
     try {
       const token = Cookies.get('token');
@@ -298,35 +301,12 @@ export default function ProgramDetailPage({
           </div>
 
           {/* Mata Kuliah Konversi */}
-          <div className="mt-6 flex items-center gap-4">
-            <ClipboardList className="h-6 w-6 text-blue-500" />
-            <div className="w-full">
-              <h4 className="text-sm font-medium text-muted-foreground">
-                Pilih Mata Kuliah Konversi
-              </h4>
-              <Select
-                onValueChange={(value) => {
-                  const selectedOptions = value.split(',').map(Number);
-                  setSelectedMataKuliah(selectedOptions);
-                }}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Mata Kuliah" />
-                </SelectTrigger>
-                <SelectContent className="max-h-[50svh]">
-                  {filteredMatkulList.map((matkul) => (
-                    <SelectItem
-                      key={matkul.id_matkul_knvrs}
-                      value={String(matkul.id_matkul_knvrs)}
-                    >
-                      {matkul.nama_matkul} ({matkul.sks} SKS) -{' '}
-                      {matkul.jenis_matkul}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <MatkulSelector
+            mataKuliahList={mataKuliahList}
+            selectedMataKuliah={selectedMataKuliah}
+            setSelectedMataKuliah={setSelectedMataKuliah}
+            programCategory={program.category.name}
+          />
 
           <div className="mt-6 flex items-center gap-4">
             <ClipboardList className="h-6 w-6 text-blue-500" />

@@ -53,7 +53,7 @@ export default function Sidebar({ className }: SidebarProps) {
   return (
     <aside
       className={cn(
-        `relative hidden h-screen flex-none border-r bg-card transition-[width] duration-500 md:block`,
+        `relative hidden h-screen flex-none border-r bg-black text-white transition-[width] duration-500 md:block`,
         !isMinimized ? 'w-72' : 'w-[72px]',
         className
       )}
@@ -69,13 +69,18 @@ export default function Sidebar({ className }: SidebarProps) {
           />
         </Link>
       </div>
-      <ChevronLeft
-        className={cn(
-          'absolute -right-3 top-10 z-50 cursor-pointer rounded-full border bg-background text-3xl text-foreground',
-          isMinimized && 'rotate-180'
-        )}
+      <div
         onClick={handleToggle}
-      />
+        className="absolute -right-[52px] flex items-center justify-center top-4 z-50 size-9 cursor-pointer rounded-md border border-input bg-transparent shadow-sm hover:bg-accent"
+      >
+        <ChevronLeft
+          className={cn(
+            'text-foreground hover:text-accent-foreground',
+            isMinimized && 'rotate-180'
+          )}
+          size={18}
+        />
+      </div>
       <div className="flex h-[calc(100svh-89px)] flex-col gap-y-4 overflow-y-auto px-3 py-6">
         {/* Render the filtered navItems for the sidebar */}
         <DashboardNav items={filteredNavItems} />

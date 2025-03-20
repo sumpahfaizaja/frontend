@@ -37,7 +37,7 @@ export function DashboardNav({
           ([category, { label, items: categoryItems }]) => (
             <div key={category} className="mb-4">
               {(!isMinimized || isMobileNav) && (
-                <h3 className="mb-2 ml-3 text-sm font-semibold text-muted-foreground">
+                <h3 className="mb-2 ml-3 text-xs font-semibold text-muted-foreground">
                   {label}
                 </h3>
               )}
@@ -46,7 +46,7 @@ export function DashboardNav({
                   return (
                     <hr
                       key={`${category}-separator-${index}`}
-                      className="my-2 border-t border-accent"
+                      className="my-2 border-t border-gray-700"
                     />
                   );
                 }
@@ -63,14 +63,14 @@ export function DashboardNav({
                           <Link
                             href={item.href}
                             className={cn(
-                              'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
+                              'flex items-center gap-2 overflow-hidden rounded-md py-2 text-xs font-medium hover:bg-accent hover:text-accent-foreground',
                               path === item.href ? 'bg-accent' : 'transparent'
                             )}
                             onClick={() => {
                               if (setOpen) setOpen(false);
                             }}
                           >
-                            <Icon className="ml-3 size-5 flex-none" />
+                            <Icon className="ml-3 size-3 flex-none" />
                             <span className="mr-2 truncate">{item.title}</span>
                           </Link>
                         </TooltipTrigger>
@@ -81,7 +81,7 @@ export function DashboardNav({
                             return (
                               <hr
                                 key={`separator-${childIndex}`}
-                                className="my-2 border-t border-accent"
+                                className="my-2 border-t border-muted-foreground"
                               />
                             );
                           }
@@ -94,16 +94,16 @@ export function DashboardNav({
                                 <Link
                                   href={childItem.href}
                                   className={cn(
-                                    'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
+                                    'flex items-center gap-2 overflow-hidden rounded-md py-2 text-xs font-medium hover:bg-accent-foreground hover:text-accent dark:hover:bg-accent dark:hover:text-accent-foreground',
                                     path === childItem.href
-                                      ? 'bg-accent'
+                                      ? 'bg-accent-foreground dark:bg-accent'
                                       : 'transparent'
                                   )}
                                   onClick={() => {
                                     if (setOpen) setOpen(false);
                                   }}
                                 >
-                                  <ChildIcon className="ml-3 size-5 flex-none" />
+                                  <ChildIcon className="ml-3 size-3 flex-none" />
                                   <span className="mr-2 truncate">
                                     {childItem.title}
                                   </span>
@@ -123,15 +123,15 @@ export function DashboardNav({
                       <Link
                         href={item.href}
                         className={cn(
-                          'flex items-center gap-2 overflow-hidden rounded-md py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground',
-                          path === item.href ? 'bg-accent' : 'transparent',
+                          'flex items-center gap-2 overflow-hidden rounded-md py-2 text-xs font-medium hover:bg-accent-foreground hover:text-accent dark:hover:bg-accent dark:hover:text-accent-foreground',
+                          path === item.href ? 'bg-accent-foreground dark:bg-accent' : 'transparent',
                           item.disabled && 'cursor-not-allowed opacity-80'
                         )}
                         onClick={() => {
                           if (setOpen) setOpen(false);
                         }}
                       >
-                        <Icon className="ml-3 size-5 flex-none" />
+                        <Icon className="ml-3 size-3 flex-none" />
                         {isMobileNav || (!isMinimized && !isMobileNav) ? (
                           <span className="mr-2 truncate">{item.title}</span>
                         ) : (

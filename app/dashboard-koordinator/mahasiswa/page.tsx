@@ -1,11 +1,19 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import axios from 'axios';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import PageContainer from '@/components/layout/page-container';
 import Link from 'next/link';
-import { Edit, Eye, Trash, XCircle, CheckCircle } from 'lucide-react';
+import { Edit, Eye, Trash, CheckCircle } from 'lucide-react';
 import Cookies from 'js-cookie';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
@@ -121,30 +129,22 @@ const StudentsPage = () => {
 
         {/* Tabel Mahasiswa */}
         <div className="my-4 overflow-x-auto">
-          <table className="min-w-full border-collapse border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-4 py-2">No.</th>
-                <th className="border border-gray-300 px-4 py-2">
-                  Nama Mahasiswa
-                </th>
-                <th className="border border-gray-300 px-4 py-2">NIM</th>
-                <th className="border border-gray-300 px-4 py-2">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader className="bg-accent text-accent-foreground">
+              <TableRow>
+                <TableHead className="w-16 text-center">No.</TableHead>
+                <TableHead>Nama Mahasiswa</TableHead>
+                <TableHead>NIM</TableHead>
+                <TableHead className="text-center">Aksi</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {filteredStudents.map((student, index) => (
-                <tr key={student.NIM} className="hover:bg-gray-100">
-                  <td className="border border-gray-300 px-4 py-2 text-center">
-                    {index + 1}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {student.nama_mahasiswa}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {student.NIM}
-                  </td>
-                  <td className="flex justify-center space-x-2 border border-gray-300 px-4 py-2">
+                <TableRow key={student.NIM} className="hover:bg-muted">
+                  <TableCell className="text-center">{index + 1}</TableCell>
+                  <TableCell>{student.nama_mahasiswa}</TableCell>
+                  <TableCell>{student.NIM}</TableCell>
+                  <TableCell className="flex justify-center space-x-2">
                     <Link
                       href={`/dashboard-koordinator/mahasiswa/${student.NIM}`}
                       className="grid size-8 place-items-center rounded bg-blue-600 p-1 text-white"
@@ -163,11 +163,11 @@ const StudentsPage = () => {
                     >
                       <Trash size={14} />
                     </button>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 

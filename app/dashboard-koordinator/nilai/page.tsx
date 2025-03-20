@@ -232,7 +232,7 @@ export default function NilaiPage() {
         <Button onClick={() => exportToExcel()}>Export to Excel</Button>
 
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-accent text-accent-foreground">
             <TableRow>
               <TableHead>No</TableHead>
               <TableHead>Nama Mahasiswa</TableHead>

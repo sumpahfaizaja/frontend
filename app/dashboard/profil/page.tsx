@@ -96,7 +96,7 @@ export default function ProfilePage() {
             <img
               src={profile.profilePicture}
               alt="Profile Picture"
-              className="h-24 w-24 rounded-full border-2 border-gray-300 object-cover"
+              className="h-24 w-24 rounded-full border-2 bg-accent object-cover"
             />
           </div>
           {/* Tombol untuk mengganti gambar profil */}
@@ -120,7 +120,7 @@ export default function ProfilePage() {
               type="text"
               value={profile.nama}
               onChange={(e) => setProfile({ ...profile, nama: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-md border bg-accent px-3 py-2"
             />
           ) : (
             <p className="text-lg font-semibold text-foreground">
@@ -139,7 +139,7 @@ export default function ProfilePage() {
               onChange={(e) =>
                 setProfile({ ...profile, email: e.target.value })
               }
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-md border bg-accent px-3 py-2"
             />
           ) : (
             <p className="text-lg font-semibold text-foreground">
@@ -156,7 +156,7 @@ export default function ProfilePage() {
               type="text"
               value={profile.nim}
               onChange={(e) => setProfile({ ...profile, nim: e.target.value })}
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-md border bg-accent px-3 py-2"
             />
           ) : (
             <p className="text-lg font-semibold text-foreground">
@@ -175,7 +175,7 @@ export default function ProfilePage() {
               onChange={(e) =>
                 setProfile({ ...profile, semester: e.target.value })
               }
-              className="w-full rounded-md border border-gray-300 px-3 py-2"
+              className="w-full rounded-md border bg-accent px-3 py-2"
             />
           ) : (
             <p className="text-lg font-semibold text-foreground">
@@ -237,7 +237,7 @@ export default function ProfilePage() {
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border bg-accent px-3 py-2"
               />
             </div>
             <div className="mb-4">
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border bg-accent px-3 py-2"
               />
             </div>
             <div className="mb-4">
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border bg-accent px-3 py-2"
               />
             </div>
             <div className="flex justify-between gap-4">

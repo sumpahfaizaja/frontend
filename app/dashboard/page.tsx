@@ -57,7 +57,7 @@ export default function DashboardPage() {
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : student ? (
-        <div className="rounded-lg border border-gray-300 p-4 shadow-md">
+        <div className="rounded-lg border bg-accent p-4 shadow-md">
           <h2 className="mb-4 text-xl font-semibold">Halo, Mahasiswa</h2>
           <p className="text-lg">
             <strong>{student.nama_mahasiswa.toUpperCase()}</strong>

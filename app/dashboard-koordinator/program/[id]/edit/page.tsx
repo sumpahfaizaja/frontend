@@ -183,7 +183,7 @@ const EditProgramPage = () => {
           <div className="flex items-center gap-x-2">
             <Link
               href="/dashboard-koordinator/program"
-              className="rounded-full p-2 hover:bg-gray-100"
+              className="rounded-full p-2 hover:bg-muted"
             >
               <ChevronLeft size={24} />
             </Link>
@@ -225,7 +225,7 @@ const EditProgramPage = () => {
                 name="category_id"
                 value={program.category_id}
                 onChange={handleCategoryChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm focus:ring-2 focus:ring-blue-500"
               >
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -268,7 +268,7 @@ const EditProgramPage = () => {
               name="deskripsi"
               value={program.deskripsi || ''}
               onChange={handleTextAreaChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md bg-accent shadow-sm focus:ring-2 focus:ring-blue-500"
               rows={4}
             />
           </div>
@@ -286,7 +286,7 @@ const EditProgramPage = () => {
               name="syarat"
               value={program.syarat || ''}
               onChange={handleTextAreaChange}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md bg-accent shadow-sm focus:ring-2 focus:ring-blue-500"
               rows={4}
             />
           </div>

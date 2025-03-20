@@ -216,7 +216,7 @@ export default function LogbookPage() {
                     key={logbook.id_logbook}
                     className={`${
                       index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                    } hover:bg-gray-100`}
+                    } hover:bg-muted`}
                   >
                     <TableCell className="px-4 py-3">{index + 1}</TableCell>
                     <TableCell className="px-4 py-3">

@@ -180,7 +180,7 @@ const EditMahasiswaPage = () => {
           <div className="flex items-center gap-x-2">
             <Link
               href="/dashboard-dosbing/mahasiswa"
-              className="rounded-full p-2 hover:bg-gray-100"
+              className="rounded-full p-2 hover:bg-muted"
             >
               <ChevronLeft size={24} />
             </Link>

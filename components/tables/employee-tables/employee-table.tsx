@@ -198,7 +198,7 @@ export function EmployeeTable<TData, TValue>({
       />
       <ScrollArea className="h-[calc(80vh-220px)] rounded-md border">
         <Table className="relative">
-          <TableHeader>
+          <TableHeader className="bg-accent text-accent-foreground">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {

@@ -83,14 +83,14 @@ export default function StudentsPage() {
         <div className="my-4">
           <h3 className="text-xl font-semibold">Mahasiswa Terdaftar:</h3>
           <div
-            className="overflow-y-scroll rounded-md border border-gray-300"
+            className="overflow-y-scroll rounded-md border bg-accent"
             style={{ maxHeight: '200px' }} // Maksimal 5 baris dengan scroll
           >
             <ul>
               {filteredStudents.map((student) => (
                 <li
                   key={student.NIM}
-                  className="cursor-pointer border-b px-4 py-2 hover:bg-gray-100"
+                  className="cursor-pointer border-b px-4 py-2 hover:bg-muted"
                   onClick={() => fetchStudentDetail(student.NIM)}
                 >
                   {student.nama_mahasiswa} ({student.NIM})
@@ -102,7 +102,7 @@ export default function StudentsPage() {
 
         {/* Detail Mahasiswa */}
         {selectedStudent && (
-          <div className="my-4 rounded-md border bg-gray-100 p-4 shadow-md">
+          <div className="my-4 rounded-md border bg-muted p-4 shadow-md">
             <h3 className="text-xl font-semibold">Detail Mahasiswa</h3>
             <p>Nama: {selectedStudent.nama_mahasiswa}</p>
             <p>NIM: {selectedStudent.NIM}</p>

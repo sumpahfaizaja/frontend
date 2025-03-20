@@ -93,7 +93,7 @@ const CreateProgramPage = () => {
           <div className="flex items-center gap-x-2">
             <Link
               href="/dashboard-koordinator/program"
-              className="rounded-full p-2 hover:bg-gray-100"
+              className="rounded-full p-2 hover:bg-muted"
             >
               <Save size={24} />
             </Link>
@@ -116,7 +116,7 @@ const CreateProgramPage = () => {
                 value={program.company}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -132,7 +132,7 @@ const CreateProgramPage = () => {
                 name="deskripsi"
                 value={program.deskripsi}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -148,7 +148,7 @@ const CreateProgramPage = () => {
                 name="syarat"
                 value={program.syarat}
                 onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -165,7 +165,7 @@ const CreateProgramPage = () => {
                 value={program.role}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -182,7 +182,7 @@ const CreateProgramPage = () => {
                 value={program.date}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -199,7 +199,7 @@ const CreateProgramPage = () => {
                 value={program.waktu_pelaksanaan}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                className="mt-1 block w-full rounded-md bg-accent shadow-sm"
               />
             </div>
             <div>
@@ -215,7 +215,7 @@ const CreateProgramPage = () => {
                 value={program.status}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block h-9 w-full rounded-md border border-gray-300 shadow-sm"
+                className="mt-1 block h-9 w-full rounded-md border bg-accent shadow-sm"
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
@@ -234,7 +234,7 @@ const CreateProgramPage = () => {
                 value={program.category_id}
                 onChange={handleInputChange}
                 required
-                className="mt-1 block h-9 w-full rounded-md border border-gray-300 shadow-sm"
+                className="mt-1 block h-9 w-full rounded-md border bg-accent shadow-sm"
               >
                 <option value="">Pilih kategori</option>
                 {categories.map((category) => (

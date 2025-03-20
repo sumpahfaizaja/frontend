@@ -7,6 +7,14 @@ import PageContainer from '@/components/layout/page-container';
 import Link from 'next/link';
 import { Edit, Eye, Trash } from 'lucide-react';
 import Cookies from 'js-cookie';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
@@ -131,47 +139,28 @@ const ProgramsPage = () => {
 
           <TabsContent value="Active">
             <div className="overflow-x-auto">
-              <table className="w-full table-fixed border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="w-12 border border-gray-300 px-4 py-2 text-center align-middle">
-                      No.
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Company
-                    </th>
-                    <th className="w-2/5 border border-gray-300 px-4 py-2">
-                      Deskripsi
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Role
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader className="bg-accent text-accent-foreground">
+                  <TableRow>
+                    <TableHead className="text-center">No.</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Deskripsi</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead className="text-center">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredPrograms
                     .filter((program) => program.status === 'Active')
                     .map((program, index) => (
-                      <tr
-                        key={program.id_program_mbkm}
-                        className="hover:bg-gray-100"
-                      >
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                      <TableRow key={program.id_program_mbkm}>
+                        <TableCell className="text-center">
                           {index + 1}.
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.company}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.deskripsi || '-'}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.role}
-                        </td>
-                        <td className="flex justify-center space-x-2 border border-gray-300 px-4 py-2">
+                        </TableCell>
+                        <TableCell>{program.company}</TableCell>
+                        <TableCell>{program.deskripsi || '-'}</TableCell>
+                        <TableCell>{program.role}</TableCell>
+                        <TableCell className="flex justify-center space-x-2">
                           <Link
                             href={`/dashboard-koordinator/program/${program.id_program_mbkm}`}
                             className="grid size-8 place-items-center rounded bg-blue-600 p-1 text-white"
@@ -192,57 +181,38 @@ const ProgramsPage = () => {
                           >
                             <Trash size={14} />
                           </button>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
 
           <TabsContent value="Inactive">
             <div className="overflow-x-auto">
-              <table className="w-full table-fixed border-collapse border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="w-12 border border-gray-300 px-4 py-2 text-center align-middle">
-                      No.
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Company
-                    </th>
-                    <th className="w-2/5 border border-gray-300 px-4 py-2">
-                      Deskripsi
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Role
-                    </th>
-                    <th className="w-1/5 border border-gray-300 px-4 py-2">
-                      Aksi
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table>
+                <TableHeader className="bg-accent text-accent-foreground">
+                  <TableRow>
+                    <TableHead className="w-12 text-center">No.</TableHead>
+                    <TableHead className="w-1/5">Company</TableHead>
+                    <TableHead className="w-2/5">Deskripsi</TableHead>
+                    <TableHead className="w-1/5">Role</TableHead>
+                    <TableHead className="w-1/5 text-center">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {filteredPrograms
                     .filter((program) => program.status === 'Inactive')
                     .map((program, index) => (
-                      <tr
-                        key={program.id_program_mbkm}
-                        className="hover:bg-gray-100"
-                      >
-                        <td className="border border-gray-300 px-4 py-2 text-center">
+                      <TableRow key={program.id_program_mbkm}>
+                        <TableCell className="text-center">
                           {index + 1}.
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.company}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.deskripsi || '-'}
-                        </td>
-                        <td className="border border-gray-300 px-4 py-2">
-                          {program.role}
-                        </td>
-                        <td className="flex justify-center space-x-2 border border-gray-300 px-4 py-2">
+                        </TableCell>
+                        <TableCell>{program.company}</TableCell>
+                        <TableCell>{program.deskripsi || '-'}</TableCell>
+                        <TableCell>{program.role}</TableCell>
+                        <TableCell className="flex justify-center space-x-2">
                           <Link
                             href={`/dashboard-koordinator/program/${program.id_program_mbkm}`}
                             className="grid size-8 place-items-center rounded bg-blue-600 p-1 text-white"
@@ -263,11 +233,11 @@ const ProgramsPage = () => {
                           >
                             <Trash size={14} />
                           </button>
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           </TabsContent>
         </Tabs>

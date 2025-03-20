@@ -7,10 +7,16 @@ import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Eye, Loader } from 'lucide-react';
+import { Eye, Loader, Trash } from 'lucide-react';
 import {
   Select,
   SelectItem,
@@ -18,6 +24,15 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from '@/components/ui/table';
 
 // API Endpoints
 const API_UPLOAD_URL = 'https://backend-si-mbkm.vercel.app/api/logbook';
@@ -200,21 +215,21 @@ const LogbookTable = ({
 }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse border">
-        <thead>
-          <tr>
-            <th className="border bg-muted px-4 py-2 text-left">Status</th>
-            <th className="border bg-muted px-4 py-2 text-left">Nama File</th>
-            <th className="border bg-muted px-4 py-2 text-left">Jenis</th>
-            <th className="border bg-muted px-4 py-2 text-left">Judul</th>
-            <th className="border bg-muted px-4 py-2 text-left">Subjek</th>
-            <th className="border bg-muted px-4 py-2 text-left">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader className="bg-accent text-accent-foreground">
+          <TableRow>
+            <TableHead>Status</TableHead>
+            <TableHead>Nama File</TableHead>
+            <TableHead>Jenis</TableHead>
+            <TableHead>Judul</TableHead>
+            <TableHead>Subjek</TableHead>
+            <TableHead className="text-center">Aksi</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {logbooks.map((logbook) => (
-            <tr key={logbook.id_logbook}>
-              <td className="border px-4 py-2">
+            <TableRow key={logbook.id_logbook}>
+              <TableCell>
                 {logbook.status === 'ACC' ? (
                   <span className="font-semibold text-green-500">
                     Disetujui
@@ -222,32 +237,43 @@ const LogbookTable = ({
                 ) : (
                   <span className="font-semibold text-red-500">Menunggu</span>
                 )}
-              </td>
-              <td className="border px-4 py-2">
+              </TableCell>
+              <TableCell>
                 <a
                   href={logbook.nama_file}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-x-1.5 text-blue-600 hover:underline"
                 >
-                  <Eye size={12} /> Lihat
+                  <Eye size={14} /> Lihat
                 </a>
-              </td>
-              <td className="border px-4 py-2">{logbook.jenis}</td>
-              <td className="border px-4 py-2">{logbook.judul}</td>
-              <td className="border px-4 py-2">{logbook.subjek}</td>
-              <td className="border px-4 py-2">
+              </TableCell>
+              <TableCell>{logbook.jenis}</TableCell>
+              <TableCell>{logbook.judul}</TableCell>
+              <TableCell>{logbook.subjek}</TableCell>
+              <TableCell className="flex justify-center space-x-2">
+                {onEdit && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEdit(logbook)}
+                    className="border-yellow-600 text-yellow-600 hover:bg-yellow-100"
+                  >
+                    ✏️
+                  </Button>
+                )}
                 <Button
-                  onClick={() => onDelete(logbook.id_logbook)}
                   variant="destructive"
+                  size="icon"
+                  onClick={() => onDelete(logbook.id_logbook)}
                 >
-                  Delete
+                  <Trash size={16} />
                 </Button>
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 };
@@ -436,46 +462,64 @@ export default function LogbookPage() {
           <span className="sr-only">Loading...</span>
         </div>
       ) : !loading && hasVerifiedProgram ? (
-        <>
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Form Upload Logbook</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <LogbookForm onSubmit={handleUpload} loading={loading} />
-            </CardContent>
-          </Card>
-
-          {/* Form Upload Penilaian */}
-
-          {/* Tampilkan Card Riwayat Logbook hanya jika ada logbook */}
-          {logbooks.length > 0 && (
+        <Tabs defaultValue="riwayat-logbook" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="riwayat-logbook">Riwayat Logbook</TabsTrigger>
+            <TabsTrigger value="form-logbook">Form Logbook</TabsTrigger>
+            <TabsTrigger value="upload-nilai">Upload Nilai</TabsTrigger>
+          </TabsList>
+          <TabsContent value="form-logbook">
             <Card className="mb-6">
               <CardHeader>
-                <CardTitle>Riwayat Logbook</CardTitle>
+                <CardTitle>Form Upload Logbook</CardTitle>
               </CardHeader>
               <CardContent>
-                {error ? (
-                  <p className="text-red-500">{error}</p>
-                ) : (
-                  <LogbookTable logbooks={logbooks} onDelete={handleDelete} />
-                )}
+                <LogbookForm onSubmit={handleUpload} loading={loading} />
               </CardContent>
             </Card>
-          )}
-          <Card>
-            <CardHeader>
-              <CardTitle>Upload Penilaian Program</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PenilaianForm
-                onSubmit={handlePenilaianUpload}
-                onCancel={handlePenilaianCancel}
-                loading={loading}
-              />
-            </CardContent>
-          </Card>
-        </>
+          </TabsContent>
+          <TabsContent value="riwayat-logbook">
+            {logbooks.length > 0 ? (
+              <Card className="mb-6 border border-border shadow-lg">
+                <CardHeader className="flex flex-col items-start space-y-2">
+                  <CardTitle className="text-lg font-semibold">
+                    Riwayat Logbook
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Berikut adalah riwayat logbook yang telah dicatat.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {error ? (
+                    <div className="flex items-center justify-center rounded-md bg-red-100 p-4 text-red-600">
+                      {error}
+                    </div>
+                  ) : (
+                    <LogbookTable logbooks={logbooks} onDelete={handleDelete} />
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="flex items-center justify-center rounded-md border border-dashed p-6 text-muted-foreground">
+                Belum ada logbook yang dicatat.
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="upload-nilai">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload Penilaian Program</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PenilaianForm
+                  onSubmit={handlePenilaianUpload}
+                  onCancel={handlePenilaianCancel}
+                  loading={loading}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       ) : (
         <Alert className="mt-4">
           <AlertTitle className="font-semibold">

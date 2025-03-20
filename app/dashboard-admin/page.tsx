@@ -196,7 +196,7 @@ export default function AdminGradesPage() {
       ) : (
         <div className="overflow-x-auto rounded-lg shadow">
           <Table className="w-full overflow-hidden border text-left">
-            <TableHeader>
+            <TableHeader className="bg-accent text-accent-foreground">
               <TableRow className="bg-accent text-accent-foreground">
                 <TableHead className="px-4 py-3">Nama Mahasiswa</TableHead>
                 <TableHead className="px-4 py-3">Dosen Pembimbing</TableHead>

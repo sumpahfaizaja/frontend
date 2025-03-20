@@ -6,8 +6,16 @@ import Cookies from 'js-cookie';
 import PageContainer from '@/components/layout/page-container';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 const API_BASE_URL = 'https://backend-si-mbkm.vercel.app/api';
 
@@ -197,6 +205,15 @@ export default function ProgramMBKMPage() {
                           {renderProgramDetails(item.id_program_mbkm)}
                         </div>
                       </CardContent>
+                      <CardFooter>
+                        <Button className="ml-auto" asChild>
+                          <Link
+                            href={`/dashboard/program/${item.id_program_mbkm}`}
+                          >
+                            Detail
+                          </Link>
+                        </Button>
+                      </CardFooter>
                     </Card>
                   );
                 })
@@ -242,6 +259,15 @@ export default function ProgramMBKMPage() {
                           {renderProgramDetails(item.id_program_mbkm)}
                         </div>
                       </CardContent>
+                      <CardFooter>
+                        <Button className="ml-auto" asChild>
+                          <Link
+                            href={`/dashboard/program/${item.id_program_mbkm}`}
+                          >
+                            Detail
+                          </Link>
+                        </Button>
+                      </CardFooter>
                     </Card>
                   );
                 })
